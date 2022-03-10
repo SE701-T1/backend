@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * A Basic controller for handling of user requests, this is only for testing to ensure the server is running properly
+ */
 @RestController
 @RequestMapping("/api/basic")
 public class BasicController {
@@ -22,8 +25,8 @@ public class BasicController {
     }
 
     @GetMapping(path = "/hello/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity hello(@PathVariable("name") String name) {
+    public ResponseEntity<String> hello(@PathVariable("name") String name) {
         String response = basicService.helloWorld(name);
-        return new ResponseEntity(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
