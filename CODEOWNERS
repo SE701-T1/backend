@@ -41,4 +41,4 @@
 /src/main/java/com/team701/buddymatcher/repositories/users/ @uoa-ypec413 @jafarmaash
 
 # Shared
-/src/main/java/com/team701/buddymatcher/BuddyMatcherApplicationTests.java @ejstuart @ff-dev-45 @ThomasHolsterUOA @jafarmaash
+/src/test/java/com/team701/buddymatcher/BuddyMatcherApplicationTests.java @ejstuart @ff-dev-45 @ThomasHolsterUOA @jafarmaash
