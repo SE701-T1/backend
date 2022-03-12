@@ -3,6 +3,8 @@ package com.team701.buddymatcher.controllers.users;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.dtos.users.UserDTO;
 import com.team701.buddymatcher.services.users.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +19,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/users")
+@Api
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
@@ -30,6 +33,7 @@ public class UserController {
         this.modelMapper = modelMapper;
     }
 
+    @ApiOperation("Get method to retrieve a user by id")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDTO> one(@PathVariable("id") String id) {
         try {
