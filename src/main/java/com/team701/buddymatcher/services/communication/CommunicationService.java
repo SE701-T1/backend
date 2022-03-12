@@ -1,4 +1,4 @@
-package com.team701.buddymatcher.services;
+package com.team701.buddymatcher.services.communication;
 
 import com.team701.buddymatcher.dtos.communication.MessageDTO;
 

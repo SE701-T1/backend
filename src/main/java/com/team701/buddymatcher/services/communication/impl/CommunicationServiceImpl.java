@@ -1,7 +1,7 @@
-package com.team701.buddymatcher.services.impl;
+package com.team701.buddymatcher.services.communication.impl;
 
 import com.team701.buddymatcher.dtos.communication.MessageDTO;
-import com.team701.buddymatcher.services.CommunicationService;
+import com.team701.buddymatcher.services.communication.CommunicationService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

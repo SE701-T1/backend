@@ -1,7 +1,7 @@
 package com.team701.buddymatcher.controllers.communication;
 
 import com.team701.buddymatcher.dtos.communication.MessageDTO;
-import com.team701.buddymatcher.services.CommunicationService;
+import com.team701.buddymatcher.services.communication.CommunicationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
