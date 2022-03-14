@@ -50,20 +50,20 @@ public class UserServiceImplUnitTest {
         Long id = new Random().nextLong();
         User expected = createExpectedUser(id);
         Mockito.when(userRepository.updatePairingEnabled(id, true)).thenReturn(1);
-
-        Assertions.assertThrows(NoSuchElementException.class, () -> userService.updatePairingEnabled(id, true));
-    }
-
-    @Test
-    void updatingNonExistentUsersPairingEnabled() {
-        Long id = new Random().nextLong();
-        User expected = createExpectedUser(id);
-        Mockito.when(userRepository.updatePairingEnabled(id, true)).thenReturn(0);
+        Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(expected));
 
         User user = userService.updatePairingEnabled(id, true);
 
         Assertions.assertNotNull(user);
         Assertions.assertEquals(user.getPairingEnabled(), expected.getPairingEnabled());
+    }
+
+    @Test
+    void updatingNonExistentUsersPairingEnabled() {
+        Long id = new Random().nextLong();
+        Mockito.when(userRepository.updatePairingEnabled(id, true)).thenReturn(0);
+
+        Assertions.assertThrows(NoSuchElementException.class, () -> userService.updatePairingEnabled(id, true));
     }
 
     User createExpectedUser(Long id) {
