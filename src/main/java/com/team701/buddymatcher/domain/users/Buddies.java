@@ -5,20 +5,20 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "PAIR")
-public class Pair {
+@Table(name = "BUDDIES")
+public class Buddies {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
 
-    @OneToMany(mappedBy = "pair", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "buddies", fetch = FetchType.LAZY)
     private List<User> users;
 
     public UUID getId() {
         return id;
     }
 
-    public Pair setId(UUID id) {
+    public Buddies setId(UUID id) {
         this.id = id;
         return this;
     }
@@ -27,7 +27,7 @@ public class Pair {
         return users;
     }
 
-    public Pair setUsers(List<User> users) {
+    public Buddies setUsers(List<User> users) {
         this.users = users;
         return this;
     }
