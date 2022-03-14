@@ -1,7 +1,5 @@
 package com.team701.buddymatcher.dtos.pairing;
 
-import org.springframework.web.bind.annotation.ModelAttribute;
-
 /**
  * Data Transfer Object representing a request to add a buddy to a user
  */
