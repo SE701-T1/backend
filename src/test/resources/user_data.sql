@@ -1,0 +1,3 @@
+INSERT INTO BUDDIES (ID) VALUES (0);
+INSERT INTO USER (ID, USER_NAME, USER_EMAIL, BUDDIES_ID, USER_PAIRING_ENABLED) VALUES (0, 'Pink Elephant', 'pink.elephant@gmail.com', 0, false);
+INSERT INTO USER (ID, USER_NAME, USER_EMAIL, BUDDIES_ID, USER_PAIRING_ENABLED)  VALUES (1, 'Green Dinosaur', 'green.dinosaur@gmail.com', 0, false);
