@@ -1,8 +1,8 @@
 package com.team701.buddymatcher.controllers.users;
 
-import com.team701.buddymatcher.domain.users.Pair;
+import com.team701.buddymatcher.domain.users.Buddies;
 import com.team701.buddymatcher.domain.users.User;
-import com.team701.buddymatcher.dtos.users.PairDTO;
+import com.team701.buddymatcher.dtos.users.BuddiesDTO;
 import com.team701.buddymatcher.dtos.users.UserDTO;
 import com.team701.buddymatcher.services.users.UserService;
 import org.junit.jupiter.api.Assertions;
@@ -64,7 +64,7 @@ public class UserControllerUnitTest {
                 .setId(id)
                 .setName("Pink Elephant")
                 .setEmail("pink.elephant@gmail.com")
-                .setPair(new Pair());
+                .setBuddies(new Buddies());
     }
 
     UserDTO createMockedUserDTO(User mockedUser) {
@@ -72,6 +72,6 @@ public class UserControllerUnitTest {
                 .setId(mockedUser.getId().toString())
                 .setName(mockedUser.getName())
                 .setEmail(mockedUser.getEmail())
-                .setPair(new PairDTO());
+                .setBuddies(new BuddiesDTO());
     }
 }

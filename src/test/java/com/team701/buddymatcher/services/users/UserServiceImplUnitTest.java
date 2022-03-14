@@ -1,6 +1,6 @@
 package com.team701.buddymatcher.services.users;
 
-import com.team701.buddymatcher.domain.users.Pair;
+import com.team701.buddymatcher.domain.users.Buddies;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.repositories.users.UserRepository;
 import com.team701.buddymatcher.services.users.impl.UserServiceImpl;
@@ -50,6 +50,6 @@ public class UserServiceImplUnitTest {
                 .setId(id)
                 .setName("Pink Elephant")
                 .setEmail("pink.elephant@gmail.com")
-                .setPair(new Pair());
+                .setBuddies(new Buddies());
     }
 }
