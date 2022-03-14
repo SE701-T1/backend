@@ -1,6 +1,7 @@
 package com.team701.buddymatcher.controllers.pairing;
 
 import com.team701.buddymatcher.dtos.pairing.AddBuddyDTO;
+import com.team701.buddymatcher.dtos.pairing.RemoveBuddyDTO;
 import com.team701.buddymatcher.services.pairing.PairingService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -63,7 +64,7 @@ public class PairingControllerIntegrationTest {
         Assertions.assertEquals(response.getBody(), success);
     }
 
-    RemoveBuddyDTO createMockedAddBuddyDTO(String userId, String buddyId) {
+    RemoveBuddyDTO createMockedRemoveBuddyDTO(String userId, String buddyId) {
         var dto = new RemoveBuddyDTO();
         dto.setUserId(userId);
         dto.setBuddyId(buddyId);
