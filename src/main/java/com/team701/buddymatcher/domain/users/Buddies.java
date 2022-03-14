@@ -9,16 +9,16 @@ import java.util.UUID;
 public class Buddies {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID id;
+    private Long id;
 
     @OneToMany(mappedBy = "buddies", fetch = FetchType.LAZY)
     private List<User> users;
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public Buddies setId(UUID id) {
+    public Buddies setId(Long id) {
         this.id = id;
         return this;
     }
