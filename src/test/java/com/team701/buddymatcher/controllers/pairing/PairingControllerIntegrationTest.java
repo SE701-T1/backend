@@ -1,6 +1,7 @@
 package com.team701.buddymatcher.controllers.pairing;
 
 import com.team701.buddymatcher.dtos.pairing.AddBuddyDTO;
+import com.team701.buddymatcher.dtos.pairing.RemoveBuddyDTO;
 import com.team701.buddymatcher.services.pairing.PairingService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,30 @@ public class PairingControllerIntegrationTest {
 
     AddBuddyDTO createMockedAddBuddyDTO(String userId, String buddyId) {
         var dto = new AddBuddyDTO();
+        dto.setUserId(userId);
+        dto.setBuddyId(buddyId);
+        return dto;
+    }
+
+    @Test 
+    void removeValidBuddy() {
+        String userId = UUID.randomUUID().toString();
+        String buddyId = UUID.randomUUID().toString();
+
+        RemoveBuddyDTO buddyRequest = createMockedRemoveBuddyDTO(userId, buddyId);
+
+        ResponseEntity response = pairingController.removeBuddy(buddyRequest);
+
+        //Temp response
+        String success = String.format("\"Successfully Removed: %s, %s \"", userId, buddyId);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
+        Assertions.assertEquals(response.getBody(), success);
+    }
+
+    RemoveBuddyDTO createMockedRemoveBuddyDTO(String userId, String buddyId) {
+        var dto = new RemoveBuddyDTO();
         dto.setUserId(userId);
         dto.setBuddyId(buddyId);
         return dto;

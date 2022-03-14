@@ -15,4 +15,10 @@ public class PairingServiceImpl implements PairingService {
         //Currently just a blank implementation for testing endpoint call
         System.out.println(String.format("Buddy add request: %s, %s",userId,buddyId));
     }
+    
+    @Override
+    public void removeBuddy(String userId, String buddyId) {
+        //Currently just a blank implementation for testing endpoint call
+        System.out.println(String.format("Buddy remove request: %s, %s",userId,buddyId));
+    }
 }
