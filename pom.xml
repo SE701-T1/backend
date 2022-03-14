@@ -65,11 +65,23 @@
             <version>3.0.0</version>
         </dependency>
 
+
+        <!-- Dependency for swagger  -->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-boot-starter</artifactId>
             <version>3.0.0</version>
         </dependency>
+
+
+        <!-- Dependency for socket i/o   -->
+        <dependency>
+            <groupId>com.corundumstudio.socketio</groupId>
+            <artifactId>netty-socketio</artifactId>
+            <version>1.7.19</version>
+        </dependency>
+
+
 
     </dependencies>
 
