@@ -1,4 +1,4 @@
-package com.team701.buddymatcher.socket.socketio.server;
+package com.team701.buddymatcher.socket;
 
 public class ChatObject {
 

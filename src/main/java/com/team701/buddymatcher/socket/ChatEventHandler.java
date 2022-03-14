@@ -1,6 +1,5 @@
-package com.team701.buddymatcher.socket.socketio.server;
+package com.team701.buddymatcher.socket;
 
-import com.corundumstudio.socketio.listener.*;
 import com.corundumstudio.socketio.*;
 
 import java.util.HashMap;
