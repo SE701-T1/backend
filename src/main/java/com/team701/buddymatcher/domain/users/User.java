@@ -1,6 +1,9 @@
 package com.team701.buddymatcher.domain.users;
 
+import com.team701.buddymatcher.domain.timetable.Course;
+
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "USER")
@@ -26,6 +29,9 @@ public class User {
     public Long getId() {
         return id;
     }
+
+    @ManyToMany(mappedBy = "users")
+    private Set<Course> courses;
 
     public User setId(Long id) {
         this.id = id;
@@ -59,6 +65,7 @@ public class User {
         return this;
     }
 
+
     public Boolean getPairingEnabled() {
         return pairingEnabled;
     }
@@ -66,5 +73,13 @@ public class User {
     public User setPairingEnabled(Boolean pairingEnabled) {
         this.pairingEnabled = pairingEnabled;
         return this;
+    }
+
+    public Set<Course> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(Set<Course> courses) {
+        this.courses = courses;
     }
 }
