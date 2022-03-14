@@ -40,6 +40,6 @@ public class PairingController {
     public ResponseEntity removeBuddy(@RequestBody DeleteBuddyDTO buddyRequest) {
         pairingService.removeBuddy(buddyRequest.getUserId(), buddyRequest.getBuddyId());
         //Temporary return message since the removeBuddy method is not implemented and this is a blank endpoint
-        String result = String.format("\"Removed: %s, %s \"",buddyRequest.getUserId(),buddyRequest.getBuddyId());
+        String result = String.format("\"Successfully Removed: %s, %s \"",buddyRequest.getUserId(),buddyRequest.getBuddyId());
         return new ResponseEntity(result, HttpStatus.OK);
     }
