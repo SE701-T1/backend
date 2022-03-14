@@ -14,7 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.Random;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplUnitTest {
@@ -27,11 +27,11 @@ public class UserServiceImplUnitTest {
 
     @Test
     void retrievingExistingUserReturnsCorrectFields() {
-        UUID id = UUID.randomUUID();
+        Long id = new Random().nextLong();
         User expected = createExpectedUser(id);
         Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(expected));
 
-        User user = userService.retrieve(id.toString());
+        User user = userService.retrieve(id);
 
         Assertions.assertNotNull(user);
         Assertions.assertEquals(user, expected);
@@ -39,17 +39,39 @@ public class UserServiceImplUnitTest {
 
     @Test
     void retrievingNonExistentUserThrowsException() {
-        UUID id = UUID.randomUUID();
+        Long id = new Random().nextLong();
         Mockito.when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(NoSuchElementException.class, () -> userService.retrieve(id.toString()));
+        Assertions.assertThrows(NoSuchElementException.class, () -> userService.retrieve(id));
     }
 
-    User createExpectedUser(UUID id) {
+    @Test
+    void updatingExistingUsersPairingEnabled() {
+        Long id = new Random().nextLong();
+        User expected = createExpectedUser(id);
+        Mockito.when(userRepository.updatePairingEnabled(id, true)).thenReturn(1);
+
+        Assertions.assertThrows(NoSuchElementException.class, () -> userService.updatePairingEnabled(id, true));
+    }
+
+    @Test
+    void updatingNonExistentUsersPairingEnabled() {
+        Long id = new Random().nextLong();
+        User expected = createExpectedUser(id);
+        Mockito.when(userRepository.updatePairingEnabled(id, true)).thenReturn(0);
+
+        User user = userService.updatePairingEnabled(id, true);
+
+        Assertions.assertNotNull(user);
+        Assertions.assertEquals(user.getPairingEnabled(), expected.getPairingEnabled());
+    }
+
+    User createExpectedUser(Long id) {
         return new User()
                 .setId(id)
                 .setName("Pink Elephant")
                 .setEmail("pink.elephant@gmail.com")
-                .setBuddies(new Buddies());
+                .setBuddies(new Buddies())
+                .setPairingEnabled(false);
     }
 }
