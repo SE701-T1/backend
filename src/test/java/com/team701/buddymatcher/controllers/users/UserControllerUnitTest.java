@@ -42,7 +42,7 @@ public class UserControllerUnitTest {
         UserDTO mockedUserDTO = createMockedUserDTO(mockedUser);
         Mockito.when(modelMapper.map(mockedUser, UserDTO.class)).thenReturn(mockedUserDTO);
 
-        ResponseEntity<UserDTO> response = userController.one(id);
+        ResponseEntity<UserDTO> response = userController.retrieveUserById(id);
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
@@ -55,7 +55,7 @@ public class UserControllerUnitTest {
 
         Mockito.when(userService.retrieve(id)).thenThrow(new NoSuchElementException());
 
-        Assertions.assertThrows(ResponseStatusException.class, () -> userController.one(id));
+        Assertions.assertThrows(ResponseStatusException.class, () -> userController.retrieveUserById(id));
 
     }
 

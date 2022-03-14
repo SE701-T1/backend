@@ -32,7 +32,7 @@ public class UserController {
 
     @ApiOperation("Get method to retrieve a user by id")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserDTO> one(@PathVariable("id") Long id) {
+    public ResponseEntity<UserDTO> retrieveUserById(@PathVariable("id") Long id) {
         try {
             User user = userService.retrieve(id);
             UserDTO userDTO = modelMapper.map(user, UserDTO.class);
