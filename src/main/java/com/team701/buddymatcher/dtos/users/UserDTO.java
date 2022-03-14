@@ -5,7 +5,7 @@ public class UserDTO {
     private String id;
     private String name;
     private String email;
-    private PairDTO pair;
+    private BuddiesDTO buddies;
 
     public String getId() {
         return id;
@@ -34,12 +34,12 @@ public class UserDTO {
         return this;
     }
 
-    public PairDTO getPair() {
-        return pair;
+    public BuddiesDTO getBuddies() {
+        return buddies;
     }
 
-    public UserDTO setPair(PairDTO pair) {
-        this.pair = pair;
+    public UserDTO setBuddies(BuddiesDTO buddies) {
+        this.buddies = buddies;
         return this;
     }
 }

@@ -18,8 +18,8 @@ public class User {
     private String email;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "PAIR_ID")
-    private Pair pair;
+    @JoinColumn(name = "BUDDIES_ID")
+    private Buddies buddies;
 
     public UUID getId() {
         return id;
@@ -48,12 +48,12 @@ public class User {
         return this;
     }
 
-    public Pair getPair() {
-        return pair;
+    public Buddies getBuddies() {
+        return buddies;
     }
 
-    public User setPair(Pair pair) {
-        this.pair = pair;
+    public User setBuddies(Buddies buddies) {
+        this.buddies = buddies;
         return this;
     }
 }
