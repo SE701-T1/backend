@@ -14,9 +14,22 @@ public class ChatEventHandler {
     public void setupServer() {
         Configuration config = new Configuration();
         config.setHostname("localhost");
-        config.setPort(8080);
+        config.setPort(9092);
 
         server = new SocketIOServer(config);
+
+        //For testing
+        /*
+        final SocketIONamespace chat1namespace = server.addNamespace("/chat1");
+        chat1namespace.addEventListener("message", ChatObject.class, new DataListener<ChatObject>() {
+            @Override
+            public void onData(SocketIOClient client, ChatObject data, AckRequest ackRequest) {
+                // broadcast messages to all clients
+                chat1namespace.getBroadcastOperations().sendEvent("message", data);
+            }
+        });
+
+         */
 
         server.start();
     }
@@ -28,6 +41,20 @@ public class ChatEventHandler {
 
     public void closeServer() {
         server.stop();
+    }
+
+
+    /**
+     * For testing
+     */
+    public static void main(String[] args) throws InterruptedException {
+
+        ChatEventHandler handler = new ChatEventHandler();
+        handler.setupServer();
+
+        Thread.sleep(Integer.MAX_VALUE);
+        handler.closeServer();
+
     }
 
 }
