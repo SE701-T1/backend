@@ -85,7 +85,7 @@
         <dependency>
             <groupId>org.mnode.ical4j</groupId>
             <artifactId>ical4j</artifactId>
-            <version>4.0.0-alpha8</version>
+            <version>3.2.1</version>
         </dependency>
 
 
