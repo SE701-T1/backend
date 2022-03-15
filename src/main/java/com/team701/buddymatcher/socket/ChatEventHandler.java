@@ -1,6 +1,7 @@
 package com.team701.buddymatcher.socket;
 
 import com.corundumstudio.socketio.Configuration;
+import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 
 import java.util.HashMap;
@@ -27,7 +28,8 @@ public class ChatEventHandler {
         server.addDisconnectListener(socketIOClient -> userConnections.remove((Long) socketIOClient.get(USER_ID_KEY)));
 
         server.addEventListener(MESSAGE_EVENT_KEY, MessageObject.class, (client, data, ackRequest) -> {
-            server.getClient(userConnections.get(data.receiverId)).sendEvent(MESSAGE_EVENT_KEY, data);
+            SocketIOClient receiver = server.getClient(userConnections.get(data.receiverId));
+            if (receiver != null) receiver.sendEvent(MESSAGE_EVENT_KEY, data);
             putMessageInHistory(data);
         });
 
