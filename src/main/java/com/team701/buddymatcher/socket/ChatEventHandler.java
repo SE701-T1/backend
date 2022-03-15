@@ -1,14 +1,18 @@
 package com.team701.buddymatcher.socket;
 
-import com.corundumstudio.socketio.*;
+import com.corundumstudio.socketio.Configuration;
+import com.corundumstudio.socketio.SocketIOServer;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.UUID;
 
 public class ChatEventHandler {
 
+    private final String USER_ID_KEY = "userId";
+    private final String MESSAGE_EVENT_KEY = "message";
+
     SocketIOServer server;
-    Map<Integer, String> userChats = new HashMap(); //Map of UserId to namespace for chat
+    HashMap<Long, UUID> userConnections = new HashMap<>(); // User ID -> SocketIO Client ID
 
     public void setupServer() {
         Configuration config = new Configuration();
@@ -17,25 +21,21 @@ public class ChatEventHandler {
 
         server = new SocketIOServer(config);
 
-        //For testing
-        /*
-        final SocketIONamespace chat1namespace = server.addNamespace("/chat1");
-        chat1namespace.addEventListener("message", ChatObject.class, new DataListener<ChatObject>() {
-            @Override
-            public void onData(SocketIOClient client, ChatObject data, AckRequest ackRequest) {
-                // broadcast messages to all clients
-                chat1namespace.getBroadcastOperations().sendEvent("message", data);
-            }
-        });
+        server.addConnectListener(socketIOClient ->
+                userConnections.put(socketIOClient.get(USER_ID_KEY), socketIOClient.getSessionId()));
 
-         */
+        server.addDisconnectListener(socketIOClient -> userConnections.remove((Long) socketIOClient.get(USER_ID_KEY)));
+
+        server.addEventListener(MESSAGE_EVENT_KEY, MessageObject.class, (client, data, ackRequest) -> {
+            server.getClient(userConnections.get(data.receiverId)).sendEvent(MESSAGE_EVENT_KEY, data);
+            putMessageInHistory(data);
+        });
 
         server.start();
     }
 
-    //TODO
-    public void addNewChat() {
-
+    private void putMessageInHistory(MessageObject data) {
+        //TODO: Implement
     }
 
     public void closeServer() {
