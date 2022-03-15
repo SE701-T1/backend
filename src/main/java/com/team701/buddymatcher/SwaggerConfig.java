@@ -1,37 +1,29 @@
 package com.team701.buddymatcher;
 
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.Contact;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
 
-import java.util.Collections;
 
 @Configuration
 public class SwaggerConfig {
 
-    private ApiInfo apiInfo() {
-        return new ApiInfo("MyApp Rest APIs",
-                "APIs for MyApp.",
-                "1.0",
-                "Terms of service",
-                new Contact("test", "www.org.com", "test@emaildomain.com"),
-                "License of API",
-                "API license URL",
-                Collections.emptyList());
-    }
-
     @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.OAS_30)
-                .apiInfo(apiInfo())
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
-                .build();
+    public OpenAPI myAPI() {
+        return new OpenAPI()
+                .info(new Info().title("MyApp Rest APIs")
+                        .description("APIs for MyApp.")
+                        .version("1.0")
+                        .termsOfService("Terms of service")
+                        .contact(new Contact().name("test").url("www.org.com").email("test@emaildomain.com"))
+                        .license(new License().name("License of API").url("API license URL")))
+                .externalDocs(new ExternalDocumentation()
+                        .description("My ApI Wiki Documentation")
+                        .url("https://github.com/SE701-T1/backend/wiki"));
+
     }
 }
