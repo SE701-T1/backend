@@ -3,23 +3,25 @@ package com.team701.buddymatcher.domain.communication;
 import com.team701.buddymatcher.domain.users.User;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 @Entity
-@Table(name = "<MESSAGES")
+@Table(name = "MESSAGES")
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID id;
+    private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "SENDER_ID")
     private User sender;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "RECEIVER_ID")
     private User receiver;
     private long timestamp;
     private String content;
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
