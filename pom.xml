@@ -80,7 +80,13 @@
             <artifactId>netty-socketio</artifactId>
             <version>1.7.19</version>
         </dependency>
-
+      
+        <!-- Dependency for ics file parsing -->
+        <dependency>
+            <groupId>org.mnode.ical4j</groupId>
+            <artifactId>ical4j</artifactId>
+            <version>4.0.0-alpha8</version>
+        </dependency>
 
 
     </dependencies>
