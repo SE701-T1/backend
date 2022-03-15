@@ -1,4 +1,4 @@
-package com.team701.buddymatcher.services.domain;
+package com.team701.buddymatcher.domain;
 
 import com.team701.buddymatcher.domain.timetable.Course;
 import com.team701.buddymatcher.domain.users.Buddies;
