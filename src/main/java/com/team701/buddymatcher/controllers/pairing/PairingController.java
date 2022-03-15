@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@Tag(name="")
+@Tag(name="Pairing")
 @RequestMapping("/api/pairing/")
 public class PairingController {
 

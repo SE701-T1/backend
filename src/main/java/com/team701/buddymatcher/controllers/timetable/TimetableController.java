@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Tag(name = "")
+@Tag(name = "Timetable")
 @RequestMapping("/api/timetable")
 public class TimetableController {
     private final TimetableService timetableService;

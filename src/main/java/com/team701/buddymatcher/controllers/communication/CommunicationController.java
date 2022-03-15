@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Tag(name = "")
+@Tag(name = "Communication")
 @RequestMapping("/api/communication")
 public class CommunicationController {
 

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
  * A Basic controller for handling of user requests, this is only for testing to ensure the server is running properly
  */
 @RestController
-@Tag(name="")
+@Tag(name="Basic")
 @RequestMapping("/api/basic")
 public class BasicController {
 
