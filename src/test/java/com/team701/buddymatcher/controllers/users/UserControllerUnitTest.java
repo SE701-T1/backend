@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.Random;
 
 @ExtendWith(MockitoExtension.class)
 public class UserControllerUnitTest {
@@ -34,15 +34,15 @@ public class UserControllerUnitTest {
 
     @Test
     void retrievingExistingUserReturnsCorrectResponseEntity() {
-        String id = UUID.randomUUID().toString();
+        Long id = new Random().nextLong();
 
-        User mockedUser = createMockUser(UUID.fromString(id));
+        User mockedUser = createMockUser(id);
         Mockito.when(userService.retrieve(id)).thenReturn(mockedUser);
 
         UserDTO mockedUserDTO = createMockedUserDTO(mockedUser);
         Mockito.when(modelMapper.map(mockedUser, UserDTO.class)).thenReturn(mockedUserDTO);
 
-        ResponseEntity<UserDTO> response = userController.one(id);
+        ResponseEntity<UserDTO> response = userController.retrieveUserById(id);
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
@@ -51,15 +51,15 @@ public class UserControllerUnitTest {
 
     @Test
     void retrievingNonExistentUserThrowsException() {
-        String id = UUID.randomUUID().toString();
+        Long id = new Random().nextLong();
 
         Mockito.when(userService.retrieve(id)).thenThrow(new NoSuchElementException());
 
-        Assertions.assertThrows(ResponseStatusException.class, () -> userController.one(id));
+        Assertions.assertThrows(ResponseStatusException.class, () -> userController.retrieveUserById(id));
 
     }
 
-    User createMockUser(UUID id) {
+    User createMockUser(Long id) {
         return new User()
                 .setId(id)
                 .setName("Pink Elephant")
@@ -69,7 +69,7 @@ public class UserControllerUnitTest {
 
     UserDTO createMockedUserDTO(User mockedUser) {
         return new UserDTO()
-                .setId(mockedUser.getId().toString())
+                .setId(mockedUser.getId())
                 .setName(mockedUser.getName())
                 .setEmail(mockedUser.getEmail())
                 .setBuddies(new BuddiesDTO());

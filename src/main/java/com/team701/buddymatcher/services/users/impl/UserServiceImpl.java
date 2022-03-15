@@ -6,7 +6,7 @@ import com.team701.buddymatcher.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.NoSuchElementException;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -19,8 +19,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User retrieve(String id) {
-        UUID uuid = UUID.fromString(id);
-        return userRepository.findById(uuid).orElseThrow();
+    public User retrieve(Long id) {
+        return userRepository.findById(id).orElseThrow();
+    }
+
+    @Override
+    public User updatePairingEnabled(Long id, Boolean pairingEnabled) {
+        int rowsUpdated = userRepository.updatePairingEnabled(id, pairingEnabled);
+        if(rowsUpdated == 0) {
+            throw new NoSuchElementException();
+        }
+        return retrieve(id);
     }
 }
