@@ -10,9 +10,7 @@ import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.property.CalScale;
-import net.fortuna.ical4j.model.property.ProdId;
-import net.fortuna.ical4j.model.property.Version;
+
 
 public class icsParser {
      public static void main(String args[]) throws Exception {
@@ -21,20 +19,20 @@ public class icsParser {
         List<String> result = parser.getCalInfoFromIcs(file);
         System.out.println(result);
     }
-    public List<String> getCalInfoFromIcs(File file) throws Exception {
-        Calendar calendar = new Calendar();
-         /** calendar.getProperties().add(
-                new ProdId("-//Ben Fortuna//iCal4j 1.0//EN"));
-        calendar.getProperties().add(Version.VERSION_2_0);
-        calendar.getProperties().add(CalScale.GREGORIAN); **/
 
+    /**
+     * This method parses the input .ics file and retrieves the course names from the file.
+     * @param file
+     * @return A list of string that contains the courses from the ics file.
+     */
+    public List<String> getCalInfoFromIcs(File file) throws Exception {
+        Calendar calendar;
         FileInputStream fin = new FileInputStream(file);
         CalendarBuilder builder = new CalendarBuilder();
         calendar = builder.build(fin);
         List<String> result = new ArrayList<>();
 
         for (Iterator i = calendar.getComponents().iterator(); i.hasNext(); ) {
-            List<String> calenderInfo = new ArrayList<>();
             Component component = (Component) i.next();
 
             for (Iterator j = component.getProperties().iterator(); j.hasNext(); ) {
