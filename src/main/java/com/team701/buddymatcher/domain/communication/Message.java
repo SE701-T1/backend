@@ -56,4 +56,8 @@ public class Message {
     public void setContent(String content) {
         this.content = content;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 73af86b (Message data class)
