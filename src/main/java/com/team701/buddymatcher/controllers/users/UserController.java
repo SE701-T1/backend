@@ -16,7 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.NoSuchElementException;
 
 @RestController
-@Tag(name = "")
+@Tag(name = "Users")
 @RequestMapping("/api/users")
 public class UserController {
 
