@@ -1,13 +1,15 @@
 package com.team701.buddymatcher.dtos.pairing;
 
 /**
- * Data Transfer Object representing a request to add a buddy to a user
+ * Data Transfer Object representing a request to remove a buddy from a user
  */
-public class AddBuddyDTO {
+public class RemoveBuddyDTO {
     private Long userId;
     private Long buddyId;
 
-    public Long getUserId() {return userId;}
+    public Long getUserId() {
+        return userId;
+    }
 
     public Long getBuddyId() {
         return buddyId;

@@ -2,16 +2,17 @@ package com.team701.buddymatcher.dtos.users;
 
 public class UserDTO {
 
-    private String id;
+    private Long id;
     private String name;
     private String email;
     private BuddiesDTO buddies;
+    private Boolean pairingEnabled;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public UserDTO setId(String id) {
+    public UserDTO setId(Long id) {
         this.id = id;
         return this;
     }
@@ -40,6 +41,15 @@ public class UserDTO {
 
     public UserDTO setBuddies(BuddiesDTO buddies) {
         this.buddies = buddies;
+        return this;
+    }
+
+    public Boolean getPairingEnabled() {
+        return pairingEnabled;
+    }
+
+    public UserDTO setPairingEnabled(Boolean pairingEnabled) {
+        this.pairingEnabled = pairingEnabled;
         return this;
     }
 }
