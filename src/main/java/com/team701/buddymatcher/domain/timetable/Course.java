@@ -12,7 +12,7 @@ import java.util.Set;
 public class Course {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "COURSE_ID")
     private long courseId;
 

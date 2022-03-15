@@ -79,7 +79,8 @@ public class User {
         return courses;
     }
 
-    public void setCourses(Set<Course> courses) {
+    public User setCourses(Set<Course> courses) {
         this.courses = courses;
+        return this;
     }
 }
