@@ -18,9 +18,7 @@ public class icsParser {
      public static void main(String args[]) throws Exception {
         icsParser parser = new icsParser();
         File file = new File("C:/Users/Daniel/UoACal.ics");
-        //System.out.println("working");
         List<String> result = parser.getCalInfoFromIcs(file);
-        //setTimetable(result);
         System.out.println(result);
     }
     public List<String> getCalInfoFromIcs(File file) throws Exception {
@@ -45,7 +43,7 @@ public class icsParser {
                     Property property = (Property) j.next();
                     if ("SUMMARY".equals(property.getName())) {
                         event = property.getValue();
-                        calenderInfo.add(event);
+                        result.add(event);
                     }
 
                 } catch (Exception e) {
@@ -53,7 +51,15 @@ public class icsParser {
                 }
             }
         }
-        return result;
+        //Remove the duplicate course names from the calendarInfo list
+        List<String> courseList = new ArrayList<>();
+        for (String course : result) {
+            if (!courseList.contains(course)) {
+                courseList.add(course);
+            }
+        }
+
+        return courseList;
     }
 
 }
