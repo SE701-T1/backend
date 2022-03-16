@@ -91,6 +91,7 @@ public class TimetableServiceImpl implements TimetableService {
         for (String courseName : courseNames) {
             Course course = courseRepository.findByName(courseName);
 
+            //if the course does not exist in the database, create a new record
             if (course == null) {
                 Course newCourse = createNewCourse(courseName);
                 newCourse.addNewUser(user);
