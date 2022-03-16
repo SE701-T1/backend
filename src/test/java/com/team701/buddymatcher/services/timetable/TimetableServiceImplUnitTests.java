@@ -1,0 +1,113 @@
+package com.team701.buddymatcher.services.timetable;
+
+import com.team701.buddymatcher.domain.timetable.Course;
+import com.team701.buddymatcher.domain.users.Buddies;
+import com.team701.buddymatcher.domain.users.User;
+import com.team701.buddymatcher.repositories.timetable.CourseRepository;
+import com.team701.buddymatcher.services.timetable.impl.TimetableServiceImpl;
+import com.team701.buddymatcher.services.users.UserService;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
+import static org.mockito.Mockito.times;
+
+@ExtendWith(MockitoExtension.class)
+public class TimetableServiceImplUnitTests {
+
+    @Mock
+    private CourseRepository courseRepository;
+
+    @Mock
+    private UserService userService;
+
+    @InjectMocks
+    private TimetableServiceImpl timetableService;
+
+    @Test
+    void correctlyGenerateCoursesInDatabase() {
+        Long userId = new Random().nextLong();
+        User user = createExpectedUser(userId);
+
+        List<String> courseNames = Arrays.asList("se701", "se750", "enggen303");
+
+        Mockito.when(userService.retrieve(userId)).thenReturn(user);
+        for (String courseName : courseNames) {
+            Mockito.when(courseRepository.findByName(courseName)).thenReturn(null);
+        }
+
+        timetableService.populateCourses(userId, courseNames);
+
+        Mockito.verify(courseRepository, times(3)).save(Mockito.any(Course.class));
+    }
+
+    @Test
+    void correctlyGenerateCoursesAndAddToExistingCourse() {
+        Long userId = new Random().nextLong();
+        User user = createExpectedUser(userId);
+
+        Long courseId = new Random().nextLong();
+        Course course = createExpectedCourse(courseId);
+
+        List<String> courseNames = Arrays.asList("se750", "se701", "enggen303");
+        Mockito.when(courseRepository.findByName("se750")).thenReturn(null);
+        Mockito.when(courseRepository.findByName("se701")).thenReturn(course);
+        Mockito.when(courseRepository.findByName("enggen303")).thenReturn(null);
+
+        Mockito.when(userService.retrieve(userId)).thenReturn(user);
+
+        timetableService.populateCourses(userId, courseNames);
+
+        Assertions.assertEquals(course.getStudentCount(), 1);
+        Mockito.verify(courseRepository, times(3)).save(Mockito.any(Course.class));
+    }
+
+    @Test
+    void correctlyAddToExistingCourseWithOtherStudents() {
+        Long userId = new Random().nextLong();
+        User user = createExpectedUser(userId);
+
+        Long courseId = new Random().nextLong();
+        Course course = createExpectedCourse(courseId);
+
+        course.addNewUser(new User().setId(new Random().nextLong()).setName("Matt Moran"));
+
+        List<String> courseNames = Arrays.asList("se701");
+        Mockito.when(courseRepository.findByName("se701")).thenReturn(course);
+
+        Mockito.when(userService.retrieve(userId)).thenReturn(user);
+
+        timetableService.populateCourses(userId, courseNames);
+
+        Assertions.assertEquals(course.getStudentCount(), 2);
+        Mockito.verify(courseRepository, times(1)).save(Mockito.any(Course.class));
+    }
+
+    User createExpectedUser(Long id) {
+        return new User()
+                .setId(id)
+                .setName("Pink Elephant")
+                .setEmail("pink.elephant@gmail.com")
+                .setBuddies(new Buddies())
+                .setPairingEnabled(false);
+    }
+
+    Course createExpectedCourse(Long id) {
+        Course course = new Course();
+        course.setCourseId(id);
+        course.setName("se701");
+        course.setSemester("2022 Sem 1");
+        course.setUpdatedTime(Timestamp.from(Instant.now()));
+        return course;
+    }
+}

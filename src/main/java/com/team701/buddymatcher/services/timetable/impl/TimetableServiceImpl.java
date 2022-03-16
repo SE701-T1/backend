@@ -1,15 +1,23 @@
 package com.team701.buddymatcher.services.timetable.impl;
 
+import com.team701.buddymatcher.domain.timetable.Course;
 import com.team701.buddymatcher.domain.timetable.Timetable;
+import com.team701.buddymatcher.domain.users.User;
+import com.team701.buddymatcher.repositories.timetable.CourseRepository;
 import com.team701.buddymatcher.services.timetable.TimetableService;
+import com.team701.buddymatcher.services.users.UserService;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.Property;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.FileInputStream;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -17,14 +25,27 @@ import java.util.List;
 
 @Service
 public class TimetableServiceImpl implements TimetableService {
+
+    private final CourseRepository courseRepository;
+
+    private final UserService userService;
+
+    @Autowired
+    public TimetableServiceImpl(CourseRepository courseRepository, UserService userService) {
+        this.courseRepository = courseRepository;
+        this.userService = userService;
+    }
+
     @Override
     public Timetable retrieve(String userId) {
         Timetable t = new Timetable();
         t.setClassNames(Arrays.asList("SE701", "SE754", "SE751"));
         return t;
     }
+
     /**
      * This method parses the input .ics file and retrieves the course names from the file.
+     *
      * @param file
      * @return A list of string that contains the courses from the ics file.
      */
@@ -62,6 +83,33 @@ public class TimetableServiceImpl implements TimetableService {
         }
 
         return courseList;
+    }
+
+    @Transactional
+    public void populateCourses(Long studentId, List<String> courseNames) {
+        User user = userService.retrieve(studentId);
+        for (String courseName : courseNames) {
+            Course course = courseRepository.findByName(courseName);
+
+            //if the course does not exist in the database, create a new record
+            if (course == null) {
+                Course newCourse = createNewCourse(courseName);
+                newCourse.addNewUser(user);
+                courseRepository.save(newCourse);
+            } else {
+                course.addNewUser(user);
+                courseRepository.save(course);
+            }
+        }
+    }
+
+    private Course createNewCourse(String courseName) {
+        Course newCourse = new Course();
+        newCourse.setName(courseName);
+        newCourse.setUpdatedTime(Timestamp.from(Instant.now()));
+        //TODO: setup a method of determining semester time, for now its hardcoded
+        newCourse.setSemester("2022 Semester 1");
+        return newCourse;
     }
 
 }
