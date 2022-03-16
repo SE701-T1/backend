@@ -104,7 +104,6 @@ public class UserController {
 
 
         } else {
-            System.out.println("Invalid ID token.");
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
     }
