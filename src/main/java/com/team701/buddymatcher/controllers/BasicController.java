@@ -31,7 +31,6 @@ public class BasicController {
     @GetMapping(path = "/hello/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> hello(@PathVariable("name") String name) {
         String response = basicService.helloWorld(name);
-        System.out.println("Made it hello world");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

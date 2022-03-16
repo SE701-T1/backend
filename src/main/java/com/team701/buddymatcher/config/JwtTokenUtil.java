@@ -65,6 +65,7 @@ public class JwtTokenUtil implements Serializable {
         final String username = getUsernameFromToken(token);
         // if we get to this point I think it means the token was successfully verified
         // due to getAllClaimsFromToken being called, which utilises the secret.
+        // This will need to be tested after the login endpoint is merged and other endpoints we can test with.
         return true;
     }
 }
