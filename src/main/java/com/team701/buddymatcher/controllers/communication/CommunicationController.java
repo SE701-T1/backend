@@ -37,6 +37,4 @@ public class CommunicationController {
         communicationService.sendMessage(message);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-
-    
 }
