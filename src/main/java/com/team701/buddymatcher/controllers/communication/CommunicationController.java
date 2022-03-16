@@ -30,11 +30,4 @@ public class CommunicationController {
         List<MessageDTO> messages = communicationService.getMessages(userId);
         return new ResponseEntity<>(messages, HttpStatus.OK);
     }
-
-    @Operation(summary = "Post method to send a message to another user")
-    @PostMapping(path = "/messages", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> sendMessage(MessageDTO message) {
-        communicationService.sendMessage(message);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
 }

@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User retrieve(Long id) {
+    public User retrieveById(Long id) {
         return userRepository.findById(id).orElseThrow();
     }
 
@@ -29,6 +29,14 @@ public class UserServiceImpl implements UserService {
         if(rowsUpdated == 0) {
             throw new NoSuchElementException();
         }
-        return retrieve(id);
+        return retrieveById(id);
+    }
+
+    @Override
+    public User retrieveByEmail(String email) {return userRepository.findUserByEmail(email);    }
+
+    @Override
+    public void addUser(String name, String email) {
+        userRepository.createUser(name, email);
     }
 }
