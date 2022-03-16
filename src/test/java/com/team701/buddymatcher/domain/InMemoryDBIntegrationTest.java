@@ -17,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
@@ -35,9 +36,7 @@ public class InMemoryDBIntegrationTest {
 
     @Test
     public void whenFindByNameReturnCourse() {
-        Long courseId = new Random().nextLong();
-
-        Course course = createExpectedCourse(courseId);
+        Course course = createExpectedCourse();
         courseRepository.save(course);
 
         Course found = courseRepository.findByName(course.getName());
@@ -46,27 +45,40 @@ public class InMemoryDBIntegrationTest {
     }
 
     @Test
+    public void createUserAndFindThem() {
+        User user = createExpectedUser();
+        Long userId = userRepository.save(user).getId();
+
+        Optional<User> found = userRepository.findById(userId);
+
+        Assertions.assertTrue(found.isPresent());
+        User foundUser = found.get();
+        Assertions.assertEquals(foundUser.getName(), user.getName());
+    }
+
+    @Test
     public void whenAddingUserToCourseCorrectlyDisplayedForBoth() {
-        Long courseId = new Random().nextLong();
-        Long userId = new Random().nextLong();
+        Course course = createExpectedCourse();
+        User user = createExpectedUser();
 
-        Course course = createExpectedCourse(courseId);
-        User user = createExpectedUser(userId);
+        Long courseId = courseRepository.save(course).getCourseId();
+        Long userId = userRepository.save(user).getId();
 
-        courseRepository.save(course);
-        userRepository.save(user);
-
-        Set<User> users = new HashSet<>();
-        users.add(user);
-        course.setUsers(users);
-
+        course.addNewUser(user);
         courseRepository.save(course);
 
         Course fetchedCourse = courseRepository.findByName(course.getName());
 
+        System.out.println(fetchedCourse.getStudentCount());
+
         Assertions.assertEquals(fetchedCourse.getCourseId(), courseId);
         Assertions.assertEquals(fetchedCourse.getStudentCount(), 1);
         Assertions.assertTrue(fetchedCourse.getUsers().contains(user));
+
+        User fetchedUser = userRepository.getById(userId);
+
+        Assertions.assertEquals(fetchedUser.getName(), user.getName());
+        Assertions.assertTrue(fetchedUser.getCourses().size() == 1);
 
 
     }
@@ -77,22 +89,17 @@ public class InMemoryDBIntegrationTest {
         userRepository.deleteAll();
     }
 
-    User createExpectedUser(Long id) {
+    User createExpectedUser() {
         return new User()
-                .setId(id)
                 .setName("John Test")
                 .setEmail("john.test@example.com")
-                .setBuddies(new Buddies())
-                .setCourses(new HashSet<>());
+                .setBuddies(new Buddies());
     }
 
-    Course createExpectedCourse(Long id) {
+    Course createExpectedCourse() {
         Course course = new Course();
-        course.setCourseId(id);
         course.setName("se701");
         course.setSemester("2022 Sem 1");
-        course.setStudentCount(0);
-        course.setUsers(new HashSet<>());
         course.setUpdatedTime(Timestamp.from(Instant.now()));
         return course;
     }

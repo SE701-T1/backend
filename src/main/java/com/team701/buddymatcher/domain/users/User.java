@@ -3,6 +3,7 @@ package com.team701.buddymatcher.domain.users;
 import com.team701.buddymatcher.domain.timetable.Course;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -26,12 +27,12 @@ public class User {
     @Column(name = "USER_PAIRING_ENABLED")
     private Boolean pairingEnabled;
 
+    @ManyToMany(mappedBy = "users")
+    private Set<Course> courses = new HashSet<>();
+
     public Long getId() {
         return id;
     }
-
-    @ManyToMany(mappedBy = "users")
-    private Set<Course> courses;
 
     public User setId(Long id) {
         this.id = id;

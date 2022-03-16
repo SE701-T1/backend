@@ -4,6 +4,7 @@ import com.team701.buddymatcher.domain.users.User;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -23,17 +24,17 @@ public class Course {
     private String semester;
 
     @Column(name = "STUDENT_COUNT")
-    private Integer studentCount;
+    private Integer studentCount = 0;
 
     @Column(name = "TIME_UPDATED")
     private Timestamp updatedTime;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "COURSE_STUDENT",
             joinColumns = @JoinColumn(name = "id"),
             inverseJoinColumns = @JoinColumn(name = "COURSE_ID"))
-    private Set<User> users;
+    private Set<User> users = new HashSet<>();
 
     public Set<User> getUsers() {
         return users;
@@ -81,5 +82,13 @@ public class Course {
 
     public void setUpdatedTime(Timestamp updatedTime) {
         this.updatedTime = updatedTime;
+    }
+
+    public void addNewUser(User user){
+        if (!users.contains(user)){
+            users.add(user);
+            user.getCourses().add(this);
+            studentCount++;
+        }
     }
 }
