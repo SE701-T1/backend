@@ -8,7 +8,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-@EnableWebMvc
 public class BuddyMatcherApplication {
 
     @Bean
