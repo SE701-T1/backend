@@ -1,6 +1,8 @@
 package com.team701.buddymatcher.services.pairing.impl;
 
+import com.team701.buddymatcher.repositories.users.BuddiesRepository;
 import com.team701.buddymatcher.services.pairing.PairingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -10,6 +12,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class PairingServiceImpl implements PairingService {
 
+    private final BuddiesRepository buddiesRepository;
+
+    @Autowired
+    public PairingServiceImpl(BuddiesRepository buddiesRepository) {
+        this.buddiesRepository = buddiesRepository;
+    }
     @Override
     public void addBuddy(Long userId, Long buddyId) {
         //Currently just a blank implementation for testing endpoint call
