@@ -70,30 +70,24 @@ public class UserController {
     @PostMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> loginWithGoogle(HttpServletRequest request) throws GeneralSecurityException, IOException {
         String CLIENT_ID = "158309441002-q8q49tjicngt1tp6p9t7ecvdrn9ar78j.apps.googleusercontent.com";
-        System.out.println("Made it");
-        System.out.println(request.getHeader("client_id"));
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier
                 .Builder(new NetHttpTransport(), new GsonFactory())
                 // Specify the CLIENT_ID of the app that accesses the backend:
                 .setAudience(Collections.singletonList(CLIENT_ID))
                 .build();
         String idTokenString = request.getHeader("id_token");
-        System.out.println(idTokenString);
 
         GoogleIdToken idToken = verifier.verify(idTokenString);
-        System.out.println("idtoken " + idToken);
         if (idToken != null) {
             Payload payload = idToken.getPayload();
 
             // Print user identifier
             String userId = payload.getSubject();
-            System.out.println("User ID: " + userId);
 
             // Get profile information from payload
             String email = payload.getEmail();
             boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
             String name = (String) payload.get("name");
-            System.out.println("Name " + name);
 
             // Use or store profile information
             // ...
@@ -111,7 +105,7 @@ public class UserController {
 
         } else {
             System.out.println("Invalid ID token.");
-            return new ResponseEntity<>("invalid", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
     }
 
