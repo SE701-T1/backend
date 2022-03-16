@@ -16,9 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static org.mockito.Mockito.times;
 
@@ -91,6 +89,37 @@ public class TimetableServiceImplUnitTests {
 
         Assertions.assertEquals(course.getStudentCount(), 2);
         Mockito.verify(courseRepository, times(1)).save(Mockito.any(Course.class));
+    }
+
+    @Test
+    void getCourses() {
+        Random random = new Random();
+        Long id = random.nextLong();
+        List<Course> expected = new ArrayList<>() {
+            {
+                add(createExpectedCourse(random.nextLong()));
+                add(createExpectedCourse(random.nextLong()));
+                add(createExpectedCourse(random.nextLong()));
+            }
+        };
+        Mockito.when(courseRepository.findByUserId(id)).thenReturn(expected);
+
+        List<Course> course = timetableService.getCourses(id);
+
+        Assertions.assertNotNull(course);
+        Assertions.assertEquals(course, expected);
+    }
+
+    @Test
+    void getCourse() {
+        Long id = new Random().nextLong();
+        Course expected = createExpectedCourse(id);
+        Mockito.when(courseRepository.findById(id)).thenReturn(Optional.of(expected));
+
+        Course course = timetableService.getCourse(id);
+
+        Assertions.assertNotNull(course);
+        Assertions.assertEquals(course, expected);
     }
 
     User createExpectedUser(Long id) {
