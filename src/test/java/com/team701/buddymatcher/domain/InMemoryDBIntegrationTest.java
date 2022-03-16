@@ -45,6 +45,12 @@ public class InMemoryDBIntegrationTest {
     }
 
     @Test
+    public void whenFindByNameDoesNotReturnCourse() {
+        Course found = courseRepository.findByName("se702");
+        Assertions.assertNull(found);
+    }
+
+    @Test
     public void createUserAndFindThem() {
         User user = createExpectedUser();
         Long userId = userRepository.save(user).getId();

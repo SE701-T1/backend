@@ -8,4 +8,5 @@ import java.util.List;
 public interface TimetableService {
     Timetable retrieve(String userId);
     List<String> getCalInfoFromIcs(File file) throws Exception;
+    void populateCourses(Long studentId, List<String> courseNames);
 }
