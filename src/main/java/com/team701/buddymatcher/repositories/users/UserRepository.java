@@ -15,11 +15,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("update User u set u.pairingEnabled = :pairingEnabled where u.id = :id")
     int updatePairingEnabled(@Param(value = "id") Long id, @Param(value = "pairingEnabled") Boolean pairingEnabled);
 
-    @Query(value = "select User as u from User where u.email = ?1", nativeQuery = true)
+    @Query(value = "select u from User u where u.email = ?1")
     User findUserByEmail(String email);
 
     @Transactional
     @Modifying
-    @Query(value = "insert into User (user_name, user_email) VALUES (?1, ?2)", nativeQuery=true)
-    User createUser(String name, String email);
+    @Query(value = "insert into User (user_name, user_email) VALUES (:name, :email)", nativeQuery=true)
+    void createUser(@Param("name") String name, @Param("email") String email);
 }

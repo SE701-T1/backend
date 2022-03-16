@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     public User retrieveByEmail(String email) {return userRepository.findUserByEmail(email);    }
 
     @Override
-    public User addUser(String name, String email) {
-        return userRepository.createUser(name, email);
+    public void addUser(String name, String email) {
+        userRepository.createUser(name, email);
     }
 }

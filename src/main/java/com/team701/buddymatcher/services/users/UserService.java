@@ -6,5 +6,5 @@ public interface UserService {
     User retrieveById(Long id);
     User updatePairingEnabled(Long id, Boolean pairingEnabled);
     User retrieveByEmail(String email);
-    User addUser(String name, String email);
+    void addUser(String name, String email);
 }
