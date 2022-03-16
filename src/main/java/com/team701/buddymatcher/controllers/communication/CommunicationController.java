@@ -2,8 +2,8 @@ package com.team701.buddymatcher.controllers.communication;
 
 import com.team701.buddymatcher.dtos.communication.MessageDTO;
 import com.team701.buddymatcher.services.communication.CommunicationService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Api
+@Tag(name = "Communication")
 @RequestMapping("/api/communication")
 public class CommunicationController {
 
@@ -24,7 +24,7 @@ public class CommunicationController {
         this.communicationService = communicationService;
     }
 
-    @ApiOperation("Get method to get all messages sent to a given user")
+    @Operation(summary = "Get method to get all messages sent to a given user")
     @GetMapping(path = "/messages/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<MessageDTO>> getMessages(@PathVariable("userId") String userId) {
         List<MessageDTO> messages = communicationService.getMessages(userId);

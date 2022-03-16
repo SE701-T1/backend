@@ -3,8 +3,8 @@ package com.team701.buddymatcher.controllers.users;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.dtos.users.UserDTO;
 import com.team701.buddymatcher.services.users.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.NoSuchElementException;
 
 @RestController
-@Api
+@Tag(name = "Users")
 @RequestMapping("/api/users")
 public class UserController {
 
@@ -30,7 +30,7 @@ public class UserController {
         this.modelMapper = modelMapper;
     }
 
-    @ApiOperation("Get method to retrieve a user by id")
+    @Operation(summary = "Get method to retrieve a user by id")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDTO> retrieveUserById(@PathVariable("id") Long id) {
         try {
@@ -43,7 +43,7 @@ public class UserController {
         }
     }
 
-    @ApiOperation(value = "Put method to update a user's pairingEnabled field")
+    @Operation(summary = "Put method to update a user's pairingEnabled field")
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDTO> updatePairingEnabled(@PathVariable("id") Long id, @RequestParam Boolean pairingEnabled) {
         try {
