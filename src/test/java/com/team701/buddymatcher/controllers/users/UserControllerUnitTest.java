@@ -37,7 +37,7 @@ public class UserControllerUnitTest {
         Long id = new Random().nextLong();
 
         User mockedUser = createMockUser(id);
-        Mockito.when(userService.retrieve(id)).thenReturn(mockedUser);
+        Mockito.when(userService.retrieveById(id)).thenReturn(mockedUser);
 
         UserDTO mockedUserDTO = createMockedUserDTO(mockedUser);
         Mockito.when(modelMapper.map(mockedUser, UserDTO.class)).thenReturn(mockedUserDTO);
@@ -53,7 +53,7 @@ public class UserControllerUnitTest {
     void retrievingNonExistentUserThrowsException() {
         Long id = new Random().nextLong();
 
-        Mockito.when(userService.retrieve(id)).thenThrow(new NoSuchElementException());
+        Mockito.when(userService.retrieveById(id)).thenThrow(new NoSuchElementException());
 
         Assertions.assertThrows(ResponseStatusException.class, () -> userController.retrieveUserById(id));
 
