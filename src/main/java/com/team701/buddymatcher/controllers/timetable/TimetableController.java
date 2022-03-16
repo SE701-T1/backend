@@ -2,8 +2,8 @@ package com.team701.buddymatcher.controllers.timetable;
 
 import com.team701.buddymatcher.domain.timetable.Timetable;
 import com.team701.buddymatcher.services.timetable.TimetableService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Api
+@Tag(name = "Timetable")
 @RequestMapping("/api/timetable")
 public class TimetableController {
     private final TimetableService timetableService;
@@ -24,7 +24,7 @@ public class TimetableController {
         this.timetableService = timetableService;
     }
 
-    @ApiOperation("Get a user's Timetable by their id")
+    @Operation(summary ="Get a user's Timetable by their id")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Timetable> findTimetable(@RequestParam(name = "u") String userId) {
         Timetable t = timetableService.retrieve("");
