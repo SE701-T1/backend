@@ -39,7 +39,7 @@ public class TimetableServiceImplUnitTests {
 
         List<String> courseNames = Arrays.asList("se701", "se750", "enggen303");
 
-        Mockito.when(userService.retrieve(userId)).thenReturn(user);
+        Mockito.when(userService.retrieveById(userId)).thenReturn(user);
         for (String courseName : courseNames) {
             Mockito.when(courseRepository.findByName(courseName)).thenReturn(null);
         }
@@ -62,7 +62,7 @@ public class TimetableServiceImplUnitTests {
         Mockito.when(courseRepository.findByName("se701")).thenReturn(course);
         Mockito.when(courseRepository.findByName("enggen303")).thenReturn(null);
 
-        Mockito.when(userService.retrieve(userId)).thenReturn(user);
+        Mockito.when(userService.retrieveById(userId)).thenReturn(user);
 
         timetableService.populateCourses(userId, courseNames);
 
@@ -83,7 +83,7 @@ public class TimetableServiceImplUnitTests {
         List<String> courseNames = Arrays.asList("se701");
         Mockito.when(courseRepository.findByName("se701")).thenReturn(course);
 
-        Mockito.when(userService.retrieve(userId)).thenReturn(user);
+        Mockito.when(userService.retrieveById(userId)).thenReturn(user);
 
         timetableService.populateCourses(userId, courseNames);
 
