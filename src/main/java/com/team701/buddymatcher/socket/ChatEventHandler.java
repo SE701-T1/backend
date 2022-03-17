@@ -1,62 +1,70 @@
 package com.team701.buddymatcher.socket;
 
-import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.SocketIOServer;
+import com.corundumstudio.socketio.*;
+import com.corundumstudio.socketio.listener.ConnectListener;
+import com.corundumstudio.socketio.listener.DataListener;
+import com.corundumstudio.socketio.listener.DisconnectListener;
+import com.team701.buddymatcher.repositories.communication.MessageRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.UUID;
 
+@Component
 public class ChatEventHandler {
+    private static final Logger log = LoggerFactory.getLogger(ChatEventHandler.class);
+    private final SocketIONamespace namespace;
 
+    // User ID -> SocketIO Client ID
+    private final HashMap<Long, UUID> userConnections = new HashMap<>();
+
+    // Keys
     private final String USER_ID_KEY = "userId";
+
+    // Events
     private final String MESSAGE_EVENT_KEY = "message";
 
-    SocketIOServer server;
-    HashMap<Long, UUID> userConnections = new HashMap<>(); // User ID -> SocketIO Client ID
 
-    public void setupServer() {
-        Configuration config = new Configuration();
-        config.setHostname("localhost");
-        config.setPort(9092);
+    @Autowired
+    public ChatEventHandler(SocketIOServer server, MessageRepository messageRepository) {
+        this.namespace = server.addNamespace("/chat");
+        this.namespace.addConnectListener(onConnected());
+        this.namespace.addDisconnectListener(onDisconnected());
+        this.namespace.addEventListener(MESSAGE_EVENT_KEY, MessageObject.class, onMessageReceived());
+    }
 
-        server = new SocketIOServer(config);
+    private DataListener<MessageObject> onMessageReceived() {
+        return (client, data, ackSender) -> {
+            log.debug("Client[{}] - Received chat message '{}'", client.getSessionId().toString(), data);
 
-        server.addConnectListener(socketIOClient ->
-                userConnections.put(socketIOClient.get(USER_ID_KEY), socketIOClient.getSessionId()));
-
-        server.addDisconnectListener(socketIOClient -> userConnections.remove((Long) socketIOClient.get(USER_ID_KEY)));
-
-        server.addEventListener(MESSAGE_EVENT_KEY, MessageObject.class, (client, data, ackRequest) -> {
-            SocketIOClient receiver = server.getClient(userConnections.get(data.receiverId));
+            SocketIOClient receiver = namespace.getClient(userConnections.get(data.receiverId));
             if (receiver != null) receiver.sendEvent(MESSAGE_EVENT_KEY, data);
             putMessageInHistory(data);
-        });
+        };
+    }
 
-        server.start();
+    private ConnectListener onConnected() {
+        return client -> {
+            HandshakeData handshakeData = client.getHandshakeData();
+            log.debug("Client[{}] - Connected to chat handler through '{}'", client.getSessionId().toString(), handshakeData.getUrl());
+
+            userConnections.put(client.get(USER_ID_KEY), client.getSessionId());
+        };
+    }
+
+    private DisconnectListener onDisconnected() {
+        return client -> {
+            log.debug("Client[{}] - Disconnected from chat handler.", client.getSessionId().toString());
+
+            userConnections.remove((Long) client.get(USER_ID_KEY));
+        };
     }
 
     private void putMessageInHistory(MessageObject data) {
         //TODO: Implement
     }
-
-    public void closeServer() {
-        server.stop();
-    }
-
-
-    /**
-     * For testing
-     */
-    public static void main(String[] args) throws InterruptedException {
-
-        ChatEventHandler handler = new ChatEventHandler();
-        handler.setupServer();
-
-        Thread.sleep(Integer.MAX_VALUE);
-        handler.closeServer();
-
-    }
-
 }
 
