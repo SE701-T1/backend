@@ -1,10 +1,11 @@
 package com.team701.buddymatcher.controllers.pairing;
 
 import com.team701.buddymatcher.dtos.pairing.AddBuddyDTO;
+import com.team701.buddymatcher.dtos.pairing.MatchBuddyDTO;
 import com.team701.buddymatcher.dtos.pairing.RemoveBuddyDTO;
 import com.team701.buddymatcher.services.pairing.PairingService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@Api
+@Tag(name="Pairing")
 @RequestMapping("/api/pairing/")
 public class PairingController {
 
@@ -23,7 +24,7 @@ public class PairingController {
         this.pairingService = pairingService;
     }
 
-    @ApiOperation("Post method for adding a new buddy record between two users")
+    @Operation(summary = "Post method for adding a new buddy record between two users")
     @PostMapping(path = "/addBuddy/",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -34,7 +35,7 @@ public class PairingController {
         return new ResponseEntity(result, HttpStatus.OK);
     }
 
-    @ApiOperation("Delete method for removing a buddy record between two users")
+    @Operation(summary = "Delete method for removing a buddy record between two users")
     @DeleteMapping(path = "/removeBuddy/",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -43,5 +44,15 @@ public class PairingController {
         //Temporary return message since the removeBuddy method is not implemented and this is a blank endpoint
         String result = String.format("\"Removed: %s, %s \"",buddyRequest.getUserId(),buddyRequest.getBuddyId());
         return new ResponseEntity(result, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get method for finding possible matches for a user given a list of courses to match through")
+    @GetMapping(path = "/matchBuddy/{userId}",
+                consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity matchBuddy(@PathVariable("userId") Long userId, @RequestBody MatchBuddyDTO buddyMatchRequest) {
+        pairingService.matchBuddy(userId,buddyMatchRequest.getCourseIds());
+        //Temporary since this is just setting up the blank endpoint
+        String result = String.format("\"Match: %s, %s \"",userId,buddyMatchRequest.getCourseIds());
+        return new ResponseEntity(result,HttpStatus.OK);
     }
 }

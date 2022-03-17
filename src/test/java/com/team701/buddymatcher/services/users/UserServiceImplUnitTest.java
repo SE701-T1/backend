@@ -31,7 +31,7 @@ public class UserServiceImplUnitTest {
         User expected = createExpectedUser(id);
         Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(expected));
 
-        User user = userService.retrieve(id);
+        User user = userService.retrieveById(id);
 
         Assertions.assertNotNull(user);
         Assertions.assertEquals(user, expected);
@@ -42,7 +42,7 @@ public class UserServiceImplUnitTest {
         Long id = new Random().nextLong();
         Mockito.when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(NoSuchElementException.class, () -> userService.retrieve(id));
+        Assertions.assertThrows(NoSuchElementException.class, () -> userService.retrieveById(id));
     }
 
     @Test
@@ -71,7 +71,6 @@ public class UserServiceImplUnitTest {
                 .setId(id)
                 .setName("Pink Elephant")
                 .setEmail("pink.elephant@gmail.com")
-                .setBuddies(new Buddies())
                 .setPairingEnabled(false);
     }
 }
