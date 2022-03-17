@@ -127,7 +127,6 @@ public class TimetableServiceImplUnitTests {
                 .setId(id)
                 .setName("Pink Elephant")
                 .setEmail("pink.elephant@gmail.com")
-                .setBuddies(new Buddies())
                 .setPairingEnabled(false);
     }
 
