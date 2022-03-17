@@ -11,17 +11,6 @@
     }
   ],
   "paths": {
-    "/api/communication/messages": {
-      "post": {
-        "summary": "POST api/communication/messages",
-        "operationId": "sendMessage",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/communication/messages/{userId}": {
       "get": {
         "summary": "GET api/communication/messages/{userId}",
