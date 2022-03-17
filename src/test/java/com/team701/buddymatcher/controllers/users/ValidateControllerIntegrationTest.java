@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
         "socketio.host=localhost",
-        "socketio.port=8085"
+        "socketio.port=8087"
 })
 @AutoConfigureMockMvc
 public class ValidateControllerIntegrationTest {
