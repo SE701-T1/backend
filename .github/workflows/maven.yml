@@ -13,6 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Change Timezone to NZT
+      uses: szenius/set-timezone@v1.0
+      with:
+        timezoneLinux: "Pacific/Auckland"
+        timezoneMacos: "Pacific/Auckland"
+        timezoneWindows: "New Zealand Standard Time"
+
     - uses: actions/checkout@v2
     - name: Set up JDK 17
       uses: actions/setup-java@v2

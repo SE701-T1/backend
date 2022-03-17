@@ -9,8 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Random;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,12 +29,11 @@ public class UserControllerIntegrationTest {
     @Test
     void getExistingUser() throws Exception {
 
-        mvc.perform(get("/api/users/{id}", 0L))
+        mvc.perform(get("/api/users/{id}", 1))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(0L))
+                .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Pink Elephant"))
                 .andExpect(jsonPath("$.email").value("pink.elephant@gmail.com"))
-                .andExpect(jsonPath("$.buddies.id").value(0L))
                 .andExpect(jsonPath("$.pairingEnabled").value(false))
                 .andDo(print());
     }
@@ -59,16 +57,37 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    void updatePairingEnabledForExistingUser() throws Exception {
+    void getUserBuddy() throws Exception {
 
-        mvc.perform(put("/api/users/{id}", 0L)
-                .queryParam("pairingEnabled", String.valueOf(true)))
+        mvc.perform(get("/api/users/buddy/{id}", 2))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(0L))
-                .andExpect(jsonPath("$.name").value("Pink Elephant"))
-                .andExpect(jsonPath("$.email").value("pink.elephant@gmail.com"))
-                .andExpect(jsonPath("$.buddies.id").value(0L))
-                .andExpect(jsonPath("$.pairingEnabled").value(true))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Pink Elephant"))
+                .andExpect(jsonPath("$[0].email").value("pink.elephant@gmail.com"))
+                .andExpect(jsonPath("$[0].pairingEnabled").value(false))
+                .andExpect(jsonPath("$[1].id").value(3))
+                .andExpect(jsonPath("$[1].name").value("Hiruna Smith"))
+                .andExpect(jsonPath("$[1].email").value("hiruna.smith@gmail.com"))
+                .andExpect(jsonPath("$[1].pairingEnabled").value(false))
+                .andExpect(jsonPath("$[2].id").value(4))
+                .andExpect(jsonPath("$[2].name").value("Flynn Smith"))
+                .andExpect(jsonPath("$[2].email").value("flynn.smith@gmail.com"))
+                .andExpect(jsonPath("$[2].pairingEnabled").value(false))
                 .andDo(print());
     }
+
+    @Test
+    void createAndDeleteUserBuddy() throws Exception {
+
+        mvc.perform(post("/api/users/buddy/{id}", 3)
+                        .queryParam("buddyId", String.valueOf(4)))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        mvc.perform(delete("/api/users/buddy/{id}", 3)
+                        .queryParam("buddyId", String.valueOf(4)))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
 }

@@ -98,8 +98,7 @@ public class InMemoryDBIntegrationTest {
     User createExpectedUser() {
         return new User()
                 .setName("John Test")
-                .setEmail("john.test@example.com")
-                .setBuddies(new Buddies());
+                .setEmail("john.test@example.com");
     }
 
     Course createExpectedCourse() {

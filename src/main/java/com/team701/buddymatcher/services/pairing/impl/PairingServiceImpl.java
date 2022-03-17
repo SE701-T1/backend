@@ -2,7 +2,6 @@ package com.team701.buddymatcher.services.pairing.impl;
 
 import com.team701.buddymatcher.domain.users.Buddies;
 import com.team701.buddymatcher.domain.users.User;
-import com.team701.buddymatcher.repositories.users.BuddiesRepository;
 import com.team701.buddymatcher.repositories.users.UserRepository;
 import com.team701.buddymatcher.services.pairing.PairingService;
 import com.team701.buddymatcher.services.users.UserService;
@@ -20,44 +19,23 @@ import java.util.List;
 public class PairingServiceImpl implements PairingService {
 
     private final UserRepository userRepository;
-    private final BuddiesRepository buddiesRepository;
 
     private final UserService userService;
 
     @Autowired
-    public PairingServiceImpl(UserRepository userRepository, BuddiesRepository buddiesRepository, UserService userService) {
+    public PairingServiceImpl(UserRepository userRepository,  UserService userService) {
         this.userRepository = userRepository;
-        this.buddiesRepository = buddiesRepository;
         this.userService = userService;
     }
     @Override
     @Transactional
     public void addBuddy(Long userId, Long buddyId) {
-        User user = userService.retrieveById(userId);
-        User buddy = userService.retrieveById(buddyId);
-
-        Buddies userBuddies = buddiesRepository.findById(user.getBuddies().getId()).orElseThrow();
-        Buddies buddyBuddies = buddiesRepository.findById(buddy.getBuddies().getId()).orElseThrow();
-
-        List<User> userBuddyList =  userBuddies.getUsers();
-        List<User> buddyBuddyList =  buddyBuddies.getUsers();
-        //check for duplication adding buddies
-        if(userBuddyList.contains(buddy) || buddyBuddyList.contains(user)){
-            System.out.println(String.format("Duplication of adding buddies"));
-        }else {
-            userBuddyList.add(buddy);
-            buddyBuddyList.add(user);
-
-            buddiesRepository.save(userBuddies);
-            buddiesRepository.save(buddyBuddies);
-            System.out.println(String.format("Buddy add request: %s, %s",userId,buddyId));
-        }
+        userService.addBuddy(userId, buddyId);
     }
     
     @Override
     public void removeBuddy(Long userId, Long buddyId) {
-        //Currently just a blank implementation for testing endpoint call
-        System.out.println(String.format("Buddy remove request: %s, %s",userId,buddyId));
+        userService.deleteBuddy(userId, buddyId);
     }
 
     @Override

@@ -63,15 +63,13 @@ public class UserControllerUnitTest {
         return new User()
                 .setId(id)
                 .setName("Pink Elephant")
-                .setEmail("pink.elephant@gmail.com")
-                .setBuddies(new Buddies());
+                .setEmail("pink.elephant@gmail.com");
     }
 
     UserDTO createMockedUserDTO(User mockedUser) {
         return new UserDTO()
                 .setId(mockedUser.getId())
                 .setName(mockedUser.getName())
-                .setEmail(mockedUser.getEmail())
-                .setBuddies(new BuddiesDTO());
+                .setEmail(mockedUser.getEmail());
     }
 }
