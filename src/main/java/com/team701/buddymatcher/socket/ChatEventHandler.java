@@ -93,23 +93,18 @@ public class ChatEventHandler {
             String userId = handshakeData.getSingleUrlParam(USER_ID_KEY);
             UUID clientId = client.getSessionId();
 
-            // Check if userId is not a number, report invalid userId
-            if (!userId.matches("\\d*")) {
+            try {
+                userIdConnections.put(Long.parseLong(userId), client.getSessionId());
+                connectionUserIds.put(client.getSessionId(), Long.parseLong(userId));
+
+                log.debug("Client[{}] User[{}] - Connected to chat handler through '{}'", clientId.toString(), userId, handshakeData.getUrl());
+
+                sendOnline();
+            } catch(NumberFormatException nfe) {
                 log.debug("Client[{}] - userId invalid", clientId.toString());
                 client.disconnect();
                 return;
             }
-
-            log.debug("Client[{}] User[{}] - Connected to chat handler through '{}'", clientId.toString(), userId, handshakeData.getUrl());
-
-            userIdConnections.put(Long.parseLong(userId), client.getSessionId());
-            connectionUserIds.put(client.getSessionId(), Long.parseLong(userId));
-
-            List<UserObject> users = userIdConnections.keySet().stream()
-                    .map(user -> new UserObject().setUserId(user))
-                    .toList();
-
-            sendOnline(users);
         };
     }
 
@@ -126,11 +121,7 @@ public class ChatEventHandler {
             userIdConnections.remove(clientId);
             connectionUserIds.remove(userId);
 
-            List<UserObject> users = userIdConnections.keySet().stream()
-                    .map(user -> new UserObject().setUserId(user))
-                    .toList();
-
-            sendOnline(users);
+            sendOnline();
         };
     }
 
@@ -138,7 +129,11 @@ public class ChatEventHandler {
         receiver.sendEvent(MESSAGE_EVENT_KEY, message);
     }
 
-    private void sendOnline(List<UserObject> users) {
+    private void sendOnline() {
+        List<UserObject> users = userIdConnections.keySet().stream()
+                .map(user -> new UserObject().setUserId(user))
+                .toList();
+
         namespace.getBroadcastOperations().sendEvent(ONLINE_EVENT_KEY, users);
     }
 
