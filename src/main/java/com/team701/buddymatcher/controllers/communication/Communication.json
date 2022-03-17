@@ -1,0 +1,37 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "backend API",
+    "description": "backend API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://backend"
+    }
+  ],
+  "paths": {
+    "/api/communication/messages/{userId}": {
+      "get": {
+        "summary": "GET api/communication/messages/{userId}",
+        "operationId": "getMessages",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  }
+}
+
