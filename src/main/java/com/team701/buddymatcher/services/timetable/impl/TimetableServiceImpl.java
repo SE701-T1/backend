@@ -86,7 +86,7 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Transactional
     public void populateCourses(Long studentId, List<String> courseNames) {
-        User user = userService.retrieve(studentId);
+        User user = userService.retrieveById(studentId);
         for (String courseName : courseNames) {
             Course course = courseRepository.findByName(courseName);
 
