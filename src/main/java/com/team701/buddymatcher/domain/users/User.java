@@ -20,10 +20,6 @@ public class User {
     @Column(name = "USER_EMAIL", nullable = false)
     private String email;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "BUDDIES_ID")
-    private Buddies buddies;
-
     @Column(name = "USER_PAIRING_ENABLED")
     private Boolean pairingEnabled;
 
@@ -54,15 +50,6 @@ public class User {
 
     public User setEmail(String email) {
         this.email = email;
-        return this;
-    }
-
-    public Buddies getBuddies() {
-        return buddies;
-    }
-
-    public User setBuddies(Buddies buddies) {
-        this.buddies = buddies;
         return this;
     }
 
