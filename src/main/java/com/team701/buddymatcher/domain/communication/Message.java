@@ -32,16 +32,18 @@ public class Message {
         return timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
+    public Message setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
+        return this;
     }
 
     public Boolean getRead() {
         return isRead;
     }
 
-    public void setRead(Boolean read) {
+    public Message setRead(Boolean read) {
         isRead = read;
+        return this;
     }
 
     public Long getId() {
@@ -52,23 +54,26 @@ public class Message {
         return sender;
     }
 
-    public void setSender(User sender) {
+    public Message setSender(User sender) {
         this.sender = sender;
+        return this;
     }
 
     public User getReceiver() {
         return receiver;
     }
 
-    public void setReceiver(User receiver) {
+    public Message setReceiver(User receiver) {
         this.receiver = receiver;
+        return this;
     }
 
     public String getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public Message setContent(String content) {
         this.content = content;
+        return this;
     }
 }
