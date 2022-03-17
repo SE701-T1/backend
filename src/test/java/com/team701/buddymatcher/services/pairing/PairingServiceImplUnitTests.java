@@ -74,7 +74,7 @@ public class PairingServiceImplUnitTests {
 
         buddies_1_list.add(user_2);
         buddies_2_list.add(user_1);
-        
+
         Mockito.when(userService.retrieveById(user_1_Id)).thenReturn(user_1);
         Mockito.when(userService.retrieveById(user_2_Id)).thenReturn(user_2);
 

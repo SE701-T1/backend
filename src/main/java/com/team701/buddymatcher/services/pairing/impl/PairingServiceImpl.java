@@ -33,7 +33,6 @@ public class PairingServiceImpl implements PairingService {
     @Override
     @Transactional
     public void addBuddy(Long userId, Long buddyId) {
-
         User user = userService.retrieveById(userId);
         User buddy = userService.retrieveById(buddyId);
 
