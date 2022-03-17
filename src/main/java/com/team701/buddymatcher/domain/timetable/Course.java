@@ -32,63 +32,70 @@ public class Course {
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "COURSE_STUDENT",
-            joinColumns = @JoinColumn(name = "id"),
-            inverseJoinColumns = @JoinColumn(name = "COURSE_ID"))
+            joinColumns = @JoinColumn(name = "COURSE_ID"),
+            inverseJoinColumns = @JoinColumn(name = "USER_ID"))
     private Set<User> users = new HashSet<>();
 
     public Set<User> getUsers() {
         return users;
     }
 
-    public void setUsers(Set<User> users) {
+    public Course setUsers(Set<User> users) {
         this.users = users;
+        return this;
     }
 
     public long getCourseId() {
         return courseId;
     }
 
-    public void setCourseId(long id) {
+    public Course setCourseId(long id) {
         this.courseId = id;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Course setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getSemester() {
         return semester;
     }
 
-    public void setSemester(String semester) {
+    public Course setSemester(String semester) {
         this.semester = semester;
+        return this;
     }
 
     public Integer getStudentCount() {
         return studentCount;
     }
 
-    public void setStudentCount(Integer studentCount) {
+    public Course setStudentCount(Integer studentCount) {
         this.studentCount = studentCount;
+        return this;
     }
 
     public Timestamp getUpdatedTime() {
         return updatedTime;
     }
 
-    public void setUpdatedTime(Timestamp updatedTime) {
+    public Course setUpdatedTime(Timestamp updatedTime) {
         this.updatedTime = updatedTime;
+        return this;
     }
 
-    public void addNewUser(User user){
+    public Course addNewUser(User user){
         if (!users.contains(user)){
             users.add(user);
             user.getCourses().add(this);
             studentCount++;
         }
+        return this;
     }
 }

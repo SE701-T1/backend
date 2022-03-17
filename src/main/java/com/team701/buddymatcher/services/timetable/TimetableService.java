@@ -1,5 +1,6 @@
 package com.team701.buddymatcher.services.timetable;
 
+import com.team701.buddymatcher.domain.timetable.Course;
 import com.team701.buddymatcher.domain.timetable.Timetable;
 
 import java.io.File;
@@ -9,4 +10,7 @@ public interface TimetableService {
     Timetable retrieve(String userId);
     List<String> getCalInfoFromIcs(File file) throws Exception;
     void populateCourses(Long studentId, List<String> courseNames);
+
+    List<Course> getCourses(Long userId);
+    Course getCourse(Long courseId);
 }
