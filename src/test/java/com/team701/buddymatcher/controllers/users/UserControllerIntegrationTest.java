@@ -15,14 +15,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
+        "socketio.host=localhost",
+        "socketio.port=8085"
+})
 @AutoConfigureMockMvc
 @Sql(scripts = "/user_data.sql")
 @Sql(scripts = "/user_cleanup_data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-@TestPropertySource(properties = {
-        "socketio.host=localhost",
-        "socketio.port=8081"
-})
 public class UserControllerIntegrationTest {
 
     @Autowired
