@@ -59,28 +59,32 @@ public class UserControllerIntegrationTest {
     @Test
     void getUserBuddy() throws Exception {
 
-        mvc.perform(get("/api/users/courses/{id}", 2))
+        mvc.perform(get("/api/users/buddy/{id}", 2))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(3))
-                .andExpect(jsonPath("$[0].name").value("Hiruna Smith"))
-                .andExpect(jsonPath("$[0].email").value("hiruna.smith@gmail.com"))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Pink Elephant"))
+                .andExpect(jsonPath("$[0].email").value("pink.elephant@gmail.com"))
                 .andExpect(jsonPath("$[0].pairingEnabled").value(false))
-                .andExpect(jsonPath("$[1].id").value(4))
-                .andExpect(jsonPath("$[1].name").value("Flynn Smith"))
-                .andExpect(jsonPath("$[1].email").value("flynn.smith@gmail.com"))
+                .andExpect(jsonPath("$[1].id").value(3))
+                .andExpect(jsonPath("$[1].name").value("Hiruna Smith"))
+                .andExpect(jsonPath("$[1].email").value("hiruna.smith@gmail.com"))
                 .andExpect(jsonPath("$[1].pairingEnabled").value(false))
+                .andExpect(jsonPath("$[2].id").value(4))
+                .andExpect(jsonPath("$[2].name").value("Flynn Smith"))
+                .andExpect(jsonPath("$[2].email").value("flynn.smith@gmail.com"))
+                .andExpect(jsonPath("$[2].pairingEnabled").value(false))
                 .andDo(print());
     }
 
     @Test
     void createAndDeleteUserBuddy() throws Exception {
 
-        mvc.perform(post("/api/users/courses/{id}", 3)
+        mvc.perform(post("/api/users/buddy/{id}", 3)
                         .queryParam("buddyId", String.valueOf(4)))
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        mvc.perform(delete("/api/users/courses/{id}", 3)
+        mvc.perform(delete("/api/users/buddy/{id}", 3)
                         .queryParam("buddyId", String.valueOf(4)))
                 .andExpect(status().isOk())
                 .andDo(print());

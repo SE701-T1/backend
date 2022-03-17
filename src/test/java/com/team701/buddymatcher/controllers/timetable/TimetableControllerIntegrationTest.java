@@ -40,7 +40,7 @@ public class TimetableControllerIntegrationTest {
     @Test
     void getCourse() throws Exception {
 
-        mvc.perform(get("/api/timetable/courses/{id}", 1))
+        mvc.perform(get("/api/timetable/its tcourses/{id}", 1))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.courseId").value(1))
                 .andExpect(jsonPath("$.name").value("SOFTENG 701"))
