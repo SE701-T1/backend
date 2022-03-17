@@ -23,7 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RestController
 @Tag(name = "Users")
@@ -108,6 +110,41 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Get method to retrieve a list of buddy from a user")
+    @GetMapping(path = "/buddy/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDTO>> getUserBuddy(@PathVariable("id") Long userId) { // TODO remove userId with Auth middleware
+        try {
+            List<User> users = userService.retrieveBuddiesByUserId(userId);
+            List<UserDTO> userDTOs = users.stream()
+                    .map(user -> modelMapper.map(user, UserDTO.class))
+                    .collect(Collectors.toList());
 
+            return new ResponseEntity<>(userDTOs, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
+
+    @Operation(summary = "Post method insert a user as a buddy")
+    @PostMapping(path = "/buddy/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> postUserBuddy(@PathVariable("id") Long userId, @RequestParam Long buddyId) { // TODO remove userId with Auth middleware
+        try {
+            userService.addBuddy(userId, buddyId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
+
+    @Operation(summary = "Post method insert a user as a buddy")
+    @DeleteMapping(path = "/buddy/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> deleteUserBuddy(@PathVariable("id") Long userId, @RequestParam Long buddyId) { // TODO remove userId with Auth middleware
+        try {
+            userService.deleteBuddy(userId, buddyId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
 
 }
