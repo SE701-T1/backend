@@ -27,7 +27,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT * FROM User u JOIN Buddies b ON b.user_0_id=u.id WHERE b.user_1_id=:userId UNION SELECT * FROM User u JOIN Buddies b ON b.user_1_id=u.id WHERE b.user_0_id=:userId", nativeQuery=true)
     List<User> findBuddies(@Param("userId") Long userId);
 
-    @Query(value = "SELECT COUNT(u) FROM User u JOIN Buddies b ON b.user_0_id=u.id WHERE b.user_1_id=:userId UNION SELECT u FROM User u JOIN Buddies b ON b.user_1_id=u.id WHERE b.user_0_id=:userId", nativeQuery=true)
+    @Query(value = "SELECT COUNT(*) FROM (SELECT * FROM User u JOIN Buddies b ON b.user_0_id=u.id WHERE b.user_1_id=:userId UNION SELECT * FROM User u JOIN Buddies b ON b.user_1_id=u.id WHERE b.user_0_id=:userId)", nativeQuery=true)
     Integer countBuddies(@Param("userId") Long userId);
 
     /**
