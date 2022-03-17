@@ -9,16 +9,14 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 17
       uses: actions/setup-java@v2
       with:
         java-version: '17'
-        distribution: 'temurin'
+        distribution: 'zulu'
         cache: maven
-    - name: Build with Maven
+    - name: Build & Test
       run: mvn -B package --file pom.xml
