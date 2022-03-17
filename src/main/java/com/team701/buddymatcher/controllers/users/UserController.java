@@ -136,7 +136,7 @@ public class UserController {
         }
     }
 
-    @Operation(summary = "Post method insert a user as a buddy")
+    @Operation(summary = "Delete method to delete a user's buddy")
     @DeleteMapping(path = "/buddy/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteUserBuddy(@PathVariable("id") Long userId, @RequestParam Long buddyId) { // TODO remove userId with Auth middleware
         try {
