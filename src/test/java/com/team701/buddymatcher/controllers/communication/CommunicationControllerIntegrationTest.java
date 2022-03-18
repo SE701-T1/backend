@@ -1,14 +1,19 @@
 package com.team701.buddymatcher.controllers.communication;
 
-import com.team701.buddymatcher.controllers.users.UserController;
+import com.team701.buddymatcher.interceptor.UserInterceptor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,7 +31,18 @@ public class CommunicationControllerIntegrationTest {
     private MockMvc mvc;
 
     @Autowired
-    UserController userController;
+    CommunicationController communicationController;
+
+    @MockBean
+    UserInterceptor interceptor;
+
+    @BeforeEach
+    void initTest() throws Exception {
+        mvc = MockMvcBuilders
+                .standaloneSetup(communicationController)
+                .addInterceptors(interceptor).build();
+        when(interceptor.preHandle(any(), any(), any())).thenReturn(true);
+    }
 
     @Test
     void getMessage() throws Exception {
