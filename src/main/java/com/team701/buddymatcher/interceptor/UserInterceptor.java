@@ -20,15 +20,16 @@ public class UserInterceptor implements HandlerInterceptor {
         }
         JwtTokenUtil validator = new JwtTokenUtil();
         if(validator.validateToken(token)){
-            String username = validator.getUsernameFromToken(token);
-            System.out.println("get Username from token: " + username);
-            addToUserDetails(request.getSession(), username);
+            String UserId = validator.getIdFromToken(token);
+            addToUserDetails(request.getSession(), UserId);
             return true;
         }
         return false;
     }
 
-    private void addToUserDetails(HttpSession session, String username) {
-        session.setAttribute("Username", username);
+    // Add UserId to request session so that the controller doesn't have to decode the JWT to get it
+    // To get the ID from the session, call request.getSession().getAttribute("UserId");
+    private void addToUserDetails(HttpSession session, String UserId) {
+        session.setAttribute("UserId", UserId);
     }
 }
