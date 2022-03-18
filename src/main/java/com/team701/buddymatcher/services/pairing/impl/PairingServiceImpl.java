@@ -1,15 +1,15 @@
 package com.team701.buddymatcher.services.pairing.impl;
 
-import com.team701.buddymatcher.domain.users.Buddies;
 import com.team701.buddymatcher.domain.users.User;
-import com.team701.buddymatcher.repositories.users.UserRepository;
 import com.team701.buddymatcher.services.pairing.PairingService;
+import com.team701.buddymatcher.services.timetable.TimetableService;
 import com.team701.buddymatcher.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation for the PairingService which is a service providing the implementations of the methods
@@ -18,13 +18,13 @@ import java.util.List;
 @Service
 public class PairingServiceImpl implements PairingService {
 
-    private final UserRepository userRepository;
+    private final TimetableService timetableService;
 
     private final UserService userService;
 
     @Autowired
-    public PairingServiceImpl(UserRepository userRepository,  UserService userService) {
-        this.userRepository = userRepository;
+    public PairingServiceImpl(TimetableService timetableService, UserService userService) {
+        this.timetableService = timetableService;
         this.userService = userService;
     }
     @Override
@@ -39,8 +39,14 @@ public class PairingServiceImpl implements PairingService {
     }
 
     @Override
-    public void matchBuddy(Long userId, List<Long> courseIds) {
-        //Currently just a blank implementation for testing endpoint call
-        System.out.println(String.format("Buddy match request: %s, %s",userId,courseIds));
+    public List<User> matchBuddy(Long userId, List<Long> courseIds) {
+        List<User> possibleBuddies = timetableService.getUsersFromCourseIds(courseIds);
+        return possibleBuddies;
+    }
+
+    @Override
+    public List<Long> getBuddyIds(Long userId) {
+        List<User> currentBuddies = userService.retrieveBuddiesByUserId(userId);
+        return currentBuddies.stream().map(user -> user.getId()).collect(Collectors.toList());
     }
 }

@@ -2,6 +2,7 @@ package com.team701.buddymatcher.services.timetable;
 
 import com.team701.buddymatcher.domain.timetable.Course;
 import com.team701.buddymatcher.domain.timetable.Timetable;
+import com.team701.buddymatcher.domain.users.User;
 
 import java.io.File;
 import java.util.List;
@@ -13,4 +14,6 @@ public interface TimetableService {
 
     List<Course> getCourses(Long userId);
     Course getCourse(Long courseId);
+
+    List<User> getUsersFromCourseIds(List<Long> courseIds);
 }
