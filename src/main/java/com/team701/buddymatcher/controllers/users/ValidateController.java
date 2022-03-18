@@ -24,7 +24,11 @@ public class ValidateController {
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void validateToken(HttpServletRequest request) {
         try {
-            String token = request.getHeader("token");
+            String token = request.getHeader("Authorization");
+            if (token == null || token == "") {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            }
+            token = token.replace("Bearer ","");
 
             jwtTokenUtil.validateToken(token);
 
