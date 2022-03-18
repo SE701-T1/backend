@@ -57,6 +57,13 @@ public class PairingController {
     public ResponseEntity matchBuddy(@PathVariable("userId") Long userId, @RequestBody MatchBuddyDTO buddyMatchRequest) {
         List<User> results = pairingService.matchBuddy(userId,buddyMatchRequest.getCourseIds());
         List<Long> currentBuddies = pairingService.getBuddyIds(userId);
+
+        /**Filter the list of possible buddies,
+         * 1. If the user is open to pairing,
+         * 2. If they are the current user,
+         * 3. If they are already a buddy of the user,
+         * Finally map it to a UserDto*/
+
         List<UserDTO> matches = results.stream()
                 .filter(User::getPairingEnabled)
                 .filter(user -> user.getId().equals(userId))
