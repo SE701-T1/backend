@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
         "socketio.host=localhost",
-        "socketio.port=8085"
+        "socketio.port=8090"
 })
 @AutoConfigureMockMvc
 @Sql(scripts = "/pairing_data.sql")
