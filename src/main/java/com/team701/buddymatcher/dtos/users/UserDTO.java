@@ -5,7 +5,6 @@ public class UserDTO {
     private Long id;
     private String name;
     private String email;
-    private BuddiesDTO buddies;
     private Boolean pairingEnabled;
 
     public Long getId() {
@@ -32,15 +31,6 @@ public class UserDTO {
 
     public UserDTO setEmail(String email) {
         this.email = email;
-        return this;
-    }
-
-    public BuddiesDTO getBuddies() {
-        return buddies;
-    }
-
-    public UserDTO setBuddies(BuddiesDTO buddies) {
-        this.buddies = buddies;
         return this;
     }
 

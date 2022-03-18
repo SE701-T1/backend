@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Timestamp;
@@ -25,6 +27,10 @@ import java.util.Set;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestPropertySource(properties = {
+        "socketio.host=localhost",
+        "socketio.port=8086"
+})
 public class InMemoryDBIntegrationTest {
 
 
@@ -98,8 +104,7 @@ public class InMemoryDBIntegrationTest {
     User createExpectedUser() {
         return new User()
                 .setName("John Test")
-                .setEmail("john.test@example.com")
-                .setBuddies(new Buddies());
+                .setEmail("john.test@example.com");
     }
 
     Course createExpectedCourse() {

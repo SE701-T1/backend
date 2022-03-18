@@ -27,7 +27,6 @@ import java.util.List;
 public class TimetableServiceImpl implements TimetableService {
 
     private final CourseRepository courseRepository;
-
     private final UserService userService;
 
     @Autowired
@@ -46,7 +45,7 @@ public class TimetableServiceImpl implements TimetableService {
     /**
      * This method parses the input .ics file and retrieves the course names from the file.
      *
-     * @param file
+     * @param file file to upload
      * @return A list of string that contains the courses from the ics file.
      */
     @Override
@@ -87,7 +86,7 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Transactional
     public void populateCourses(Long studentId, List<String> courseNames) {
-        User user = userService.retrieve(studentId);
+        User user = userService.retrieveById(studentId);
         for (String courseName : courseNames) {
             Course course = courseRepository.findByName(courseName);
 
@@ -112,4 +111,13 @@ public class TimetableServiceImpl implements TimetableService {
         return newCourse;
     }
 
+    @Override
+    public List<Course> getCourses(Long userId) {
+        return courseRepository.findByUserId(userId);
+    }
+
+    @Override
+    public Course getCourse(Long courseId) {
+        return courseRepository.findById(courseId).orElseThrow();
+    }
 }
