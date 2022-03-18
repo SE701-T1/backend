@@ -10,6 +10,8 @@ import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.dtos.users.UserDTO;
 import com.team701.buddymatcher.services.users.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.NonUniqueResultException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -30,6 +33,8 @@ import java.util.stream.Collectors;
 @RestController
 @Tag(name = "Users")
 @RequestMapping("/api/users")
+@SessionAttributes("UserId")
+@SecurityRequirement(name = "JWT")
 public class UserController {
 
     private final UserService userService;
@@ -42,11 +47,21 @@ public class UserController {
         this.modelMapper = modelMapper;
     }
 
+    @Operation(summary = "Get method to retrieve self")
+    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDTO> retrieveSelf(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId) {
+        return getUserById(userId);
+    }
+
     @Operation(summary = "Get method to retrieve a user by id")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDTO> retrieveUserById(@PathVariable("id") Long id) {
+        return getUserById(id);
+    }
+
+    private ResponseEntity<UserDTO> getUserById(Long userId) {
         try {
-            User user = userService.retrieveById(id);
+            User user = userService.retrieveById(userId);
             UserDTO userDTO = modelMapper.map(user, UserDTO.class);
 
             return new ResponseEntity<>(userDTO, HttpStatus.OK);
@@ -55,11 +70,11 @@ public class UserController {
         }
     }
 
-    @Operation(summary = "Put method to update a user's pairingEnabled field")
-    @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserDTO> updatePairingEnabled(@PathVariable("id") Long id, @RequestParam Boolean pairingEnabled) {
+    @Operation(summary = "Put method to update a own pairingEnabled field")
+    @PutMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDTO> updatePairingEnabled(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @RequestParam Boolean pairingEnabled) {
         try {
-            User user = userService.updatePairingEnabled(id, pairingEnabled);
+            User user = userService.updatePairingEnabled(userId, pairingEnabled);
             UserDTO userDTO = modelMapper.map(user, UserDTO.class);
 
             return new ResponseEntity<>(userDTO, HttpStatus.OK);
@@ -103,16 +118,14 @@ public class UserController {
             JwtTokenUtil util = new JwtTokenUtil();
             String token = util.generateToken(user);
             return new ResponseEntity<>(token, HttpStatus.OK);
-
-
         } else {
-            return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
     }
 
     @Operation(summary = "Get method to retrieve a list of buddy from a user")
-    @GetMapping(path = "/buddy/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserDTO>> getUserBuddy(@PathVariable("id") Long userId) { // TODO remove userId with Auth middleware
+    @GetMapping(path = "/buddy", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDTO>> getUserBuddy(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId) {
         try {
             List<User> users = userService.retrieveBuddiesByUserId(userId);
             List<UserDTO> userDTOs = users.stream()
@@ -127,7 +140,7 @@ public class UserController {
 
     @Operation(summary = "Post method insert a user as a buddy")
     @PostMapping(path = "/buddy/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> postUserBuddy(@PathVariable("id") Long userId, @RequestParam Long buddyId) { // TODO remove userId with Auth middleware
+    public ResponseEntity<Void> postUserBuddy(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @PathVariable("id") Long buddyId) {
         try {
             userService.addBuddy(userId, buddyId);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -138,7 +151,7 @@ public class UserController {
 
     @Operation(summary = "Delete method to delete a user's buddy")
     @DeleteMapping(path = "/buddy/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> deleteUserBuddy(@PathVariable("id") Long userId, @RequestParam Long buddyId) { // TODO remove userId with Auth middleware
+    public ResponseEntity<Void> deleteUserBuddy(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @PathVariable("id") Long buddyId) {
         try {
             userService.deleteBuddy(userId, buddyId);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -147,4 +160,39 @@ public class UserController {
         }
     }
 
+    /**
+     * TODO: remove fake login (for frontend testing)
+     */
+    @Operation(summary = "Get method for a fake Login for testing")
+    @GetMapping(path = "/fake/login/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getFakeLogin(@PathVariable("id") Long userId) {
+        try {
+            User user = userService.retrieveById(userId);
+            JwtTokenUtil util = new JwtTokenUtil();
+            String token = util.generateToken(user);
+            return new ResponseEntity<>(token, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
+        }
+    }
+
+    /**
+     * TODO: remove fake register (for frontend testing)
+     */
+    @Operation(summary = "Get method for a fake Register for testing")
+    @GetMapping(path = "/fake/register", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDTO> getFakeRegister(@RequestParam("name") String name, @RequestParam("email") String email) {
+        try {
+            userService.addUser(name, email);
+            User user = userService.retrieveByEmail(email);
+            UserDTO userDTO = new UserDTO()
+                    .setId(user.getId())
+                    .setEmail(user.getEmail())
+                    .setName(user.getName())
+                    .setPairingEnabled(user.getPairingEnabled());
+            return new ResponseEntity<>(userDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
+        }
+    }
 }

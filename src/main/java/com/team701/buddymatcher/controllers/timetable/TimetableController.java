@@ -1,12 +1,11 @@
 package com.team701.buddymatcher.controllers.timetable;
 
 import com.team701.buddymatcher.domain.timetable.Course;
-import com.team701.buddymatcher.domain.timetable.Timetable;
-import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.dtos.timetable.CourseDTO;
-import com.team701.buddymatcher.dtos.users.UserDTO;
 import com.team701.buddymatcher.services.timetable.TimetableService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,8 @@ import java.util.stream.Collectors;
 @RestController
 @Tag(name = "Timetable")
 @RequestMapping("/api/timetable")
+@SessionAttributes("UserId")
+@SecurityRequirement(name = "JWT")
 public class TimetableController {
     private final TimetableService timetableService;
 
@@ -34,16 +35,19 @@ public class TimetableController {
         this.modelMapper = modelMapper;
     }
 
-    @Operation(summary ="Get a user's Timetable by their id")
-    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Timetable> findTimetable(@RequestParam(name = "u") String userId) {
-        Timetable t = timetableService.retrieve("");
-        return new ResponseEntity<>(t, HttpStatus.OK);
+    @Operation(summary ="Get method to get all user's courses")
+    @GetMapping(path = "/users/courses", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<CourseDTO>> getSelfCourses (@Parameter(hidden = true) @SessionAttribute("UserId") Long userId) {
+        return getCourseListById(userId);
     }
 
     @Operation(summary ="Get method to get all user's courses")
     @GetMapping(path = "/users/courses/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CourseDTO>> getCourses (@PathVariable("id") Long userId) {
+        return getCourseListById(userId);
+    }
+
+    private ResponseEntity<List<CourseDTO>> getCourseListById(Long userId) {
         try {
             List<Course> courses = timetableService.getCourses(userId);
             List<CourseDTO> courseDTOs = courses.stream()
@@ -52,12 +56,13 @@ public class TimetableController {
 
             return new ResponseEntity<>(courseDTOs, HttpStatus.OK);
         } catch (NoSuchElementException e) {
+
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
     }
 
     @Operation(summary ="Get method to get a course using courseId")
-    @GetMapping(path = "/courses/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/course/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CourseDTO> getCourse (@PathVariable("id") Long courseId) {
         try {
             Course course = timetableService.getCourse(courseId);
@@ -68,6 +73,5 @@ public class TimetableController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");
         }
     }
-
 }
 
