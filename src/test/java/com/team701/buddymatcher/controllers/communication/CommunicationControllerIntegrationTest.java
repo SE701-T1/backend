@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -46,20 +47,20 @@ public class CommunicationControllerIntegrationTest {
 
     @Test
     void getMessage() throws Exception {
-        mvc.perform(get("/api/communication/messages/{id}", 1)
-                .queryParam("buddyId", String.valueOf(2)))
+        mvc.perform(get("/api/communication/messages/{id}",2)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].senderId").value(1))
                 .andExpect(jsonPath("$[0].receiverId").value(2))
-                .andExpect(jsonPath("$[0].timestamp").value("2022-03-16T01:29:36.000+00:00"))
+                .andExpect(jsonPath("$[0].timestamp").value("1647394176000"))
                 .andExpect(jsonPath("$[0].content").value("HARRO"))
                 .andExpect(jsonPath("$[0].read").value(true))
                 .andExpect(jsonPath("$[1].id").value(2))
                 .andExpect(jsonPath("$[1].senderId").value(2))
                 .andExpect(jsonPath("$[1].receiverId").value(1))
                 .andExpect(jsonPath("$[1].content").value("Yo HARRO"))
-                .andExpect(jsonPath("$[1].timestamp").value("2022-03-16T01:40:21.000+00:00"))
+                .andExpect(jsonPath("$[1].timestamp").value("1647394821000"))
                 .andExpect(jsonPath("$[1].read").value(false))
                 .andDo(print());
     }

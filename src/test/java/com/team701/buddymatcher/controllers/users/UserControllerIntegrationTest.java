@@ -11,6 +11,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Collections;
 import java.util.Random;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -47,6 +48,20 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
+    void getSelf() throws Exception {
+
+        mvc.perform(get("/api/users")
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Pink Elephant"))
+                .andExpect(jsonPath("$.email").value("pink.elephant@gmail.com"))
+                .andExpect(jsonPath("$.pairingEnabled").value(false))
+                .andDo(print());
+    }
+
+
+    @Test
     void getExistingUser() throws Exception {
 
         mvc.perform(get("/api/users/{id}", 1))
@@ -68,18 +83,20 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    void updatePairingEnabledForNonExistingUser() throws Exception {
+    void updatePairingEnabledForSelf() throws Exception {
 
-        mvc.perform(put("/api/users/{id}", new Random().nextLong())
+        mvc.perform(put("/api/users")
+                        .sessionAttrs(Collections.singletonMap("UserId", 1))
                 .queryParam("pairingEnabled", String.valueOf(true)))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isOk())
                 .andDo(print());
     }
 
     @Test
     void getUserBuddy() throws Exception {
 
-        mvc.perform(get("/api/users/buddy/{id}", 2))
+        mvc.perform(get("/api/users/buddy")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Pink Elephant"))
@@ -99,13 +116,13 @@ public class UserControllerIntegrationTest {
     @Test
     void createAndDeleteUserBuddy() throws Exception {
 
-        mvc.perform(post("/api/users/buddy/{id}", 3)
-                        .queryParam("buddyId", String.valueOf(4)))
+        mvc.perform(post("/api/users/buddy/{id}", 4)
+                        .sessionAttrs(Collections.singletonMap("UserId", 3)))
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        mvc.perform(delete("/api/users/buddy/{id}", 3)
-                        .queryParam("buddyId", String.valueOf(4)))
+        mvc.perform(delete("/api/users/buddy/{id}", 4)
+                        .sessionAttrs(Collections.singletonMap("UserId", 3)))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
