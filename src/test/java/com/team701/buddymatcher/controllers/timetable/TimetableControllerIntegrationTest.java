@@ -1,5 +1,6 @@
 package com.team701.buddymatcher.controllers.timetable;
 
+import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -7,7 +8,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.File;
+import java.nio.file.Path;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,6 +55,15 @@ public class TimetableControllerIntegrationTest {
                 .andExpect(jsonPath("$.studentCount").value(10))
                 .andExpect(jsonPath("$.updatedTime").value("2022-03-16T01:29:36.000+00:00"))
                 .andDo(print());
+    }
+
+    @Test
+    // TODO find a way to access local resource for test as file URI doesn't work
+    void uploadTimetable() {
+//        File f = new File("src/test/resources/UoACal.ics");
+//        mvc.perform(post("/api/timetable/users/upload/{id}", 1)
+//                .content(f.toURI().toString()))
+//                .andExpect(status().isOk());
     }
 }
 

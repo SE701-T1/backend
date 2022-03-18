@@ -8,6 +8,11 @@ import com.team701.buddymatcher.dtos.users.UserDTO;
 import com.team701.buddymatcher.services.timetable.TimetableService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.data.ParserException;
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.Property;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,8 +21,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -66,6 +80,26 @@ public class TimetableController {
             return new ResponseEntity<>(courseDTO, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");
+        }
+    }
+
+    @PostMapping(path="users/upload/{id}")
+    public ResponseEntity<Void> uploadTimetable(@RequestBody String timetableUrl, @PathVariable("id") Long userId) throws IOException, InterruptedException {
+        HttpRequest timetableRequest = HttpRequest.newBuilder()
+                .uri(URI.create(timetableUrl))
+                .GET()
+                .build();
+        HttpResponse<String> timetableResponse = HttpClient.newBuilder()
+                .build()
+                .send(timetableRequest, HttpResponse.BodyHandlers.ofString());
+        InputStream timetableStream = new ByteArrayInputStream(timetableResponse.body().getBytes(StandardCharsets.UTF_8));
+        List<String> result;
+        try {
+            result = timetableService.getCalInfoFromIcs(timetableStream);
+            timetableService.populateCourses(userId, result);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (ParserException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Timetable URL is invalid");
         }
     }
 
