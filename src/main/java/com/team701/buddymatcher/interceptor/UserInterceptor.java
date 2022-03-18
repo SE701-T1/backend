@@ -30,6 +30,6 @@ public class UserInterceptor implements HandlerInterceptor {
     // Add UserId to request session so that the controller doesn't have to decode the JWT to get it
     // To get the ID from the session, call request.getSession().getAttribute("UserId");
     private void addToUserDetails(HttpSession session, String UserId) {
-        session.setAttribute("UserId", UserId);
+        session.setAttribute("UserId", Long.parseLong(UserId));
     }
 }
