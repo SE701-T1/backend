@@ -57,6 +57,7 @@ public class JwtTokenUtil implements Serializable {
         return Jwts.builder().setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(2022, 12, 10))
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
 
