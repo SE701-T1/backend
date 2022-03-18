@@ -120,4 +120,6 @@ public class TimetableServiceImpl implements TimetableService {
     public Course getCourse(Long courseId) {
         return courseRepository.findById(courseId).orElseThrow();
     }
+
+    public List<User> getUsersFromCourseIds(List<Long> courseIds) { return courseRepository.findAllUsersByCourseIds(courseIds);}
 }
