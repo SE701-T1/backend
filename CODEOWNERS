@@ -29,16 +29,16 @@
 /src/main/java/com/team701/buddymatcher/dto/users/ @uoa-ypec413 @jafarmaash
 
 # Service Tests
-/src/main/java/com/team701/buddymatcher/services/communication/ @ejstuart @uoa-ppat965 @NicholasBatesNZ @dogeliness
-/src/main/java/com/team701/buddymatcher/services/pairing/ @ff-dev-45 @rayaway2020 @shreyasingaraju
-/src/main/java/com/team701/buddymatcher/services/timetable/ @dlee432 @ThomasHolsterUOA
-/src/main/java/com/team701/buddymatcher/services/users/ @uoa-ypec413 @jafarmaash
+/src/test/java/com/team701/buddymatcher/services/communication/ @ejstuart @uoa-ppat965 @NicholasBatesNZ @dogeliness
+/src/test/java/com/team701/buddymatcher/services/pairing/ @ff-dev-45 @rayaway2020 @shreyasingaraju
+/src/test/java/com/team701/buddymatcher/services/timetable/ @dlee432 @ThomasHolsterUOA
+/src/test/java/com/team701/buddymatcher/services/users/ @uoa-ypec413 @jafarmaash
 
 # Repository Tests
-/src/main/java/com/team701/buddymatcher/repositories/communication/ @ejstuart @uoa-ppat965 @NicholasBatesNZ @dogeliness
-/src/main/java/com/team701/buddymatcher/repositories/pairing/ @ff-dev-45 @rayaway2020 @shreyasingaraju
-/src/main/java/com/team701/buddymatcher/repositories/timetable/ @dlee432 @ThomasHolsterUOA
-/src/main/java/com/team701/buddymatcher/repositories/users/ @uoa-ypec413 @jafarmaash
+/src/test/java/com/team701/buddymatcher/repositories/communication/ @ejstuart @uoa-ppat965 @NicholasBatesNZ @dogeliness
+/src/test/java/com/team701/buddymatcher/repositories/pairing/ @ff-dev-45 @rayaway2020 @shreyasingaraju
+/src/test/java/com/team701/buddymatcher/repositories/timetable/ @dlee432 @ThomasHolsterUOA
+/src/test/java/com/team701/buddymatcher/repositories/users/ @uoa-ypec413 @jafarmaash
 
 # Shared
 /src/test/java/com/team701/buddymatcher/BuddyMatcherApplicationTests.java @ejstuart @ff-dev-45 @ThomasHolsterUOA @jafarmaash
