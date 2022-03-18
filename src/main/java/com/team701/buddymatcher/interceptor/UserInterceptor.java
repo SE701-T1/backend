@@ -14,17 +14,34 @@ public class UserInterceptor implements HandlerInterceptor {
      **/
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception {
-        String token = request.getHeader("token");
-        if (request.getRequestURI().contains("login")){
-            return true;
-        }
-        JwtTokenUtil validator = new JwtTokenUtil();
-        if(validator.validateToken(token)){
-            String UserId = validator.getIdFromToken(token);
-            addToUserDetails(request.getSession(), UserId);
-            return true;
-        }
+        try {
+            String url = request.getRequestURI();
+            String token = request.getHeader("Authorization");
+            if (url.contains("swagger")
+                    || url.contains("api-docs")
+                    || url.contains("webjars")
+                    || url.contains("login")
+                    || url.contains("register")
+            ) {
+                return true;
+            }
+
+            if (token == null || token == "") {
+                return false;
+            }
+
+            token = token.replace("Bearer ","");
+
+            JwtTokenUtil validator = new JwtTokenUtil();
+            if(validator.validateToken(token)){
+                String UserId = validator.getIdFromToken(token);
+                addToUserDetails(request.getSession(), UserId);
+                return true;
+            }
         return false;
+        }catch(IllegalArgumentException e) {
+            return false;
+        }
     }
 
     // Add UserId to request session so that the controller doesn't have to decode the JWT to get it
