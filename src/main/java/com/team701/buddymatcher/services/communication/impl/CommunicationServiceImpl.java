@@ -32,4 +32,9 @@ public class CommunicationServiceImpl implements CommunicationService {
     public void sendMessage(Message message) {
         messageRepository.save(message);
     }
+
+    @Override
+    public Message getLastMessage(Long userId, Long buddyId) {
+        return messageRepository.findLastMessageBetweenUsers(userId, buddyId);
+    }
 }
