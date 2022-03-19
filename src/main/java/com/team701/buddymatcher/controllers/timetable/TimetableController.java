@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -91,6 +92,7 @@ public class TimetableController {
     @Operation(summary = "Post method to upload a course url for current user")
     @PostMapping(path="users/upload")
     public ResponseEntity<Void> uploadTimetable(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @RequestBody String timetableUrl) throws IOException, InterruptedException {
+        timetableUrl = URLDecoder.decode(timetableUrl,StandardCharsets.UTF_8.toString()).replace("=", "");
         HttpRequest timetableRequest = HttpRequest.newBuilder()
                 .uri(URI.create(timetableUrl))
                 .GET()
@@ -106,6 +108,8 @@ public class TimetableController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (ParserException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Timetable URL is invalid");
+        }catch(NoSuchElementException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user");
         }
     }
 
