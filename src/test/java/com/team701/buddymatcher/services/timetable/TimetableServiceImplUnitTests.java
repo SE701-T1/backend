@@ -6,6 +6,7 @@ import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.repositories.timetable.CourseRepository;
 import com.team701.buddymatcher.services.timetable.impl.TimetableServiceImpl;
 import com.team701.buddymatcher.services.users.UserService;
+import net.fortuna.ical4j.data.ParserException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.*;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
@@ -122,6 +124,23 @@ public class TimetableServiceImplUnitTests {
         Assertions.assertEquals(course, expected);
     }
 
+    @Test
+    void correctlyExtractCourseNamesFromIcsFile() throws IOException, ParserException {
+        List<String> expected = Arrays.asList(
+                "SOFTENG 754",
+                "SOFTENG 701",
+                "COMPSYS 725",
+                "ENGGEN 403",
+                "SOFTENG 761 LAB",
+                "SOFTENG 761",
+                "SOFTENG 751"
+        );
+        File icsFile = new File("src/test/resources/UoACal.ics");
+        InputStream icsInput = new FileInputStream(icsFile);
+        List<String> courses = timetableService.getCalInfoFromIcs(icsInput);
+        Assertions.assertEquals(courses, expected);
+    }
+
     User createExpectedUser(Long id) {
         return new User()
                 .setId(id)
@@ -138,4 +157,5 @@ public class TimetableServiceImplUnitTests {
         course.setUpdatedTime(Timestamp.from(Instant.now()));
         return course;
     }
+
 }

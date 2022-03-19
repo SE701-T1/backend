@@ -1,5 +1,6 @@
 package com.team701.buddymatcher.controllers.timetable;
 
+import com.sun.net.httpserver.HttpServer;
 import com.team701.buddymatcher.interceptor.UserInterceptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,12 +11,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -80,6 +82,15 @@ public class TimetableControllerIntegrationTest {
                 .andExpect(jsonPath("$.studentCount").value(10))
                 .andExpect(jsonPath("$.updatedTime").value("1647394176000"))
                 .andDo(print());
+    }
+
+    @Test
+    // TODO find a way to access local resource for test as file URI doesn't work
+    void uploadTimetable() {
+//        File f = new File("src/test/resources/UoACal.ics");
+//        mvc.perform(post("/api/timetable/users/upload/{id}", 1)
+//                .content(f.toURI().toString()))
+//                .andExpect(status().isOk());
     }
 }
 
