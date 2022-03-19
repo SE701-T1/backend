@@ -1,7 +1,7 @@
 package com.team701.buddymatcher.services.users.impl;
 
 import com.team701.buddymatcher.domain.users.User;
-import com.team701.buddymatcher.repositories.BuddiesRepository;
+import com.team701.buddymatcher.repositories.users.BuddiesRepository;
 import com.team701.buddymatcher.repositories.users.UserRepository;
 import com.team701.buddymatcher.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
