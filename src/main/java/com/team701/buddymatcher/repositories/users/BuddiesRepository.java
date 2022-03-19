@@ -1,4 +1,4 @@
-package com.team701.buddymatcher.repositories;
+package com.team701.buddymatcher.repositories.users;
 
 import com.team701.buddymatcher.domain.users.Buddies;
 import com.team701.buddymatcher.domain.users.User;
