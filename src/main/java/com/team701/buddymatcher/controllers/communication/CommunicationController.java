@@ -59,7 +59,7 @@ public class CommunicationController {
 
     @Operation(summary = "Get method to get all chatroom's associated with a given user")
     @GetMapping(path = "/chatlist", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ChatDTO>> getMessages(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId) {
+    public ResponseEntity<List<ChatDTO>> getChatList(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId) {
         try {
             List<User> buddies = userService.retrieveBuddiesByUserId(userId);
             List<ChatDTO> chatDTOs = new ArrayList<>();

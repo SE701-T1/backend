@@ -4,6 +4,7 @@ import com.team701.buddymatcher.domain.timetable.Course;
 import com.team701.buddymatcher.domain.timetable.Timetable;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.repositories.timetable.CourseRepository;
+import com.team701.buddymatcher.repositories.users.BuddiesRepository;
 import com.team701.buddymatcher.services.timetable.TimetableService;
 import com.team701.buddymatcher.services.users.UserService;
 import net.fortuna.ical4j.data.CalendarBuilder;
@@ -26,11 +27,13 @@ import java.util.*;
 @Service
 public class TimetableServiceImpl implements TimetableService {
 
+    private final BuddiesRepository buddiesRepository;
     private final CourseRepository courseRepository;
     private final UserService userService;
 
     @Autowired
-    public TimetableServiceImpl(CourseRepository courseRepository, UserService userService) {
+    public TimetableServiceImpl(CourseRepository courseRepository, BuddiesRepository buddiesRepository, UserService userService) {
+        this.buddiesRepository = buddiesRepository;
         this.courseRepository = courseRepository;
         this.userService = userService;
     }
@@ -112,6 +115,14 @@ public class TimetableServiceImpl implements TimetableService {
     @Override
     public Course getCourse(Long courseId) {
         return courseRepository.findById(courseId).orElseThrow();
+    }
+
+    @Override
+    public Long getBuddyCountFromCourse(Long userId, Long courseId) {
+        Long countUser0 = buddiesRepository.countUser0(userId, courseId);
+        Long countUser1 = buddiesRepository.countUser1(userId, courseId);
+
+        return countUser0 + countUser1;
     }
 
     public List<User> getUsersFromCourseIds(List<Long> courseIds) { return courseRepository.findAllUsersByCourseIds(courseIds);}

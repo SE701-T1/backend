@@ -26,6 +26,11 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query(value = "UPDATE Message m set m.isRead=true WHERE m.receiver.id=:userId AND m.sender.id=:buddyUserId AND m.isRead=false")
     void updateUnreadMessagesForAUser(@Param("userId") Long userId, @Param("buddyUserId") Long buddyUserId);
 
+    @Transactional
+    @Modifying
+    @Query(value = "INSERT INTO Messages (sender_id, receiver_id, timestamp, content) VALUES (:senderId, :receiverId, CURRENT_TIMESTAMP(), :message)", nativeQuery=true)
+    void createMessage(@Param("senderId") Long senderId, @Param("receiverId") Long receiverId, @Param("message") String message);
+
     /**
      * Finds the last message between 2 users
      * Assuring integrity of the data user0 != user1 and user0 < user1
