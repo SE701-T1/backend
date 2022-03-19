@@ -1,5 +1,7 @@
 package com.team701.buddymatcher;
 
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -10,6 +12,13 @@ import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
+@SecurityScheme(
+        name = "JWT",
+        description = "JWT authentication with bearer token",
+        type = SecuritySchemeType.HTTP,
+        scheme = "bearer",
+        bearerFormat = "Bearer [token]"
+)
 public class SwaggerConfig {
 
     @Bean

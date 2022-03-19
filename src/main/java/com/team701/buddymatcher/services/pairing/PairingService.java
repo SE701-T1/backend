@@ -1,5 +1,7 @@
 package com.team701.buddymatcher.services.pairing;
 
+import com.team701.buddymatcher.domain.users.User;
+
 import java.util.List;
 
 /**
@@ -10,5 +12,7 @@ public interface PairingService {
     
     void removeBuddy(Long userId, Long buddyId);
 
-    void matchBuddy(Long userId, List<Long> courseIds);
+    List<User> matchBuddy(Long userId, List<Long> courseIds);
+
+    List<Long> getBuddyIds(Long userId);
 }

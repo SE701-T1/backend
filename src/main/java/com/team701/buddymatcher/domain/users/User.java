@@ -17,10 +17,10 @@ public class User {
     @Column(name = "USER_NAME", nullable = false)
     private String name;
 
-    @Column(name = "USER_EMAIL", nullable = false)
+    @Column(name = "USER_EMAIL", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "USER_PAIRING_ENABLED")
+    @Column(name = "USER_PAIRING_ENABLED", columnDefinition = "boolean default false")
     private Boolean pairingEnabled;
 
     @ManyToMany(mappedBy = "users")

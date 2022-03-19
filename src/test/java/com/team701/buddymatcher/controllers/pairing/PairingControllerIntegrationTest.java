@@ -1,123 +1,162 @@
 package com.team701.buddymatcher.controllers.pairing;
 
-import com.team701.buddymatcher.domain.timetable.Course;
-import com.team701.buddymatcher.dtos.pairing.AddBuddyDTO;
-import com.team701.buddymatcher.dtos.pairing.MatchBuddyDTO;
-import com.team701.buddymatcher.dtos.pairing.RemoveBuddyDTO;
-import com.team701.buddymatcher.services.pairing.PairingService;
-import org.junit.jupiter.api.Assertions;
+import com.team701.buddymatcher.config.JwtTokenUtil;
+import com.team701.buddymatcher.interceptor.UserInterceptor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
-@ExtendWith(MockitoExtension.class)
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
+        "socketio.host=localhost",
+        "socketio.port=8090"
+})
+@AutoConfigureMockMvc
+@Sql(scripts = "/pairing_data.sql")
+@Sql(scripts = "/cleanup_data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class PairingControllerIntegrationTest {
 
-    @Mock
-    private PairingService pairingService;
+    @Autowired
+    private MockMvc mvc;
 
-    @InjectMocks
-    private PairingController pairingController;
+    private static final JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
 
-    @Test
-    void addValidNewBuddy() {
-        Long userId = new Random().nextLong();
-        Long buddyId = new Random().nextLong();
+    @MockBean
+    UserInterceptor interceptor;
 
-        AddBuddyDTO buddyRequest = createMockedAddBuddyDTO(userId, buddyId);
+    @Autowired
+    PairingController pairingController;
 
-        ResponseEntity response = pairingController.addBuddy(buddyRequest);
 
-        //Temp response
-        String success = String.format("\"Success: %s, %s \"", userId, buddyId);
-
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
-        Assertions.assertEquals(response.getBody(), success);
-    }
-
-    AddBuddyDTO createMockedAddBuddyDTO(Long userId, Long buddyId) {
-        var dto = new AddBuddyDTO();
-        dto.setUserId(userId);
-        dto.setBuddyId(buddyId);
-        return dto;
-    }
-
-    @Test 
-    void removeValidBuddy() {
-        Long userId = new Random().nextLong();
-        Long buddyId = new Random().nextLong();
-
-        RemoveBuddyDTO buddyRequest = createMockedRemoveBuddyDTO(userId, buddyId);
-
-        ResponseEntity response = pairingController.removeBuddy(buddyRequest);
-
-        //Temp response
-        String success = String.format("\"Removed: %s, %s \"", userId, buddyId);
-
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
-        Assertions.assertEquals(response.getBody(), success);
-    }
-
-    @Test
-    void requestBuddyMatchFromCourseWithPossibleBuddies() {
+    @BeforeEach
+    void initTest() throws Exception {
+        mvc = MockMvcBuilders
+                .standaloneSetup(pairingController)
+                .addInterceptors(interceptor).build();
+        when(interceptor.preHandle(any(), any(), any())).thenReturn(true);
 
     }
 
     @Test
-    void requestBuddyMatchFromCourseWithoutBuddies() {
-        Random random = new Random();
-        Long userId = random.nextLong();
-        List<Long> courseIds = new ArrayList<>() {
-            {
-                add(random.nextLong());
-                add(random.nextLong());
-                add(random.nextLong());
-            }
-        };
-        List<Course> courses = courseIds.stream()
-                .map(id -> createExpectedCourse(id))
-                .collect(Collectors.toList());
+    void requestBuddyMatchFromCourseWithOneBuddy() throws Exception {
 
+        mvc.perform(post("/api/pairing/matchBuddy")
+                        .content("{\"courseIds\":[3]}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(6))
+                .andExpect(jsonPath("$[0].name").value("only sevenfifty"))
+                .andExpect(jsonPath("$[0].email").value("only.seven@gmail.com"))
+                .andExpect(jsonPath("$[0].pairingEnabled").value(true))
+                .andDo(print());
 
-        MatchBuddyDTO matchRequest = new MatchBuddyDTO();
-        matchRequest.setCourseIds(courseIds);
-
-        ResponseEntity response = pairingController.matchBuddy(userId,matchRequest);
-
-        //Temp response
-        String success = String.format("\"Match: %s, %s \"", userId, courseIds);
-
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
-        Assertions.assertEquals(response.getBody(), success);
     }
 
-    RemoveBuddyDTO createMockedRemoveBuddyDTO(Long userId, Long buddyId) {
-        var dto = new RemoveBuddyDTO();
-        dto.setUserId(userId);
-        dto.setBuddyId(buddyId);
-        return dto;
+    @Test
+    void requestBuddyMatchFromCourseWithNoBuddy() throws Exception {
+
+        mvc.perform(post("/api/pairing/matchBuddy")
+                        .content("{\"courseIds\":[2]}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4)))
+                .andExpect(status().isNoContent())
+                .andDo(print());
     }
 
-    Course createExpectedCourse(Long id) {
-        Course course = new Course();
-        course.setCourseId(id);
-        course.setName("se701");
-        course.setSemester("2022 Sem 1");
-        course.setUpdatedTime(Timestamp.from(Instant.now()));
-        return course;
+    @Test
+    void requestBuddyMatchFromCourseWithCourseWithStudentNotPairing() throws Exception {
+
+        mvc.perform(post("/api/pairing/matchBuddy")
+                        .content("{\"courseIds\":[2]}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4)))
+                .andExpect(status().isNoContent())
+                .andDo(print());
+    }
+
+    @Test
+    void requestBuddyMatchFromCourseWithBuddy() throws Exception {
+        mvc.perform(post("/api/pairing/matchBuddy")
+                        .content("{\"courseIds\":[5]}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4)))
+                .andExpect(status().isNoContent())
+                .andDo(print());
+    }
+
+    @Test
+    void requestBuddyMatchFromCourseWithMultipleStudents() throws Exception {
+
+        mvc.perform(post("/api/pairing/matchBuddy")
+                        .content("{\"courseIds\":[1]}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(2))
+                .andExpect(jsonPath("$[0].name").value("Green Dinosaur"))
+                .andExpect(jsonPath("$[0].email").value("green.dinosaur@gmail.com"))
+                .andExpect(jsonPath("$[0].pairingEnabled").value(true))
+                .andExpect(jsonPath("$[1].id").value(3))
+                .andExpect(jsonPath("$[1].name").value("Hiruna Smith"))
+                .andExpect(jsonPath("$[1].email").value("hiruna.smith@gmail.com"))
+                .andExpect(jsonPath("$[1].pairingEnabled").value(true))
+                .andDo(print());
+    }
+
+    @Test
+    void requestBuddyMatchFromMultipleCoursesWithMultipleStudents() throws Exception {
+        mvc.perform(post("/api/pairing/matchBuddy")
+                        .content("{\"courseIds\":[1,3]}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(2))
+                .andExpect(jsonPath("$[0].name").value("Green Dinosaur"))
+                .andExpect(jsonPath("$[0].email").value("green.dinosaur@gmail.com"))
+                .andExpect(jsonPath("$[0].pairingEnabled").value(true))
+                .andExpect(jsonPath("$[1].id").value(3))
+                .andExpect(jsonPath("$[1].name").value("Hiruna Smith"))
+                .andExpect(jsonPath("$[1].email").value("hiruna.smith@gmail.com"))
+                .andExpect(jsonPath("$[1].pairingEnabled").value(true))
+                .andExpect(jsonPath("$[2].id").value(6))
+                .andExpect(jsonPath("$[2].name").value("only sevenfifty"))
+                .andExpect(jsonPath("$[2].email").value("only.seven@gmail.com"))
+                .andExpect(jsonPath("$[2].pairingEnabled").value(true))
+                .andDo(print());
+    }
+
+    @Test
+    void requestBuddyMatchFromCoursesWithSameStudentInBothCourses() throws Exception {
+        mvc.perform(post("/api/pairing/matchBuddy")
+                        .content("{\"courseIds\":[1,4]}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(2))
+                .andExpect(jsonPath("$[0].name").value("Green Dinosaur"))
+                .andExpect(jsonPath("$[0].email").value("green.dinosaur@gmail.com"))
+                .andExpect(jsonPath("$[0].pairingEnabled").value(true))
+                .andExpect(jsonPath("$[1].id").value(3))
+                .andExpect(jsonPath("$[1].name").value("Hiruna Smith"))
+                .andExpect(jsonPath("$[1].email").value("hiruna.smith@gmail.com"))
+                .andExpect(jsonPath("$[1].pairingEnabled").value(true))
+                .andDo(print());
     }
 }

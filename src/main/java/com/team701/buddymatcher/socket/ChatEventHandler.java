@@ -1,62 +1,171 @@
 package com.team701.buddymatcher.socket;
 
-import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.SocketIOServer;
+import com.corundumstudio.socketio.*;
+import com.corundumstudio.socketio.listener.ConnectListener;
+import com.corundumstudio.socketio.listener.DataListener;
+import com.corundumstudio.socketio.listener.DisconnectListener;
+import com.team701.buddymatcher.config.JwtTokenUtil;
+import com.team701.buddymatcher.domain.communication.Message;
+import com.team701.buddymatcher.domain.users.User;
+import com.team701.buddymatcher.repositories.communication.MessageRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.UUID;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.*;
 
+@Component
 public class ChatEventHandler {
+    private static final Logger log = LoggerFactory.getLogger(ChatEventHandler.class);
+    private final SocketIOServer namespace;
 
-    private final String USER_ID_KEY = "userId";
+    // Maintain two hashmap for bidirectional connections <-> userId
+    private final HashMap<Long, UUID> userIdConnections = new HashMap<>();
+    private final HashMap<UUID, Long> connectionUserIds = new HashMap<>();
+
+    // Keys
+    private final String JWT_KEY = "jwt";
+
+    // Events
     private final String MESSAGE_EVENT_KEY = "message";
+    private final String ONLINE_EVENT_KEY = "online";
+    private final String READ_EVENT_KEY = "read";
 
-    SocketIOServer server;
-    HashMap<Long, UUID> userConnections = new HashMap<>(); // User ID -> SocketIO Client ID
 
-    public void setupServer() {
-        Configuration config = new Configuration();
-        config.setHostname("localhost");
-        config.setPort(9092);
+    private MessageRepository messageRepository;
 
-        server = new SocketIOServer(config);
+    @PersistenceContext
+    private EntityManager entityManager;
 
-        server.addConnectListener(socketIOClient ->
-                userConnections.put(socketIOClient.get(USER_ID_KEY), socketIOClient.getSessionId()));
 
-        server.addDisconnectListener(socketIOClient -> userConnections.remove((Long) socketIOClient.get(USER_ID_KEY)));
+    @Autowired
+    public ChatEventHandler(SocketIOServer server, MessageRepository messageRepository) {
+        this.namespace = server;
+        this.namespace.addConnectListener(onConnected());
+        this.namespace.addDisconnectListener(onDisconnected());
+        this.namespace.addEventListener(MESSAGE_EVENT_KEY, MessageObject.class, onMessageReceived());
+        this.namespace.addEventListener(READ_EVENT_KEY, ReadObject.class, onReadReceived());
 
-        server.addEventListener(MESSAGE_EVENT_KEY, MessageObject.class, (client, data, ackRequest) -> {
-            SocketIOClient receiver = server.getClient(userConnections.get(data.receiverId));
-            if (receiver != null) receiver.sendEvent(MESSAGE_EVENT_KEY, data);
+        this.messageRepository = messageRepository;
+
+        log.info("SocketIO ChatEventHandler Started");
+    }
+
+    /**
+     * onMessageReceived listener that sends message to the receiver when it receives a message event
+     * @return
+     */
+    private DataListener<MessageObject> onMessageReceived() {
+        return (client, data, ackSender) -> {
+            log.info("Client[{}] - Received message '{}'", client.getSessionId().toString(), data);
+
+            SocketIOClient receiver = namespace.getClient(userIdConnections.get(data.getReceiverId()));
+            if (receiver != null) sendMessage(receiver, data);
             putMessageInHistory(data);
-        });
+        };
+    }
 
-        server.start();
+    /**
+     * onReadReceived listener that sends read notice to the buddy when it receives a read event
+     * @return
+     */
+    private DataListener<ReadObject> onReadReceived() {
+        return (client, data, ackSender) -> {
+            Long userId = connectionUserIds.get(client.getSessionId());
+            log.info("Client[{}] User[{}] - Read messages", client.getSessionId().toString(), userId);
+
+            messageRepository.updateUnreadMessagesForAUser(userId, data.getBuddyId());
+
+            SocketIOClient receiver = namespace.getClient(userIdConnections.get(data.getBuddyId()));
+            if (receiver != null) sendRead(receiver, new ReadObject().setBuddyId(userId));
+        };
+    }
+
+    /**
+     * onConnected listener that stores current user connected and reports online users to all users
+     * @return
+     */
+    private ConnectListener onConnected() {
+        return client -> {
+            HandshakeData handshakeData = client.getHandshakeData();
+            String jwt = handshakeData.getSingleUrlParam(JWT_KEY);
+            UUID clientId = client.getSessionId();
+
+            try {
+                JwtTokenUtil util = new JwtTokenUtil();
+                String userId = util.getIdFromToken(jwt);
+
+                if (userId == null || userId == "") {
+                    log.info("Client[{}] - userId invalid", clientId.toString());
+                    client.disconnect();
+                    return;
+                };
+
+                log.info("Client[{}] - userId[{}]", clientId.toString(), userId);
+
+                userIdConnections.put(Long.parseLong(userId), client.getSessionId());
+                connectionUserIds.put(client.getSessionId(), Long.parseLong(userId));
+
+                log.info("Client[{}] User[{}] - Connected to chat handler through '{}'", clientId.toString(), userId, handshakeData.getUrl());
+
+                sendOnline();
+            } catch(NumberFormatException nfe) {
+                log.info("Client[{}] - userId invalid", clientId.toString());
+                client.disconnect();
+                return;
+            }
+        };
+    }
+
+    /**
+     * onDisconnected listener removes current user from store and reports online users to all users.
+     * @return
+     */
+    private DisconnectListener onDisconnected() {
+        return client -> {
+            UUID clientId = client.getSessionId();
+            Long userId = connectionUserIds.get(clientId);
+            log.info("Client[{}] User[{}] - Disconnected from chat handler.", clientId.toString(), userId);
+
+            userIdConnections.remove(clientId);
+            connectionUserIds.remove(userId);
+
+            sendOnline();
+        };
+    }
+
+    private void sendMessage(SocketIOClient receiver, MessageObject message) {
+        receiver.sendEvent(MESSAGE_EVENT_KEY, message);
+    }
+
+    private void sendOnline() {
+        List<UserObject> users = userIdConnections.keySet().stream()
+                .map(user -> new UserObject().setUserId(user))
+                .toList();
+
+        namespace.getBroadcastOperations().sendEvent(ONLINE_EVENT_KEY, users);
+    }
+
+    private void sendRead(SocketIOClient receiver, ReadObject read) {
+        receiver.sendEvent(READ_EVENT_KEY, read);
     }
 
     private void putMessageInHistory(MessageObject data) {
-        //TODO: Implement
+        User sender = entityManager.getReference(User.class, data.getSenderId());
+        User receiver = entityManager.getReference(User.class, data.getReceiverId());
+        Message message = new Message()
+                .setSender(sender)
+                .setReceiver(receiver)
+                .setContent(data.getMessage())
+                .setTimestamp(Timestamp.from(Instant.now()))
+                .setRead(false);
+
+        messageRepository.save(message);
     }
-
-    public void closeServer() {
-        server.stop();
-    }
-
-
-    /**
-     * For testing
-     */
-    public static void main(String[] args) throws InterruptedException {
-
-        ChatEventHandler handler = new ChatEventHandler();
-        handler.setupServer();
-
-        Thread.sleep(Integer.MAX_VALUE);
-        handler.closeServer();
-
-    }
-
 }
 
