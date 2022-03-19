@@ -76,6 +76,7 @@ public class UserControllerUnitTest {
         return new UserDTO()
                 .setId(mockedUser.getId())
                 .setName(mockedUser.getName())
-                .setEmail(mockedUser.getEmail());
+                .setEmail(mockedUser.getEmail())
+                .setBuddyCount(2L);
     }
 }
