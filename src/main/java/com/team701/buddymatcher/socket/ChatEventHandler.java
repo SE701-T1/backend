@@ -62,9 +62,15 @@ public class ChatEventHandler {
      */
     private DataListener<MessageObject> onMessageReceived() {
         return (client, data, ackSender) -> {
-            log.info("Client[{}] - Received message '{}'", client.getSessionId().toString(), data);
+            log.info("Client[{}] User[{}] - Receiver[{}] message '{}'", client.getSessionId().toString(), data.getSenderId(), data.getReceiverId(), data.getMessage());
 
-            SocketIOClient receiver = namespace.getClient(userIdConnections.get(data.getReceiverId()));
+            UUID connection = userIdConnections.get(data.getReceiverId());
+            if (connection == null) {
+                putMessageInHistory(data);
+                return;
+            }
+
+            SocketIOClient receiver = namespace.getClient(connection);
             if (receiver != null) sendMessage(receiver, data);
             putMessageInHistory(data);
         };
