@@ -2,8 +2,14 @@ package com.team701.buddymatcher.dtos.communication;
 
 import java.sql.Timestamp;
 
+/**
+ * A DTO with info about a chatroom the user is in
+ * Used for displaying a list of the user's buddies and their most recent message
+ */
 public class ChatDTO {
+    // ID of the user
     private Long id;
+    // Name of the buddy in the chatroom
     private String name;
     private String lastMessage;
     private Timestamp timestamp;
