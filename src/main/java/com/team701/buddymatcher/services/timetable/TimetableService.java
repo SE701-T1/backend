@@ -19,4 +19,6 @@ public interface TimetableService {
     Course getCourse(Long courseId);
 
     List<User> getUsersFromCourseIds(List<Long> courseIds);
+
+    Long getBuddyCountFromCourse(Long userId, Long courseId);
 }

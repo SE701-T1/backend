@@ -24,14 +24,14 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI myAPI() {
         return new OpenAPI()
-                .info(new Info().title("MyApp Rest APIs")
-                        .description("APIs for MyApp.")
+                .info(new Info().title("Class Buddy Matcher Rest APIs")
+                        .description("APIs for Class Buddy Matcher.")
                         .version("1.0")
                         .termsOfService("Terms of service")
-                        .contact(new Contact().name("test").url("www.org.com").email("test@emaildomain.com"))
+                        .contact(new Contact().name("Class Buddy Matcher").url("https://github.com/SE701-T1").email("shreym.tailor@gmail.com"))
                         .license(new License().name("License of API").url("API license URL")))
                 .externalDocs(new ExternalDocumentation()
-                        .description("My ApI Wiki Documentation")
+                        .description("My API Wiki Documentation")
                         .url("https://github.com/SE701-T1/backend/wiki"));
 
     }

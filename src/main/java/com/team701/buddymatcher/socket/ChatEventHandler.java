@@ -8,6 +8,7 @@ import com.team701.buddymatcher.config.JwtTokenUtil;
 import com.team701.buddymatcher.domain.communication.Message;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.repositories.communication.MessageRepository;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,9 @@ public class ChatEventHandler {
      */
     private DataListener<MessageObject> onMessageReceived() {
         return (client, data, ackSender) -> {
-            log.info("Client[{}] User[{}] - Receiver[{}] message '{}'", client.getSessionId().toString(), data.getSenderId(), data.getReceiverId(), data.getMessage());
+            Long userId = connectionUserIds.get(client.getSessionId());
+            log.info("Client[{}] User[{}] - Receiver[{}] message '{}'", client.getSessionId().toString(), userId, data.getReceiverId(), data.getMessage());
+            data.setSenderId(userId);
 
             UUID connection = userIdConnections.get(data.getReceiverId());
             if (connection == null) {
@@ -124,6 +127,10 @@ public class ChatEventHandler {
                 log.info("Client[{}] - userId invalid", clientId.toString());
                 client.disconnect();
                 return;
+            } catch (ExpiredJwtException eje) {
+                log.info("Client[{}] - jwt expired", clientId.toString());
+                client.disconnect();
+                return;
             }
         };
     }
@@ -162,16 +169,7 @@ public class ChatEventHandler {
     }
 
     private void putMessageInHistory(MessageObject data) {
-        User sender = entityManager.getReference(User.class, data.getSenderId());
-        User receiver = entityManager.getReference(User.class, data.getReceiverId());
-        Message message = new Message()
-                .setSender(sender)
-                .setReceiver(receiver)
-                .setContent(data.getMessage())
-                .setTimestamp(Timestamp.from(Instant.now()))
-                .setRead(false);
-
-        messageRepository.save(message);
+        messageRepository.createMessage(data.getSenderId(), data.getReceiverId(), data.getMessage());
     }
 }
 

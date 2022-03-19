@@ -41,4 +41,9 @@ public class CommunicationServiceImpl implements CommunicationService {
     public Message getLastMessage(Long userId, Long buddyId) {
         return messageRepository.findLastMessageBetweenUsers(userId, buddyId);
     }
+
+    @Override
+    public void addMessage(Long userId, Long buddyId, String message) {
+        messageRepository.createMessage(userId, buddyId, message);
+    }
 }

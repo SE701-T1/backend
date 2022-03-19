@@ -7,11 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.Property;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,11 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -42,7 +36,7 @@ import java.util.stream.Collectors;
 public class TimetableController {
     private final TimetableService timetableService;
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public TimetableController(TimetableService timetableService, ModelMapper modelMapper) {
@@ -66,7 +60,14 @@ public class TimetableController {
         try {
             List<Course> courses = timetableService.getCourses(userId);
             List<CourseDTO> courseDTOs = courses.stream()
-                    .map(course -> modelMapper.map(course, CourseDTO.class))
+                    .map(course -> {
+                        // Map the course object to a DTO and then set the buddy count
+                        CourseDTO dto = modelMapper.map(course, CourseDTO.class);
+                        dto.setBuddyCount(Math.toIntExact(
+                                timetableService.getBuddyCountFromCourse(userId,
+                                        course.getCourseId())));
+                        return dto;
+                    })
                     .collect(Collectors.toList());
 
             return new ResponseEntity<>(courseDTOs, HttpStatus.OK);
