@@ -88,7 +88,7 @@ public class TimetableController {
         }
     }
   
-    @Operation(summary = "Post method to upload a course url using a user's ID)
+    @Operation(summary = "Post method to upload a course url using a user's ID")
     @PostMapping(path="users/upload/{id}")
     public ResponseEntity<Void> uploadTimetable(@RequestBody String timetableUrl, @PathVariable("id") Long userId) throws IOException, InterruptedException {
         HttpRequest timetableRequest = HttpRequest.newBuilder()
