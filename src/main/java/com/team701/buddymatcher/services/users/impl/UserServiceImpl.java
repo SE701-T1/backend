@@ -1,6 +1,7 @@
 package com.team701.buddymatcher.services.users.impl;
 
 import com.team701.buddymatcher.domain.users.User;
+import com.team701.buddymatcher.repositories.BuddiesRepository;
 import com.team701.buddymatcher.repositories.users.UserRepository;
 import com.team701.buddymatcher.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,12 @@ import java.util.NoSuchElementException;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private BuddiesRepository buddiesRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, BuddiesRepository buddiesRepository) {
         this.userRepository = userRepository;
+        this.buddiesRepository = buddiesRepository;
     }
 
     @Override
@@ -49,8 +52,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Integer retrieveBuddyCountByUserId(Long userId) {
-        return userRepository.countBuddies(userId);
+    public Long countBuddies(User user) {
+        return buddiesRepository.countByUser0OrUser1(user, user);
     }
 
     @Override
