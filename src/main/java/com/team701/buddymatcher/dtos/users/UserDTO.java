@@ -6,6 +6,7 @@ public class UserDTO {
     private String name;
     private String email;
     private Boolean pairingEnabled;
+    private Long buddyCount;
 
     public Long getId() {
         return id;
@@ -40,6 +41,15 @@ public class UserDTO {
 
     public UserDTO setPairingEnabled(Boolean pairingEnabled) {
         this.pairingEnabled = pairingEnabled;
+        return this;
+    }
+
+    public Long getBuddyCount() {
+        return buddyCount;
+    }
+
+    public UserDTO setBuddyCount(Long buddyCount) {
+        this.buddyCount = buddyCount;
         return this;
     }
 }
