@@ -57,7 +57,7 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.name").value("Pink Elephant"))
                 .andExpect(jsonPath("$.email").value("pink.elephant@gmail.com"))
                 .andExpect(jsonPath("$.pairingEnabled").value(false))
-                .andDo(print());
+                .andExpect(jsonPath("$.buddyCount").value(3));
     }
 
 
@@ -70,7 +70,7 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.name").value("Pink Elephant"))
                 .andExpect(jsonPath("$.email").value("pink.elephant@gmail.com"))
                 .andExpect(jsonPath("$.pairingEnabled").value(false))
-                .andDo(print());
+                .andExpect(jsonPath("$.buddyCount").value(3));
     }
 
     @Test
@@ -78,8 +78,7 @@ public class UserControllerIntegrationTest {
 
         mvc.perform(get("/api/users/{id}", new Random().nextLong())
                 .queryParam("pairingEnabled", String.valueOf(true)))
-                .andExpect(status().isNotFound())
-                .andDo(print());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -88,8 +87,7 @@ public class UserControllerIntegrationTest {
         mvc.perform(put("/api/users")
                         .sessionAttrs(Collections.singletonMap("UserId", 1))
                 .queryParam("pairingEnabled", String.valueOf(true)))
-                .andExpect(status().isOk())
-                .andDo(print());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -109,8 +107,7 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$[2].id").value(4))
                 .andExpect(jsonPath("$[2].name").value("Flynn Smith"))
                 .andExpect(jsonPath("$[2].email").value("flynn.smith@gmail.com"))
-                .andExpect(jsonPath("$[2].pairingEnabled").value(false))
-                .andDo(print());
+                .andExpect(jsonPath("$[2].pairingEnabled").value(false));
     }
 
     @Test
@@ -123,8 +120,7 @@ public class UserControllerIntegrationTest {
 
         mvc.perform(delete("/api/users/buddy/{id}", 4)
                         .sessionAttrs(Collections.singletonMap("UserId", 3)))
-                .andExpect(status().isOk())
-                .andDo(print());
+                .andExpect(status().isOk());
     }
 
 }

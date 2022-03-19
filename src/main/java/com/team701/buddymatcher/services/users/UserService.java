@@ -12,7 +12,7 @@ public interface UserService {
     void addUser(String name, String email);
 
     List<User> retrieveBuddiesByUserId(Long userId);
-    Integer retrieveBuddyCountByUserId(Long userId);
+    Long countBuddies(User user);
 
     void addBuddy(Long currentUserId, Long buddyUserId) throws
             NoSuchElementException;

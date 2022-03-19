@@ -65,6 +65,9 @@ public class UserController {
             User user = userService.retrieveById(userId);
             UserDTO userDTO = modelMapper.map(user, UserDTO.class);
 
+            Long buddyCount = userService.countBuddies(user);
+            userDTO.setBuddyCount(buddyCount);
+
             return new ResponseEntity<>(userDTO, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
