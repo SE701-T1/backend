@@ -83,8 +83,8 @@ public class UserController {
         }
     }
 
-    @Operation(summary = "Post method for a user logging in using Google")
-    @PostMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get method for a user logging in using Google")
+    @GetMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> loginWithGoogle(HttpServletRequest request) throws GeneralSecurityException, IOException {
         String CLIENT_ID = "158309441002-q8q49tjicngt1tp6p9t7ecvdrn9ar78j.apps.googleusercontent.com";
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier
@@ -93,34 +93,37 @@ public class UserController {
                 .setAudience(Collections.singletonList(CLIENT_ID))
                 .build();
         String idTokenString = request.getHeader("id_token");
-
-        GoogleIdToken idToken = verifier.verify(idTokenString);
-        if (idToken != null) {
-            Payload payload = idToken.getPayload();
-
-            // Print user identifier
-            String userId = payload.getSubject();
-
-            // Get profile information from payload
-            String email = payload.getEmail();
-            boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
-            String name = (String) payload.get("name");
-
-            // Use or store profile information
-            // ...
-            User user = userService.retrieveByEmail(email);
-            if (user == null){ // assuming if not found it'll return null
-                // Persist new user to the database
-                userService.addUser(name, email);
-                user = userService.retrieveByEmail(email);
-            }
-                // return custom JWT
-            JwtTokenUtil util = new JwtTokenUtil();
-            String token = util.generateToken(user);
-            return new ResponseEntity<>(token, HttpStatus.OK);
-        } else {
+        if (idTokenString == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
+
+        GoogleIdToken idToken = verifier.verify(idTokenString);
+        if (idToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+
+        Payload payload = idToken.getPayload();
+
+        // Print user identifier
+        String userId = payload.getSubject();
+
+        // Get profile information from payload
+        String email = payload.getEmail();
+        boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+        String name = (String) payload.get("name");
+
+        // Use or store profile information
+        // ...
+        User user = userService.retrieveByEmail(email);
+        if (user == null){ // assuming if not found it'll return null
+            // Persist new user to the database
+            userService.addUser(name, email);
+            user = userService.retrieveByEmail(email);
+        }
+            // return custom JWT
+        JwtTokenUtil util = new JwtTokenUtil();
+        String token = util.generateToken(user);
+        return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
     @Operation(summary = "Get method to retrieve a list of buddy from a user")

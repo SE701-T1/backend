@@ -1,6 +1,7 @@
 package com.team701.buddymatcher.interceptor;
 
 import com.team701.buddymatcher.config.JwtTokenUtil;
+import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,20 +17,20 @@ public class UserInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception {
         try {
             String url = request.getRequestURI();
-            String token = request.getHeader("Authorization");
             if (url.contains("swagger")
                     || url.contains("api-docs")
                     || url.contains("webjars")
                     || url.contains("login")
                     || url.contains("register")
+                    || url.contains("verify")
             ) {
                 return true;
             }
 
+            String token = request.getHeader("Authorization");
             if (token == null || token == "") {
                 return false;
             }
-
             token = token.replace("Bearer ","");
 
             JwtTokenUtil validator = new JwtTokenUtil();
@@ -39,7 +40,9 @@ public class UserInterceptor implements HandlerInterceptor {
                 return true;
             }
         return false;
-        }catch(IllegalArgumentException e) {
+        } catch(IllegalArgumentException e) {
+            return false;
+        } catch(MalformedJwtException e) {
             return false;
         }
     }

@@ -1,7 +1,6 @@
 package com.team701.buddymatcher.config;
 
 import com.team701.buddymatcher.interceptor.UserInterceptor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -17,11 +16,6 @@ public class MvcConfig implements WebMvcConfigurer {
     public void addInterceptors(final InterceptorRegistry registry) {
         // Pre-handle all requests except those which go to the login endpoint
         registry.addInterceptor(new UserInterceptor())
-                .addPathPatterns("/**")
-                .excludePathPatterns(
-                        "/fake/login",
-                        "/login",
-                        "/register"
-                );
+                .addPathPatterns("/**");
     }
 }

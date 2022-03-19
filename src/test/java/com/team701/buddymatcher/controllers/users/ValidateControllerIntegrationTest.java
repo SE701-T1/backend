@@ -53,7 +53,7 @@ public class ValidateControllerIntegrationTest {
         String token = createValidToken();
 
         mvc.perform(get("/api/validate")
-                .header("token", token))
+                        .header("Authorization", "Bearer " +token))
                 .andExpect(status().isNoContent());
     }
 
@@ -62,7 +62,7 @@ public class ValidateControllerIntegrationTest {
         String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
         mvc.perform(get("/api/validate")
-                .header("token", token))
+                        .header("Authorization", "Bearer " +token))
                 .andExpect(status().isUnauthorized());
     }
 
