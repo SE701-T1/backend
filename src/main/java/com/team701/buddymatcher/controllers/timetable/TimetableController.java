@@ -49,13 +49,13 @@ public class TimetableController {
         this.modelMapper = modelMapper;
     }
 
-    @Operation(summary ="Get method to get all user's courses")
+    @Operation(summary ="Get method to get current user courses")
     @GetMapping(path = "/users/courses", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CourseDTO>> getSelfCourses (@Parameter(hidden = true) @SessionAttribute("UserId") Long userId) {
         return getCourseListById(userId);
     }
 
-    @Operation(summary ="Get method to get all user's courses")
+    @Operation(summary ="Get method to get userId user courses")
     @GetMapping(path = "/users/courses/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CourseDTO>> getCourses (@PathVariable("id") Long userId) {
         return getCourseListById(userId);
@@ -88,9 +88,9 @@ public class TimetableController {
         }
     }
   
-    @Operation(summary = "Post method to upload a course url using a user's ID")
-    @PostMapping(path="users/upload/{id}")
-    public ResponseEntity<Void> uploadTimetable(@RequestBody String timetableUrl, @PathVariable("id") Long userId) throws IOException, InterruptedException {
+    @Operation(summary = "Post method to upload a course url for current user")
+    @PostMapping(path="users/upload")
+    public ResponseEntity<Void> uploadTimetable(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @RequestBody String timetableUrl) throws IOException, InterruptedException {
         HttpRequest timetableRequest = HttpRequest.newBuilder()
                 .uri(URI.create(timetableUrl))
                 .GET()
