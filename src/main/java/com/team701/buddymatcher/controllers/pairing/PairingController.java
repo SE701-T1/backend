@@ -4,6 +4,7 @@ import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.dtos.pairing.MatchBuddyDTO;
 import com.team701.buddymatcher.dtos.users.UserDTO;
 import com.team701.buddymatcher.services.pairing.PairingService;
+import com.team701.buddymatcher.services.users.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,18 +29,20 @@ import java.util.stream.Collectors;
 public class PairingController {
 
     private final PairingService pairingService;
+    private final UserService userService;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public PairingController(PairingService pairingService, ModelMapper modelMapper) {
+    public PairingController(PairingService pairingService, UserService userService, ModelMapper modelMapper) {
         this.pairingService = pairingService;
+        this.userService = userService;
         this.modelMapper = modelMapper;
     }
 
-    @Operation(summary = "Get method for finding possible matches for a user given a list of courses to match through")
-    @GetMapping(path = "/matchBuddy",
+    @Operation(summary = "Post method for finding possible matches for a user given a list of courses to match through")
+    @PostMapping(path = "/matchBuddy",
                 consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity matchBuddy(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @RequestBody MatchBuddyDTO buddyMatchRequest) {
+    public ResponseEntity<List<UserDTO>> matchBuddy(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @RequestBody MatchBuddyDTO buddyMatchRequest) {
         try {
             List<User> results = pairingService.matchBuddy(userId,
                     buddyMatchRequest.getCourseIds());
@@ -55,7 +58,12 @@ public class PairingController {
                     .filter(User::getPairingEnabled)
                     .filter(user -> !user.getId().equals(userId))
                     .filter(user -> !currentBuddies.contains(user.getId()))
-                    .map(user -> modelMapper.map(user, UserDTO.class))
+                    .map(user -> {
+                        //Map the user object to a DTO and then set the buddy count
+                        UserDTO dto = modelMapper.map(user, UserDTO.class);
+                        dto.setBuddyCount(userService.countBuddies(user));
+                        return dto;
+                    })
                     .collect(Collectors.toList());
             if (matches.size() == 0) {
                 return new ResponseEntity(HttpStatus.NO_CONTENT);

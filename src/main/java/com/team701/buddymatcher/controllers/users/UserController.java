@@ -21,11 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.NonUniqueResultException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -136,7 +134,12 @@ public class UserController {
         try {
             List<User> users = userService.retrieveBuddiesByUserId(userId);
             List<UserDTO> userDTOs = users.stream()
-                    .map(user -> modelMapper.map(user, UserDTO.class))
+                    .map(user -> {
+                        // setting buddy count for each of the buddy dto
+                        UserDTO dto = modelMapper.map(user, UserDTO.class);
+                        dto.setBuddyCount(userService.countBuddies(user));
+                        return dto;
+                    })
                     .collect(Collectors.toList());
 
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
