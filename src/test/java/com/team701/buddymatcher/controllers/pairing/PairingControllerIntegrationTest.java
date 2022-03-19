@@ -55,7 +55,7 @@ public class PairingControllerIntegrationTest {
     @Test
     void requestBuddyMatchFromCourseWithOneBuddy() throws Exception {
 
-        mvc.perform(get("/api/pairing/matchBuddy")
+        mvc.perform(post("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[3]}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .sessionAttrs(Collections.singletonMap("UserId", 4))
@@ -72,7 +72,7 @@ public class PairingControllerIntegrationTest {
     @Test
     void requestBuddyMatchFromCourseWithNoBuddy() throws Exception {
 
-        mvc.perform(get("/api/pairing/matchBuddy")
+        mvc.perform(post("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[2]}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .sessionAttrs(Collections.singletonMap("UserId", 4)))
@@ -83,7 +83,7 @@ public class PairingControllerIntegrationTest {
     @Test
     void requestBuddyMatchFromCourseWithCourseWithStudentNotPairing() throws Exception {
 
-        mvc.perform(get("/api/pairing/matchBuddy")
+        mvc.perform(post("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[2]}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .sessionAttrs(Collections.singletonMap("UserId", 4)))
@@ -93,7 +93,7 @@ public class PairingControllerIntegrationTest {
 
     @Test
     void requestBuddyMatchFromCourseWithBuddy() throws Exception {
-        mvc.perform(get("/api/pairing/matchBuddy")
+        mvc.perform(post("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[5]}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .sessionAttrs(Collections.singletonMap("UserId", 4)))
@@ -104,7 +104,7 @@ public class PairingControllerIntegrationTest {
     @Test
     void requestBuddyMatchFromCourseWithMultipleStudents() throws Exception {
 
-        mvc.perform(get("/api/pairing/matchBuddy")
+        mvc.perform(post("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[1]}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .sessionAttrs(Collections.singletonMap("UserId", 4)))
@@ -122,7 +122,7 @@ public class PairingControllerIntegrationTest {
 
     @Test
     void requestBuddyMatchFromMultipleCoursesWithMultipleStudents() throws Exception {
-        mvc.perform(get("/api/pairing/matchBuddy")
+        mvc.perform(post("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[1,3]}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .sessionAttrs(Collections.singletonMap("UserId", 4)))
@@ -144,7 +144,7 @@ public class PairingControllerIntegrationTest {
 
     @Test
     void requestBuddyMatchFromCoursesWithSameStudentInBothCourses() throws Exception {
-        mvc.perform(get("/api/pairing/matchBuddy")
+        mvc.perform(post("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[1,4]}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .sessionAttrs(Collections.singletonMap("UserId", 4)))
