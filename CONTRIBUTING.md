@@ -43,7 +43,7 @@ Pull requests should be created to merge all changes. The pull request form shou
 Team members in the relevant sub-team will review the code submitted for PR. Team members will review code for readability, style, bugs, test coverage and completion of acceptance criteria. The reviewers should also ensure that the application works as expected. All previous tests pass, and new features have associated unit tests.
 
 ## Code, commit message and branch name conventions
-The IntelliJ IDE is reccomended for the backend to format and refactor code where necessary.
+The IntelliJ IDE is recommended for the backend to format and refactor code where necessary.
 
 ## Owners
 Different contributors own the different parts of the project. The owners of each sub-team should review PRs related to their area of the project.
