@@ -1,6 +1,7 @@
 package com.team701.buddymatcher.interceptor;
 
 import com.team701.buddymatcher.config.JwtTokenUtil;
+import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +40,9 @@ public class UserInterceptor implements HandlerInterceptor {
                 return true;
             }
         return false;
-        }catch(IllegalArgumentException e) {
+        } catch(IllegalArgumentException e) {
+            return false;
+        } catch(MalformedJwtException e) {
             return false;
         }
     }
