@@ -3,7 +3,7 @@ package com.team701.buddymatcher.dtos.communication;
 import java.sql.Timestamp;
 
 /**
- * A DTO with info about a message send from user to user
+ * A DTO with info about a message sent between users
  */
 public class MessageDTO {
     private Long id;

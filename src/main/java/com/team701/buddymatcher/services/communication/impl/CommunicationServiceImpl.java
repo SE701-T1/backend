@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Implementation for the CommunicationService which is a service providing the implementations of the methods
+ * for the communication endpoints
+ */
 @Service
 public class CommunicationServiceImpl implements CommunicationService {
 
