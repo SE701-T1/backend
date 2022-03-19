@@ -4,6 +4,7 @@ import com.corundumstudio.socketio.*;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
+import com.team701.buddymatcher.config.JwtTokenUtil;
 import com.team701.buddymatcher.domain.communication.Message;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.repositories.communication.MessageRepository;
@@ -21,14 +22,14 @@ import java.util.*;
 @Component
 public class ChatEventHandler {
     private static final Logger log = LoggerFactory.getLogger(ChatEventHandler.class);
-    private final SocketIONamespace namespace;
+    private final SocketIOServer namespace;
 
     // Maintain two hashmap for bidirectional connections <-> userId
     private final HashMap<Long, UUID> userIdConnections = new HashMap<>();
     private final HashMap<UUID, Long> connectionUserIds = new HashMap<>();
 
     // Keys
-    private final String USER_ID_KEY = "userId";
+    private final String JWT_KEY = "jwt";
 
     // Events
     private final String MESSAGE_EVENT_KEY = "message";
@@ -44,13 +45,15 @@ public class ChatEventHandler {
 
     @Autowired
     public ChatEventHandler(SocketIOServer server, MessageRepository messageRepository) {
-        this.namespace = server.addNamespace("/chat");
+        this.namespace = server;
         this.namespace.addConnectListener(onConnected());
         this.namespace.addDisconnectListener(onDisconnected());
         this.namespace.addEventListener(MESSAGE_EVENT_KEY, MessageObject.class, onMessageReceived());
         this.namespace.addEventListener(READ_EVENT_KEY, ReadObject.class, onReadReceived());
 
         this.messageRepository = messageRepository;
+
+        log.info("SocketIO ChatEventHandler Started");
     }
 
     /**
@@ -59,7 +62,7 @@ public class ChatEventHandler {
      */
     private DataListener<MessageObject> onMessageReceived() {
         return (client, data, ackSender) -> {
-            log.debug("Client[{}] - Received message '{}'", client.getSessionId().toString(), data);
+            log.info("Client[{}] - Received message '{}'", client.getSessionId().toString(), data);
 
             SocketIOClient receiver = namespace.getClient(userIdConnections.get(data.getReceiverId()));
             if (receiver != null) sendMessage(receiver, data);
@@ -74,7 +77,7 @@ public class ChatEventHandler {
     private DataListener<ReadObject> onReadReceived() {
         return (client, data, ackSender) -> {
             Long userId = connectionUserIds.get(client.getSessionId());
-            log.debug("Client[{}] User[{}] - Read messages", client.getSessionId().toString(), userId);
+            log.info("Client[{}] User[{}] - Read messages", client.getSessionId().toString(), userId);
 
             messageRepository.updateUnreadMessagesForAUser(userId, data.getBuddyId());
 
@@ -90,18 +93,29 @@ public class ChatEventHandler {
     private ConnectListener onConnected() {
         return client -> {
             HandshakeData handshakeData = client.getHandshakeData();
-            String userId = handshakeData.getSingleUrlParam(USER_ID_KEY);
+            String jwt = handshakeData.getSingleUrlParam(JWT_KEY);
             UUID clientId = client.getSessionId();
 
             try {
+                JwtTokenUtil util = new JwtTokenUtil();
+                String userId = util.getIdFromToken(jwt);
+
+                if (userId == null || userId == "") {
+                    log.info("Client[{}] - userId invalid", clientId.toString());
+                    client.disconnect();
+                    return;
+                };
+
+                log.info("Client[{}] - userId[{}]", clientId.toString(), userId);
+
                 userIdConnections.put(Long.parseLong(userId), client.getSessionId());
                 connectionUserIds.put(client.getSessionId(), Long.parseLong(userId));
 
-                log.debug("Client[{}] User[{}] - Connected to chat handler through '{}'", clientId.toString(), userId, handshakeData.getUrl());
+                log.info("Client[{}] User[{}] - Connected to chat handler through '{}'", clientId.toString(), userId, handshakeData.getUrl());
 
                 sendOnline();
             } catch(NumberFormatException nfe) {
-                log.debug("Client[{}] - userId invalid", clientId.toString());
+                log.info("Client[{}] - userId invalid", clientId.toString());
                 client.disconnect();
                 return;
             }
@@ -116,7 +130,7 @@ public class ChatEventHandler {
         return client -> {
             UUID clientId = client.getSessionId();
             Long userId = connectionUserIds.get(clientId);
-            log.debug("Client[{}] User[{}] - Disconnected from chat handler.", clientId.toString(), userId);
+            log.info("Client[{}] User[{}] - Disconnected from chat handler.", clientId.toString(), userId);
 
             userIdConnections.remove(clientId);
             connectionUserIds.remove(userId);
