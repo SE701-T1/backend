@@ -1,14 +1,22 @@
 package com.team701.buddymatcher.controllers.pairing;
 
-import org.junit.jupiter.api.Disabled;
+import com.team701.buddymatcher.config.JwtTokenUtil;
+import com.team701.buddymatcher.interceptor.UserInterceptor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Collections;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -26,15 +34,32 @@ public class PairingControllerIntegrationTest {
     @Autowired
     private MockMvc mvc;
 
+    private static final JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
+
+    @MockBean
+    UserInterceptor interceptor;
+
     @Autowired
     PairingController pairingController;
+
+
+    @BeforeEach
+    void initTest() throws Exception {
+        mvc = MockMvcBuilders
+                .standaloneSetup(pairingController)
+                .addInterceptors(interceptor).build();
+        when(interceptor.preHandle(any(), any(), any())).thenReturn(true);
+
+    }
 
     @Test
     void requestBuddyMatchFromCourseWithOneBuddy() throws Exception {
 
-        mvc.perform(get("/api/pairing/matchBuddy/{id}",4)
+        mvc.perform(get("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[3]}")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(6))
                 .andExpect(jsonPath("$[0].name").value("only sevenfifty"))
@@ -47,9 +72,10 @@ public class PairingControllerIntegrationTest {
     @Test
     void requestBuddyMatchFromCourseWithNoBuddy() throws Exception {
 
-        mvc.perform(get("/api/pairing/matchBuddy/{id}",4)
+        mvc.perform(get("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[2]}")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4)))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
@@ -57,18 +83,20 @@ public class PairingControllerIntegrationTest {
     @Test
     void requestBuddyMatchFromCourseWithCourseWithStudentNotPairing() throws Exception {
 
-        mvc.perform(get("/api/pairing/matchBuddy/{id}",4)
+        mvc.perform(get("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[2]}")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4)))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
 
     @Test
     void requestBuddyMatchFromCourseWithBuddy() throws Exception {
-        mvc.perform(get("/api/pairing/matchBuddy/{id}",4)
+        mvc.perform(get("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[5]}")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4)))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
@@ -76,9 +104,10 @@ public class PairingControllerIntegrationTest {
     @Test
     void requestBuddyMatchFromCourseWithMultipleStudents() throws Exception {
 
-        mvc.perform(get("/api/pairing/matchBuddy/{id}",4)
+        mvc.perform(get("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[1]}")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(2))
                 .andExpect(jsonPath("$[0].name").value("Green Dinosaur"))
@@ -93,9 +122,10 @@ public class PairingControllerIntegrationTest {
 
     @Test
     void requestBuddyMatchFromMultipleCoursesWithMultipleStudents() throws Exception {
-        mvc.perform(get("/api/pairing/matchBuddy/{id}",4)
+        mvc.perform(get("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[1,3]}")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(2))
                 .andExpect(jsonPath("$[0].name").value("Green Dinosaur"))
@@ -114,9 +144,10 @@ public class PairingControllerIntegrationTest {
 
     @Test
     void requestBuddyMatchFromCoursesWithSameStudentInBothCourses() throws Exception {
-        mvc.perform(get("/api/pairing/matchBuddy/{id}",4)
+        mvc.perform(get("/api/pairing/matchBuddy")
                         .content("{\"courseIds\":[1,4]}")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .sessionAttrs(Collections.singletonMap("UserId", 4)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(2))
                 .andExpect(jsonPath("$[0].name").value("Green Dinosaur"))
@@ -126,82 +157,6 @@ public class PairingControllerIntegrationTest {
                 .andExpect(jsonPath("$[1].name").value("Hiruna Smith"))
                 .andExpect(jsonPath("$[1].email").value("hiruna.smith@gmail.com"))
                 .andExpect(jsonPath("$[1].pairingEnabled").value(true))
-                .andDo(print());
-    }
-
-    @Test
-    void addValidBuddy() throws Exception {
-
-        mvc.perform(post("/api/pairing/addBuddy/")
-                        .content("{\"userId\":3, \"buddyId\":4}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @Disabled
-    @Test
-    void addValidBuddyButInvalidUser() throws Exception {
-        //ToDo: need to refactor to return better status code
-        mvc.perform(post("/api/pairing/addBuddy/")
-                        .content("{\"userId\":7, \"buddyId\":3}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-
-    @Disabled
-    @Test
-    void addAlreadyAddedBuddy() throws Exception {
-        //ToDo: need to refactor to return better status code
-        mvc.perform(post("/api/pairing/addBuddy/")
-                        .content("{\"userId\":4, \"buddyId\":5}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @Disabled
-    @Test
-    void addInvalidBuddy() throws Exception {
-        //ToDo: need to refactor to return better status code
-        mvc.perform(post("/api/pairing/addBuddy/")
-                        .content("{\"userId\":4, \"buddyId\":7}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @Disabled
-    @Test
-    void addBuddyWhoDoesNotHavePairingEnabled() throws Exception {
-        //ToDo: need to refactor to return better status code
-        mvc.perform(post("/api/pairing/addBuddy/")
-                        .content("{\"userId\":4, \"buddyId\":1}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-
-    }
-
-    @Test
-    void removeBuddyValid() throws Exception {
-
-        mvc.perform(delete("/api/pairing/removeBuddy/")
-                        .content("{\"userId\":4, \"buddyId\":5}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @Test
-    void removeBuddyRecordThatDoesNotExist() throws Exception {
-        //ToDo: need to refactor to return better status code
-        mvc.perform(delete("/api/pairing/removeBuddy/")
-                        .content("{\"userId\":4, \"buddyId\":3}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
                 .andDo(print());
     }
 }
