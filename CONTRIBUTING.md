@@ -46,4 +46,4 @@ Team members in the relevant sub-team will review the code submitted for PR. Tea
 The IntelliJ IDE is recommended for the backend to format and refactor code where necessary.
 
 ## Owners
-Different contributors own the different parts of the project. The owners of each sub-team should review PRs related to their area of the project.
+Different contributors own the different parts of the project. The owners of each sub-team should review PRs related to their area of the project. The code owners of this repo can be viewed [here](CODEOWNERS)
