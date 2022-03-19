@@ -39,8 +39,8 @@ public class PairingController {
         this.modelMapper = modelMapper;
     }
 
-    @Operation(summary = "Get method for finding possible matches for a user given a list of courses to match through")
-    @GetMapping(path = "/matchBuddy",
+    @Operation(summary = "Post method for finding possible matches for a user given a list of courses to match through")
+    @PostMapping(path = "/matchBuddy",
                 consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDTO>> matchBuddy(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @RequestBody MatchBuddyDTO buddyMatchRequest) {
         try {
