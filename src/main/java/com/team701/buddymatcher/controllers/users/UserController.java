@@ -36,6 +36,9 @@ import java.util.stream.Collectors;
 @SecurityRequirement(name = "JWT")
 public class UserController {
 
+    // Set Google console client ID in environment variables: see frontend wiki "Authentication flow" for how
+    public static final String CLIENT_ID = System.getenv("CLIENT_ID");
+
     private final UserService userService;
 
     private ModelMapper modelMapper;
@@ -88,7 +91,6 @@ public class UserController {
     @Operation(summary = "Get method for a user logging in using Google")
     @GetMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> loginWithGoogle(HttpServletRequest request) throws GeneralSecurityException, IOException {
-        String CLIENT_ID = "158309441002-q8q49tjicngt1tp6p9t7ecvdrn9ar78j.apps.googleusercontent.com";
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier
                 .Builder(new NetHttpTransport(), new GsonFactory())
                 // Specify the CLIENT_ID of the app that accesses the backend:
