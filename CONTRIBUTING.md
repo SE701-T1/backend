@@ -22,7 +22,7 @@ The issue should describe the new feature request and why it is needed for a new
 The issue should then be approved by the team and assigned labels before assigning a member to work on it.
 
 #### Issue Labeling
-The labels available for issues fall under three categories: priority, status,type and team. All issues must have one of each category at all times, except for the team label if the issue is more general. The team working on the relevant issue should decide the priority label. During development, please update the issue as required. For example, if the issue is blocked, then update the description with a link to the issue blocking it.
+The labels available for issues fall under three categories: priority, status,type and team. All issues must have one of each category at all times, except for the team label if the issue is more general. The team working on the relevant issue should decide the priority label. During development, please update the issue as required. For example, if the issue is blocked, then update the description with a link to the issue blocking it. For more information about issue labelling see the following wiki page [Issue Labels](https://github.com/SE701-T1/frontend/wiki/Issue-Labels) on the front end repo.
 
 ### Suggested Workflow
 This project uses the fork and pull workflow. For more details see [this video](https://www.youtube.com/watch?v=nT8KGYVurIU).
