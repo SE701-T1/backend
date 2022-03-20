@@ -13,7 +13,7 @@ The run configuration should look like the image below. The API can be accessed 
 The app's login system is done through Sign In With Google, and hence this project's API is associated with a google account. For the credentials for this account, please refer to one of the original team members. 
 
 ### Authentication
-Every request made to the API is prehandled to make sure the token passed in is valid. Valid tokens are returned from the api/users/login endpoint, which is called by the front end after signing in with Google. The front end passes in a Google ID token which it obtains from Google's client API. They have a default expiry of 5 hours.  
+Details on the authentication flow and use of tokens can be found in the frontend wiki [here](https://github.com/SE701-T1/frontend/wiki/Authentication-Flow).  
 
 ## Testing the app 
 
