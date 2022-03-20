@@ -1,4 +1,13 @@
-# Softeng 701 Team 1 (Backend)
+<h1 align="center">
+  <img src="https://user-images.githubusercontent.com/23299540/159172501-b8a89589-d664-40bc-b0fb-ab88e8560b88.png" alt="Buddy Matcher" height="200px"></a>
+  <br>
+  Class Buddy Matcher
+  <br>
+</h1>
+<h4 align="center">Group project for SOFTENG 701 Team 1 (Backend)</h4>
+<p align="center">
+<br>
+
 Class Buddy Matcher - Group project for SOFTENG 701 Team 1 (Backend). 
 
 This project comprises the backend segment (API + database) of the Buddymatcher application. It was created using Spring Boot and uses H2 for its database system. 
