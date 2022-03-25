@@ -123,7 +123,7 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$[1].id").value(3))
                 .andExpect(jsonPath("$[1].name").value("Hiruna Smith"))
                 .andExpect(jsonPath("$[1].email").value("hiruna.smith@gmail.com"))
-                .andExpect(jsonPath("$[1].pairingEnabled").value(false))
+                .andExpect(jsonPath("$[1].pairingEnabled").value(false));
     }
 
     @Test
