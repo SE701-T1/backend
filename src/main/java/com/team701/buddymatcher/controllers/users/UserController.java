@@ -6,9 +6,11 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.team701.buddymatcher.config.JwtTokenUtil;
+import com.team701.buddymatcher.domain.timetable.Course;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.dtos.users.UserDTO;
 import com.team701.buddymatcher.services.users.UserService;
+import com.team701.buddymatcher.services.timetable.TimetableService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -24,6 +26,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -40,12 +43,14 @@ public class UserController {
     public static final String CLIENT_ID = System.getenv("CLIENT_ID");
 
     private final UserService userService;
+    private final TimetableService timetableService;
 
     private ModelMapper modelMapper;
 
     @Autowired
-    public UserController(UserService userService, ModelMapper modelMapper) {
+    public UserController(UserService userService, TimetableService timetableService, ModelMapper modelMapper) {
         this.userService = userService;
+        this.timetableService = timetableService;
         this.modelMapper = modelMapper;
     }
 
@@ -147,6 +152,36 @@ public class UserController {
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
+
+    @Operation(summary = "Get method to retrieve a list of buddies of a user from a course by courseID")
+    @GetMapping(path = "/buddy/{course_id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDTO>> getUserBuddiesInCourse(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @PathVariable("course_id") Long courseId) {
+        try {
+            List<User> userBuddiesAllCourses = userService.retrieveBuddiesByUserId(userId);
+            // Filter list of users to only those in the course given by courseID
+            List<User> users = new ArrayList<User>();
+            Course course = timetableService.getCourse(courseId);
+            for (int i = 0; i < userBuddiesAllCourses.size(); i++) {
+                List<Course> userCourses = userBuddiesAllCourses.get(i).getCourses().stream().toList();
+                if (userCourses.contains(course)) {
+                    users.add(userBuddiesAllCourses.get(i));
+                    continue;
+                }
+            }
+            List<UserDTO> userDTOs = users.stream()
+                    .map(user -> {
+                        // setting buddy count for each of the buddy dto
+                        UserDTO dto = modelMapper.map(user, UserDTO.class);
+                        dto.setBuddyCount(userService.countBuddies(user));
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+
+            return new ResponseEntity<>(userDTOs, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User or Course not found");
         }
     }
 

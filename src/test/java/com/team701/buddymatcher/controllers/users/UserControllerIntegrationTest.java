@@ -111,6 +111,22 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
+    void getUserBuddiesInCourse() throws Exception {
+
+        mvc.perform(get("/api/users/buddy/{course_id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(2))
+                .andExpect(jsonPath("$[0].name").value("Green Dinosaur"))
+                .andExpect(jsonPath("$[0].email").value("green.dinosaur@gmail.com"))
+                .andExpect(jsonPath("$[0].pairingEnabled").value(false))
+                .andExpect(jsonPath("$[1].id").value(3))
+                .andExpect(jsonPath("$[1].name").value("Hiruna Smith"))
+                .andExpect(jsonPath("$[1].email").value("hiruna.smith@gmail.com"))
+                .andExpect(jsonPath("$[1].pairingEnabled").value(false))
+    }
+
+    @Test
     void createAndDeleteUserBuddy() throws Exception {
 
         mvc.perform(post("/api/users/buddy/{id}", 4)
