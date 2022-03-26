@@ -156,21 +156,33 @@ public class UserController {
     }
 
     @Operation(summary = "Get method to retrieve a list of buddies of a user from a course by courseID")
-    @GetMapping(path = "/buddy/{course_id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/buddy/course/{course_id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDTO>> getUserBuddiesInCourse(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @PathVariable("course_id") Long courseId) {
+        // Get list of all users in the course
+        List<User> usersInCourse;
         try {
-            List<User> userBuddiesAllCourses = userService.retrieveBuddiesByUserId(userId);
-            // Filter list of users to only those in the course given by courseID
-            List<User> users = new ArrayList<User>();
-            Course course = timetableService.getCourse(courseId);
-            for (int i = 0; i < userBuddiesAllCourses.size(); i++) {
-                List<Course> userCourses = userBuddiesAllCourses.get(i).getCourses().stream().toList();
-                if (userCourses.contains(course)) {
-                    users.add(userBuddiesAllCourses.get(i));
-                    continue;
+            List<Long> courseList = new ArrayList<>();
+            courseList.add(courseId);
+            usersInCourse = timetableService.getUsersFromCourseIds(courseList);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");
+        }
+
+        // Filter list of users to only those in the course given by courseID
+        try {
+            List<User> usersBuddiesAll = userService.retrieveBuddiesByUserId(userId);
+            List<User> usersBuddiesCourse = new ArrayList<>();
+            for (int i = 0; i < usersBuddiesAll.size(); i++) {
+                for (int j = 0; j < usersInCourse.size(); j++) {
+                    if (usersBuddiesAll.get(i).getId().equals(usersInCourse.get(j).getId())) {
+                        User buddy = usersBuddiesAll.get(i);
+                        usersBuddiesCourse.add(buddy);
+                        continue;
+                    }
                 }
             }
-            List<UserDTO> userDTOs = users.stream()
+
+            List<UserDTO> userDTOs = usersBuddiesCourse.stream()
                     .map(user -> {
                         // setting buddy count for each of the buddy dto
                         UserDTO dto = modelMapper.map(user, UserDTO.class);
@@ -181,7 +193,7 @@ public class UserController {
 
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         } catch (NoSuchElementException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User or Course not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
     }
 
