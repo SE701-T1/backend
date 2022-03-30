@@ -14,11 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.net.http.HttpClient;
@@ -110,6 +109,21 @@ public class TimetableController {
         } catch (ParserException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Timetable URL is invalid");
         }catch(NoSuchElementException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user");
+        }
+    }
+
+    @Operation(summary = "Post method to upload a course .isc file for the current user")
+    @PostMapping(path="users/upload/file")
+    public ResponseEntity<Void> uploadTimetableFile(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @RequestBody File timetableFile) throws FileNotFoundException {
+        InputStream timetableStream = new FileInputStream(timetableFile);
+        try {
+            List<String> result = timetableService.getCalInfoFromIcs(timetableStream);
+            timetableService.populateCourses(userId, result);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (ParserException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Timetable file is invalid");
+        } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user");
         }
     }
