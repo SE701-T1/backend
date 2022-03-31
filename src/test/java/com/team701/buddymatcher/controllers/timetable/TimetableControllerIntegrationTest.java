@@ -1,6 +1,5 @@
 package com.team701.buddymatcher.controllers.timetable;
 
-import com.sun.net.httpserver.HttpServer;
 import com.team701.buddymatcher.interceptor.UserInterceptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,16 +7,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import java.io.File;
+
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -91,6 +94,27 @@ public class TimetableControllerIntegrationTest {
 //        mvc.perform(post("/api/timetable/users/upload/{id}", 1)
 //                .content(f.toURI().toString()))
 //                .andExpect(status().isOk());
+    }
+
+    @Test
+    void uploadTimetableFile() throws Exception {
+        // Take the UoACal.ics file and turn it into a MockMultipartFile
+        Path path = Paths.get("src/test/resources/UoACal.ics");
+        String name = "file";
+        String originalFileName = "UoACal.ics";
+        String contentType = "text/plain";
+        byte[] content = null;
+        try {
+            content = Files.readAllBytes(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        MockMultipartFile file = new MockMultipartFile(name,
+                originalFileName, contentType, content);
+
+        mvc.perform(multipart("/api/timetable/users/upload/file").file(file)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
+                .andExpect(status().isOk());
     }
 }
 
