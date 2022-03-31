@@ -115,8 +115,8 @@ public class TimetableController {
 
     @Operation(summary = "Post method to upload a course .isc file for the current user")
     @PostMapping(path="users/upload/file")
-    public ResponseEntity<Void> uploadTimetableFile(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @RequestBody File timetableFile) throws FileNotFoundException {
-        InputStream timetableStream = new FileInputStream(timetableFile);
+    public ResponseEntity<Void> uploadTimetableFile(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @RequestParam("file") MultipartFile file) throws IOException {
+        InputStream timetableStream = new ByteArrayInputStream(file.getBytes());
         try {
             List<String> result = timetableService.getCalInfoFromIcs(timetableStream);
             timetableService.populateCourses(userId, result);
