@@ -13,7 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ByteArrayInputStream;
@@ -25,7 +33,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RestController
@@ -46,7 +55,8 @@ public class TimetableController {
 
     @Operation(summary ="Get method to get current user courses")
     @GetMapping(path = "/users/courses", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<CourseDTO>> getSelfCourses (@Parameter(hidden = true) @SessionAttribute("UserId") Long userId) {
+    public ResponseEntity<List<CourseDTO>> getSelfCourses (@Parameter(hidden = true)
+                                                               @SessionAttribute("UserId") Long userId) {
         return getCourseListById(userId);
     }
 
@@ -92,7 +102,9 @@ public class TimetableController {
   
     @Operation(summary = "Post method to upload a course url for current user")
     @PostMapping(path="users/upload")
-    public ResponseEntity<Void> uploadTimetable(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @RequestBody String timetableUrl) throws IOException, InterruptedException {
+    public ResponseEntity<Void> uploadTimetable(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId,
+                                                @RequestBody String timetableUrl) throws IOException,
+                                                InterruptedException {
         timetableUrl = URLDecoder.decode(timetableUrl,StandardCharsets.UTF_8.toString()).replace("=", "");
         HttpRequest timetableRequest = HttpRequest.newBuilder()
                 .uri(URI.create(timetableUrl))
@@ -114,5 +126,16 @@ public class TimetableController {
         }
     }
 
+    @Operation(summary = "Delete method to withdraw course courseId from user userId")
+    @DeleteMapping(path = "/course/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CourseDTO> deleteCourse (@SessionAttribute("UserId") Long userId,
+                                                   @PathVariable("id") Long courseId) {
+        try {
+            if (timetableService.deleteCourse(userId, courseId))
+                return new ResponseEntity<>(HttpStatus.OK);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");
+        }
+    }
 }
-

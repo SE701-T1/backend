@@ -1,6 +1,5 @@
 package com.team701.buddymatcher.controllers.timetable;
 
-import com.sun.net.httpserver.HttpServer;
 import com.team701.buddymatcher.interceptor.UserInterceptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,13 +10,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import java.io.File;
-import java.nio.file.Path;
 import java.util.Collections;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -92,5 +89,30 @@ public class TimetableControllerIntegrationTest {
 //                .content(f.toURI().toString()))
 //                .andExpect(status().isOk());
     }
-}
 
+    /**
+     * Test un-enrolling users from courses using HTTP DELETE request and timetable_data.sql resource
+     */
+    @Test
+    void deleteCourse() throws Exception {
+        // Will return 200 OK when user 1 un-enrolls from course 1
+        mvc.perform(delete("/api/timetable/course/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
+                .andExpect(status().isOk());
+
+        // Will return 404 Not Found because user 1 is no longer enrolled in course 1
+        mvc.perform(delete("/api/timetable/course/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
+                .andExpect(status().isNotFound());
+
+        // Will return 200 OK when user 2 un-enrolls from course 1
+        mvc.perform(delete("/api/timetable/course/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk());
+
+        // Will return 404 Not Found because user 2 is no longer enrolled in course 1
+        mvc.perform(delete("/api/timetable/course/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isNotFound());
+    }
+}
