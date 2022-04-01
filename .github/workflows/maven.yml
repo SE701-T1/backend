@@ -3,15 +3,19 @@
 
 name: Java CI with Maven
 
+# Events that trigger the workflow
 on:
+  # This workflow is run when pull requests to either the main or a2-main branch are opened, reopened, and synchronized
   pull_request:
     branches: [ main, a2-main ]
 
+# The workflow jobs: builds and tests the backend
 jobs:
   build:
-
+    # Workflow job is run on the latest Ubuntu runner
     runs-on: ubuntu-latest
 
+    # Sequence of tasks for completing the workflow job
     steps:
     - name: Change Timezone to NZT
       uses: szenius/set-timezone@v1.0
@@ -21,11 +25,15 @@ jobs:
         timezoneWindows: "New Zealand Standard Time"
 
     - uses: actions/checkout@v2
+
+    # Runs the workflow job using JDK 17
     - name: Set up JDK 17
       uses: actions/setup-java@v2
       with:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+
+      # Builds and tests the project
     - name: Build with Maven
       run: mvn -B package --file pom.xml
