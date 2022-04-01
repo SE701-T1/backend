@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ByteArrayInputStream;
@@ -136,6 +138,22 @@ public class TimetableController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");
+        }
+    }
+
+    @Operation(summary = "Post method to upload a course .isc file for the current user")
+    @PostMapping(path="users/upload/file")
+    public ResponseEntity<Void> uploadTimetableFile(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId,
+                                                    @RequestParam("file") MultipartFile file) throws IOException {
+        InputStream timetableStream = new ByteArrayInputStream(file.getBytes());
+        try {
+            List<String> result = timetableService.getCalInfoFromIcs(timetableStream);
+            timetableService.populateCourses(userId, result);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (ParserException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Timetable file is invalid");
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user");
         }
     }
 }
