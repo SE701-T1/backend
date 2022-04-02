@@ -270,7 +270,6 @@ public class UserController {
                                               @PathVariable("id") Long userBlockedId) {
         try {
             userService.blockBuddy(userBlockingId, userBlockedId);
-
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
