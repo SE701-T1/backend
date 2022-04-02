@@ -271,7 +271,6 @@ public class UserController {
                                                @RequestParam("reportInfo") String reportInfo) {
         try {
             userService.reportBuddy(userReportingId, userReportedId, reportInfo);
-
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
