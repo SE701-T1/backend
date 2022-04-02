@@ -17,4 +17,6 @@ public interface UserService {
     void addBuddy(Long currentUserId, Long buddyUserId) throws
             NoSuchElementException;
     void deleteBuddy(Long currentUserId, Long buddyUserId) throws NoSuchElementException;
+
+    void unblockBuddy(Long userUnblockerId, Long userBlockedId) throws NoSuchElementException;
 }
