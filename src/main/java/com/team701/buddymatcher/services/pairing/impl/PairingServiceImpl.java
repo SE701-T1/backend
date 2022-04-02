@@ -32,7 +32,7 @@ public class PairingServiceImpl implements PairingService {
     public void addBuddy(Long userId, Long buddyId) {
         userService.addBuddy(userId, buddyId);
     }
-    
+
     @Override
     public void removeBuddy(Long userId, Long buddyId) {
         userService.deleteBuddy(userId, buddyId);
