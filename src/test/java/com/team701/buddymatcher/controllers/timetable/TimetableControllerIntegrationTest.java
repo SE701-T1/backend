@@ -20,6 +20,7 @@ import java.util.Collections;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -116,5 +117,30 @@ public class TimetableControllerIntegrationTest {
                         .sessionAttrs(Collections.singletonMap("UserId", 1)))
                 .andExpect(status().isOk());
     }
-}
 
+    /**
+     * Test un-enrolling users from courses using HTTP DELETE request and timetable_data.sql resource
+     */
+    @Test
+    void deleteCourse() throws Exception {
+        // Will return 200 OK when user 1 un-enrolls from course 1
+        mvc.perform(delete("/api/timetable/course/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
+                .andExpect(status().isOk());
+
+        // Will return 404 Not Found because user 1 is no longer enrolled in course 1
+        mvc.perform(delete("/api/timetable/course/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
+                .andExpect(status().isNotFound());
+
+        // Will return 200 OK when user 2 un-enrolls from course 1
+        mvc.perform(delete("/api/timetable/course/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk());
+
+        // Will return 404 Not Found because user 2 is no longer enrolled in course 1
+        mvc.perform(delete("/api/timetable/course/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isNotFound());
+    }
+}

@@ -2,11 +2,20 @@ package com.team701.buddymatcher.domain.timetable;
 
 import com.team701.buddymatcher.domain.users.User;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+import javax.persistence.ManyToMany;
+import javax.persistence.FetchType;
+import javax.persistence.CascadeType;
+import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
-
 
 @Entity
 @Table(name = "COURSE")
@@ -95,6 +104,20 @@ public class Course {
             users.add(user);
             user.getCourses().add(this);
             studentCount++;
+        }
+        return this;
+    }
+
+    /**
+     * Remove a user from course enrollment
+     * @param user the user being un-enrolled from the course
+     * @return the course without the user being enrolled
+     */
+    public Course removeUser(User user) {
+        if (this.users.contains(user)) {
+            users.remove(user);
+            user.getCourses().remove(this);
+            studentCount--;
         }
         return this;
     }
