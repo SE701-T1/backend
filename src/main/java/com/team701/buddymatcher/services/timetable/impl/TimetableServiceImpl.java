@@ -16,13 +16,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 @Service
 public class TimetableServiceImpl implements TimetableService {
@@ -32,7 +36,8 @@ public class TimetableServiceImpl implements TimetableService {
     private final UserService userService;
 
     @Autowired
-    public TimetableServiceImpl(CourseRepository courseRepository, BuddiesRepository buddiesRepository, UserService userService) {
+    public TimetableServiceImpl(CourseRepository courseRepository, BuddiesRepository buddiesRepository,
+                                UserService userService) {
         this.buddiesRepository = buddiesRepository;
         this.courseRepository = courseRepository;
         this.userService = userService;
@@ -125,5 +130,27 @@ public class TimetableServiceImpl implements TimetableService {
         return countUser0 + countUser1;
     }
 
-    public List<User> getUsersFromCourseIds(List<Long> courseIds) { return courseRepository.findAllUsersByCourseIds(courseIds);}
+    public List<User> getUsersFromCourseIds(List<Long> courseIds) {
+        return courseRepository.findAllUsersByCourseIds(courseIds);
+    }
+
+    /**
+     * Remove a course a user is enrolled in matching a given course ID and user ID
+     * @param userId the ID of the user the course is removed from
+     * @param courseId the ID of the course being removed from the user
+     */
+    @Override
+    @Transactional
+    public boolean deleteCourse(Long userId, Long courseId) throws NoSuchElementException {
+        User user = userService.retrieveById(userId);
+        List<Course> courses = getCourses(userId);
+        for (Course course : courses) {
+            if (course.getCourseId() == courseId) {
+                course.removeUser(user);
+                courseRepository.save(course);
+                return true;
+            }
+        }
+        return false;
+    }
 }

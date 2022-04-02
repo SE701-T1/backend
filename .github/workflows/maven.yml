@@ -5,9 +5,14 @@ name: Java CI with Maven
 
 # Events that trigger the workflow
 on:
-  # This workflow is run when pull requests to either the main or a2-main branch are opened, reopened, and synchronized
+  # This workflow is run when changes are pushed to any branch
+  push:
+
+  # This workflow is run when pull requests to any branch are opened, reopened, and synchronized
   pull_request:
-    branches: [ main, a2-main ]
+
+  # This workflow is run when manually triggered on the GitHub website
+  workflow_dispatch:
 
 # The workflow jobs: builds and tests the backend
 jobs:
