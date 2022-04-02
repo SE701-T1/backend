@@ -139,4 +139,31 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void reportUser() throws Exception {
+        // Test that a POST request for user 2 to report user 1 is OK
+        mvc.perform(post("/api/users/buddy/{id}/report", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2))
+                        .queryParam("reportInfo", "This is a test."))
+                .andExpect(status().isOk());
+
+        // Test that a POST request for user 2 to report user 1 again is OK
+        mvc.perform(post("/api/users/buddy/{id}/report", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2))
+                        .queryParam("reportInfo", "This is another test."))
+                .andExpect(status().isOk());
+
+        // Test that a POST request for user 1 to report user 2 as well is OK
+        mvc.perform(post("/api/users/buddy/{id}/report", 2)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1))
+                        .queryParam("reportInfo", "This is still a test."))
+                .andExpect(status().isOk());
+
+        // Test that a POST request for user 1 to report user 2 as well again is OK
+        mvc.perform(post("/api/users/buddy/{id}/report", 2)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1))
+                        .queryParam("reportInfo", "This is still another test."))
+                .andExpect(status().isOk());
+    }
+
 }

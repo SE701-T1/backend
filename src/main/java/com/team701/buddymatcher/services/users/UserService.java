@@ -17,4 +17,13 @@ public interface UserService {
     void addBuddy(Long currentUserId, Long buddyUserId) throws
             NoSuchElementException;
     void deleteBuddy(Long currentUserId, Long buddyUserId) throws NoSuchElementException;
+
+    /**
+     * Report a user. Add the reporting user and reported user paired to REPORTED_BUDDIES tables with report information
+     * @param userReportingId the user ID of the user reporting the buddy user
+     * @param userReportedId the user ID of the buddy user being reported
+     * @param reportInfo the report information given by the reporting user
+     * @throws NoSuchElementException when there is no User or Buddy
+     */
+    void reportBuddy(Long userReportingId, Long userReportedId, String reportInfo) throws NoSuchElementException;
 }
