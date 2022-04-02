@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 /**
@@ -48,5 +49,16 @@ public class PairingServiceImpl implements PairingService {
     public List<Long> getBuddyIds(Long userId) {
         List<User> currentBuddies = userService.retrieveBuddiesByUserId(userId);
         return currentBuddies.stream().map(user -> user.getId()).collect(Collectors.toList());
+    }
+
+    /**
+     * Block a user. Remove existing match, and add the blocking user and blocked user paired to BLOCKED_BUDDIES tables.
+     * @param userBlockerId the user ID of the user blocking the buddy user
+     * @param userBlockedId the user ID of the buddy user being blocked
+     * @throws NoSuchElementException when there is no User or Buddy
+     */
+    @Override
+    public void blockBuddy(Long userBlockerId, Long userBlockedId) throws NoSuchElementException {
+        userService.blockBuddy(userBlockerId, userBlockedId);
     }
 }

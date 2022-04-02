@@ -6,7 +6,6 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.team701.buddymatcher.config.JwtTokenUtil;
-import com.team701.buddymatcher.domain.timetable.Course;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.dtos.users.UserDTO;
 import com.team701.buddymatcher.services.users.UserService;
@@ -20,7 +19,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +53,7 @@ public class UserController {
     private final UserService userService;
     private final TimetableService timetableService;
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public UserController(UserService userService, TimetableService timetableService, ModelMapper modelMapper) {
@@ -252,6 +260,20 @@ public class UserController {
             return new ResponseEntity<>(userDTO, HttpStatus.OK);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
+        }
+    }
+
+    @Operation(summary = "Post method for blocking a user")
+    @PostMapping(path = "/buddy/{id}/block", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDTO> blockBuddy(@Parameter(hidden = true)
+                                              @SessionAttribute("UserId") Long userBlockingId,
+                                              @PathVariable("id") Long userBlockedId) {
+        try {
+            userService.blockBuddy(userBlockingId, userBlockedId);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
     }
 }
