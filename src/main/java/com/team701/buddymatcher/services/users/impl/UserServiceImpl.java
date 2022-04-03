@@ -129,4 +129,15 @@ public class UserServiceImpl implements UserService {
     public void reportBuddy(Long userReportingId, Long userReportedId, String reportInfo) throws NoSuchElementException {
         reportedBuddiesRepository.addReportedBuddy(userReportingId, userReportedId, reportInfo);
     }
+
+    /**
+     * Get a list of users blocked by the user with ID userBlockingId
+     * @param userBlockingId the ID for the blocking user
+     * @return list of User being blocked by the user with ID userBlockingId
+     * @throws NoSuchElementException when there is no User with ID matching userBlockingId
+     */
+    @Override
+    public List<User> getBlockedBuddies(Long userBlockingId) throws NoSuchElementException {
+        return userRepository.getBlockedBuddies(userBlockingId);
+    }
 }
