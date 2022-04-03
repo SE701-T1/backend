@@ -145,25 +145,25 @@ public class UserControllerIntegrationTest {
     @Test
     void reportUser() throws Exception {
         // Test that a POST request for user 2 to report user 1 is OK
-        mvc.perform(post("/api/users/buddy/{id}/report", 1)
+        mvc.perform(post("/api/users/report/{id}", 1)
                         .sessionAttrs(Collections.singletonMap("UserId", 2))
                         .queryParam("reportInfo", "This is a test."))
                 .andExpect(status().isOk());
 
         // Test that a POST request for user 2 to report user 1 again is OK
-        mvc.perform(post("/api/users/buddy/{id}/report", 1)
+        mvc.perform(post("/api/users/report/{id}", 1)
                         .sessionAttrs(Collections.singletonMap("UserId", 2))
                         .queryParam("reportInfo", "This is another test."))
                 .andExpect(status().isOk());
 
         // Test that a POST request for user 1 to report user 2 as well is OK
-        mvc.perform(post("/api/users/buddy/{id}/report", 2)
+        mvc.perform(post("/api/users/report/{id}", 2)
                         .sessionAttrs(Collections.singletonMap("UserId", 1))
                         .queryParam("reportInfo", "This is still a test."))
                 .andExpect(status().isOk());
 
         // Test that a POST request for user 1 to report user 2 as well again is OK
-        mvc.perform(post("/api/users/buddy/{id}/report", 2)
+        mvc.perform(post("/api/users/report/{id}", 2)
                         .sessionAttrs(Collections.singletonMap("UserId", 1))
                         .queryParam("reportInfo", "This is still another test."))
                 .andExpect(status().isOk());
@@ -178,7 +178,7 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].id").value(1));
 
         // Then test that a POST request for user 2 to block user 1 is OK
-        mvc.perform(post("/api/users/buddy/{id}/block", 1)
+        mvc.perform(post("/api/users/block/{id}", 1)
                         .sessionAttrs(Collections.singletonMap("UserId", 2)))
                 .andExpect(status().isOk());
 
@@ -189,7 +189,7 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].id").value(3));
 
         // Then test that a POST request for user 2 to block user 3 is OK
-        mvc.perform(post("/api/users/buddy/{id}/block", 3)
+        mvc.perform(post("/api/users/block/{id}", 3)
                         .sessionAttrs(Collections.singletonMap("UserId", 2)))
                 .andExpect(status().isOk());
 
