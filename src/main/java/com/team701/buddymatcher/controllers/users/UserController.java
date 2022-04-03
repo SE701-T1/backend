@@ -263,7 +263,20 @@ public class UserController {
         }
     }
 
-    @Operation(summary = "Delete method for unblocking a blocked user")
+    @Operation(summary = "Post method for blocking a user")
+    @PostMapping(path = "/buddy/{id}/block", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDTO> blockBuddy(@Parameter(hidden = true)
+                                              @SessionAttribute("UserId") Long userBlockingId,
+                                              @PathVariable("id") Long userBlockedId) {
+        try {
+            userService.blockBuddy(userBlockingId, userBlockedId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
+
+    @Operation(summary = "Post method for reporting a user")
     @PostMapping(path = "/buddy/{id}/report", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDTO> reportBuddy(@Parameter(hidden = true)
                                                @SessionAttribute("UserId") Long userReportingId,
