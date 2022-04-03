@@ -264,13 +264,30 @@ public class UserController {
     }
 
     @Operation(summary = "Post method for blocking a user")
-    @PostMapping(path = "/buddy/{id}/block", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserDTO> blockBuddy(@Parameter(hidden = true)
+    @PostMapping(path = "/block/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> blockBuddy(@Parameter(hidden = true)
                                               @SessionAttribute("UserId") Long userBlockingId,
                                               @PathVariable("id") Long userBlockedId) {
         try {
             userService.blockBuddy(userBlockingId, userBlockedId);
             return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
+
+    @Operation(summary = "Get method for getting a list of users blocked by a user")
+    @GetMapping(path = "/block", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDTO>> getBlockedBuddies(@Parameter(hidden = true)
+                                                           @SessionAttribute("UserId") Long userBlockingId) {
+        try {
+            List<User> blockedUsers = userService.getBlockedBuddies(userBlockingId);
+            System.out.println(blockedUsers);
+            List<UserDTO> userDTOs = blockedUsers.stream()
+                    .map(user -> modelMapper.map(user, UserDTO.class))
+                    .collect(Collectors.toList());
+            System.out.println(userDTOs);
+            return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
