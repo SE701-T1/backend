@@ -151,7 +151,7 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].id").value(1));
 
         // Then test that a POST request for user 2 to block user 1 is OK
-        mvc.perform(post("/api/users/buddy/{id}/block", 1)
+        mvc.perform(post("/api/users/block/{id}", 1)
                         .sessionAttrs(Collections.singletonMap("UserId", 2)))
                 .andExpect(status().isOk());
 
@@ -162,9 +162,62 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].id").value(3));
 
         // Then test that a POST request for user 2 to block user 3 is OK
-        mvc.perform(post("/api/users/buddy/{id}/block", 3)
+        mvc.perform(post("/api/users/block/{id}", 3)
                         .sessionAttrs(Collections.singletonMap("UserId", 2)))
                 .andExpect(status().isOk());
+
+        // Then test that the first buddy returned from a GET request for user 2 is now user 4
+        mvc.perform(get("/api/users/buddy")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(4));
+    }
+
+    @Test
+    void getBlockedUsers() throws Exception {
+        // First test that the first buddy returned from a GET request for user 2 is user 1
+        mvc.perform(get("/api/users/buddy")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1));
+
+        // Then test that a POST request for user 2 to block user 1 is OK
+        mvc.perform(post("/api/users/block/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk());
+
+        // Then test that a GET request for user 2 returns user 1
+        mvc.perform(get("/api/users/block")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Pink Elephant"))
+                .andExpect(jsonPath("$[0].email").value("pink.elephant@gmail.com"))
+                .andExpect(jsonPath("$[0].pairingEnabled").value(false));
+
+        // Then test that the first buddy returned from a GET request for user 2 is now user 3
+        mvc.perform(get("/api/users/buddy")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(3));
+
+        // Then test that a POST request for user 2 to block user 3 is OK
+        mvc.perform(post("/api/users/block/{id}", 3)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk());
+
+        // Then test that a GET request for user 2 returns users 1 and 3
+        mvc.perform(get("/api/users/block")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Pink Elephant"))
+                .andExpect(jsonPath("$[0].email").value("pink.elephant@gmail.com"))
+                .andExpect(jsonPath("$[0].pairingEnabled").value(false))
+                .andExpect(jsonPath("$[1].id").value(3))
+                .andExpect(jsonPath("$[1].name").value("Hiruna Smith"))
+                .andExpect(jsonPath("$[1].email").value("hiruna.smith@gmail.com"))
+                .andExpect(jsonPath("$[1].pairingEnabled").value(false));
 
         // Then test that the first buddy returned from a GET request for user 2 is now user 4
         mvc.perform(get("/api/users/buddy")

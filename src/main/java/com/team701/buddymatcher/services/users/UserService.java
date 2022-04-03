@@ -23,4 +23,12 @@ public interface UserService {
      * @throws NoSuchElementException when there is no User or Buddy
      */
     void blockBuddy(Long userBlockerId, Long userBlockedId) throws NoSuchElementException;
+
+    /**
+     * Get a list of users blocked by the user with ID userBlockingId
+     * @param userBlockingId the ID for the blocking user
+     * @return list of User being blocked by the user with ID userBlockingId
+     * @throws NoSuchElementException when there is no User with ID matching userBlockingId
+     */
+    List<User> getBlockedBuddies(Long userBlockingId) throws NoSuchElementException;
 }

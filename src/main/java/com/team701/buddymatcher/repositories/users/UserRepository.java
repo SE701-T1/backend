@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -48,4 +49,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query(value = "DELETE FROM Buddies b WHERE b.user0.id=:user0 AND b.user1.id=:user1")
     void deleteBuddy(@Param("user0") Long user0, @Param("user1") Long user1);
+
+    /**
+     * Get a list of users blocked by the user with ID userBlockingId from the BLOCKED_BUDDIES database table
+     * @param userBlockerId the ID for the blocking user
+     * @return list of User being blocked by the user with ID userBlockerId
+     */
+    @Query(value = "SELECT * FROM User u JOIN Blocked_Buddies b ON b.user_blocked_id=u.id WHERE b.user_blocker_id=:userBlockerId",
+            nativeQuery=true)
+    List<User> getBlockedBuddies(@Param("userBlockerId") Long userBlockerId);
 }
