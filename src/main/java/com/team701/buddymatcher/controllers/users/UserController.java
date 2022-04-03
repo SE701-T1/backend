@@ -282,11 +282,9 @@ public class UserController {
                                                            @SessionAttribute("UserId") Long userBlockingId) {
         try {
             List<User> blockedUsers = userService.getBlockedBuddies(userBlockingId);
-            System.out.println(blockedUsers);
             List<UserDTO> userDTOs = blockedUsers.stream()
                     .map(user -> modelMapper.map(user, UserDTO.class))
                     .collect(Collectors.toList());
-            System.out.println(userDTOs);
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
