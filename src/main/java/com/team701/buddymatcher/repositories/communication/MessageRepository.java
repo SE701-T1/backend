@@ -39,4 +39,15 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
      */
     @Query(value = "SELECT * FROM (SELECT * FROM Messages m WHERE m.sender_id=:user0 AND m.receiver_id=:user1 UNION SELECT * FROM Messages m WHERE m.sender_id=:user1 AND m.receiver_id=:user0) ORDER BY timestamp DESC LIMIT 1", nativeQuery=true)
     Message findLastMessageBetweenUsers(@Param("user0") Long user0Id, @Param("user1") Long user1Id);
+
+    /**
+     * Delete messages between 2 users
+     * Assuring integrity of the data user0 != user1 and user0 < user1
+     * @param user0 - first user
+     * @param user1 - 2nd user
+     */
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM Messages m WHERE (m.sender_id=:user0 AND m.receiver_id=:user1) OR (m.sender_id=:user1 AND m.receiver_id=:user0)", nativeQuery=true)
+    void deleteMessagesBetweenUsers(@Param("user0") Long user0, @Param("user1") Long user1);
 }

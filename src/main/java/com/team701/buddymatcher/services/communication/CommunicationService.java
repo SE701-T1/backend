@@ -17,4 +17,6 @@ public interface CommunicationService {
     Message getLastMessage(Long userId, Long buddyId);
 
     void addMessage(Long userId, Long buddyId, String message);
+
+    void deleteMessagesBetweenUsers(Long userId, Long buddyId);
 }

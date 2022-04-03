@@ -88,4 +88,15 @@ public class CommunicationController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
     }
+
+    @Operation(summary = "Delete method to delete a user's conversation")
+    @DeleteMapping(path = "/messages/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> deleteUserMessages(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @PathVariable("id") Long buddyId) {
+        try {
+            communicationService.deleteMessagesBetweenUsers(userId, buddyId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
 }
