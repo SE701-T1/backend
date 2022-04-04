@@ -225,4 +225,38 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(4));
     }
+
+    @Test
+    void unBlockUser() throws Exception {
+        // First test that the first buddy returned from a GET request for user 2 is user 1
+        mvc.perform(get("/api/users/buddy")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1));
+
+        // Then test that a POST request for user 2 to block user 1 is OK
+        mvc.perform(post("/api/users/block/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk());
+
+        // Then test that a GET request for user 2 returns user 1
+        mvc.perform(get("/api/users/block")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Pink Elephant"))
+                .andExpect(jsonPath("$[0].email").value("pink.elephant@gmail.com"))
+                .andExpect(jsonPath("$[0].pairingEnabled").value(false));
+
+        // Then test that a DELETE request for user 2 to unblock user 1 is OK
+        mvc.perform(delete("/api/users/unblock/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk());
+
+        // Then test that a GET request for user 2 returns none
+        mvc.perform(get("/api/users/block")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fieldThatShouldNotExist").doesNotExist());
+    }
 }

@@ -292,12 +292,12 @@ public class UserController {
     }
 
     @Operation(summary = "Delete method for unblocking a user")
-    @DeleteMapping(path = "/buddy/{id}/block", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = "/unblock/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> unblockBuddy(@Parameter(hidden = true)
-                                             @SessionAttribute("UserId") Long userUnblockerId,
+                                             @SessionAttribute("UserId") Long userBlockerId,
                                              @PathVariable("id") Long userBlockedId) {
         try {
-            userService.unblockBuddy(userUnblockerId, userBlockedId);
+            userService.unblockBuddy(userBlockerId, userBlockedId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");

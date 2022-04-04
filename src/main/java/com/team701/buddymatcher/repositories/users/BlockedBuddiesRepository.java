@@ -36,7 +36,6 @@ public interface BlockedBuddiesRepository extends JpaRepository<BlockedBuddies, 
      */
     @Transactional
     @Modifying
-    @Query(value = "DELETE FROM Blocked_Buddies b WHERE b.user_blocker_id=:userBlockerId AND b.user_blocked_id=:userBlockedId)",
-            nativeQuery=true)
+    @Query(value = "DELETE FROM BlockedBuddies b WHERE b.userBlocker.id=:userBlockerId AND b.userBlocked.id=:userBlockedId")
     void removeBlockedBuddy(@Param("userBlockerId") Long userBlockerId, @Param("userBlockedId") Long userBlockedId);
 }
