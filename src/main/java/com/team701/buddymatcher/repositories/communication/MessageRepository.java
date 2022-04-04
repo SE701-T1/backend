@@ -47,6 +47,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
      */
     @Transactional
     @Modifying
-    @Query(value = "DELETE FROM Messages m WHERE (m.sender_id=:user0 AND m.receiver_id=:user1) OR (m.sender_id=:user1 AND m.receiver_id=:user0)", nativeQuery=true)
+    @Query(value = "DELETE FROM Messages m WHERE (m.sender_id=:user0 AND m.receiver_id=:user1) " +
+            "OR (m.sender_id=:user1 AND m.receiver_id=:user0)", nativeQuery=true)
     void deleteMessagesBetweenUsers(@Param("user0") Long user0, @Param("user1") Long user1);
 }
