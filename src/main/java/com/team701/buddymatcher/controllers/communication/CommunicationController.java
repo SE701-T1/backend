@@ -1,6 +1,7 @@
 package com.team701.buddymatcher.controllers.communication;
 
 import com.team701.buddymatcher.domain.communication.Message;
+import com.team701.buddymatcher.domain.users.Buddies;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.dtos.communication.ChatDTO;
 import com.team701.buddymatcher.dtos.communication.MessageDTO;
@@ -96,8 +97,21 @@ public class CommunicationController {
                                                    @SessionAttribute("UserId") Long userId, 
                                                    @PathVariable("id") Long buddyId) {
         try {
-            communicationService.deleteMessagesBetweenUsers(userId, buddyId);
-            return new ResponseEntity<>(HttpStatus.OK);
+            // Check if the targeted user is valid/a buddy
+            List<User> buddies = userService.retrieveBuddiesByUserId(userId);
+            boolean isValid = false;
+            for (int i = 0; i < buddies.size(); i++) {
+                if (buddies.get(i).getId() == buddyId) {
+                    isValid = true;
+                    break;
+                }
+            }
+            if (isValid) {
+                communicationService.deleteMessagesBetweenUsers(userId, buddyId);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Buddy not found");
+            }
         } catch (NoSuchElementException e) {
           throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
