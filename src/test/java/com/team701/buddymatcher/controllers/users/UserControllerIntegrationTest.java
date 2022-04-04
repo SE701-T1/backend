@@ -227,7 +227,7 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    void unBlockUser() throws Exception {
+    void unblockUser() throws Exception {
         // First test that the first buddy returned from a GET request for user 2 is user 1
         mvc.perform(get("/api/users/buddy")
                         .sessionAttrs(Collections.singletonMap("UserId", 2)))
