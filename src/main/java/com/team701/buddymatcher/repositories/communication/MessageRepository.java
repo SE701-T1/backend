@@ -42,7 +42,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     /**
      * Delete messages between 2 users
-     * Assuring integrity of the data user0 != user1 and user0 < user1
      * @param user0 - first user
      * @param user1 - 2nd user
      */
