@@ -46,4 +46,9 @@ public class CommunicationServiceImpl implements CommunicationService {
     public void addMessage(Long userId, Long buddyId, String message) {
         messageRepository.createMessage(userId, buddyId, message);
     }
+
+    @Override
+    public void deleteMessagesBetweenUsers(Long userId, Long buddyId) {
+        messageRepository.deleteMessagesBetweenUsers(userId, buddyId);
+    }
 }

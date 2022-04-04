@@ -14,6 +14,7 @@ import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -94,6 +95,42 @@ public class CommunicationControllerIntegrationTest {
     }
 
     @Test
+    void deleteMessages() throws Exception {
+        // Test that the messages exist before deletion
+        mvc.perform(get("/api/communication/messages/{id}",2)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].senderId").value(1))
+                .andExpect(jsonPath("$[0].receiverId").value(2))
+                .andExpect(jsonPath("$[0].timestamp").value("1647394176000"))
+                .andExpect(jsonPath("$[0].content").value("HARRO"))
+                .andExpect(jsonPath("$[0].read").value(true))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].senderId").value(2))
+                .andExpect(jsonPath("$[1].receiverId").value(1))
+                .andExpect(jsonPath("$[1].content").value("Yo HARRO"))
+                .andExpect(jsonPath("$[1].timestamp").value("1647394821000"))
+                .andExpect(jsonPath("$[1].read").value(false))
+                .andDo(print());
+
+        // Test deleting all messages
+        mvc.perform(delete("/api/communication/messages/{id}",2)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
+                .andExpect(status().isOk());
+
+        // Test that all the messages have been deleted successfully
+        mvc.perform(get("/api/communication/messages/{id}",2)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+
+        // Test when the input user is not found
+        mvc.perform(delete("/api/communication/messages/{id}",4)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
+                .andExpect(status().isNotFound());
+    }
+
     void getMessagesByWords() throws Exception {
         mvc.perform(get("/api/communication/messages/search/{id}",2)
                         .sessionAttrs(Collections.singletonMap("UserId", 1))
