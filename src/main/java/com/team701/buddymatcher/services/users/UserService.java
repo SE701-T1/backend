@@ -32,5 +32,5 @@ public interface UserService {
      */
     List<User> getBlockedBuddies(Long userBlockingId) throws NoSuchElementException;
 
-    void unblockBuddy(Long userUnblockerId, Long userBlockedId) throws NoSuchElementException;
+    void unblockBuddy(Long userBlockerId, Long userBlockedId) throws NoSuchElementException;
 }

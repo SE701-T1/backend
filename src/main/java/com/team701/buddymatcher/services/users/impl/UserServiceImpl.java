@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updatePairingEnabled(Long id, Boolean pairingEnabled) {
         int rowsUpdated = userRepository.updatePairingEnabled(id, pairingEnabled);
-        if(rowsUpdated == 0) {
+        if (rowsUpdated == 0) {
             throw new NoSuchElementException();
         }
         return retrieveById(id);
@@ -63,14 +63,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addBuddy(Long currentUserId, Long buddyUserId) throws NoSuchElementException  {
+    public void addBuddy(Long currentUserId, Long buddyUserId) throws NoSuchElementException {
         Long[] buddies = this.orderBuddyId(currentUserId, buddyUserId);
 
         userRepository.createBuddy(buddies[0], buddies[1]);
     }
 
     @Override
-    public void deleteBuddy(Long currentUserId, Long buddyUserId)  throws NoSuchElementException {
+    public void deleteBuddy(Long currentUserId, Long buddyUserId) throws NoSuchElementException {
         Long[] buddies = this.orderBuddyId(currentUserId, buddyUserId);
 
         userRepository.deleteBuddy(buddies[0], buddies[1]);
@@ -79,6 +79,7 @@ public class UserServiceImpl implements UserService {
     /**
      * OrderBuddyId in terms of userId_i < userId_j based on database structure.
      * This is to ensure we only have one relation per buddy pair.
+     *
      * @param user0Id ...
      * @param user1Id ...
      * @return Long[ user0Id, user1Id ] in order
@@ -89,13 +90,14 @@ public class UserServiceImpl implements UserService {
             throw new NoSuchElementException("Cannot be a buddy of yourself");
         }
         if (user0Id > user1Id) {
-            return new Long[] {user1Id, user0Id};
+            return new Long[]{user1Id, user0Id};
         }
-        return new Long[] {user0Id, user1Id};
+        return new Long[]{user0Id, user1Id};
     }
 
     /**
      * Block a user. Remove existing match, and add the blocking user and blocked user paired to BLOCKED_BUDDIES tables.
+     *
      * @param userBlockerId the user ID of the user blocking the buddy user
      * @param userBlockedId the user ID of the buddy user being blocked
      * @throws NoSuchElementException when there is no User or Buddy
@@ -116,6 +118,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Get a list of users blocked by the user with ID userBlockingId
+     *
      * @param userBlockingId the ID for the blocking user
      * @return list of User being blocked by the user with ID userBlockingId
      * @throws NoSuchElementException when there is no User with ID matching userBlockingId
@@ -125,8 +128,16 @@ public class UserServiceImpl implements UserService {
         return userRepository.getBlockedBuddies(userBlockingId);
     }
 
+    /**
+     * Unblock a user. Remove existing match, and remove the blocking user and blocked user paired to BLOCKED_BUDDIES tables.
+     *
+     * @param userBlockerId the user ID of the user blocking the buddy user
+     * @param userBlockedId the user ID of the buddy user being blocked
+     * @throws NoSuchElementException when there is no User or Buddy
+     */
     @Override
-    public void unblockBuddy(Long userUnblockerId, Long userBlockedId) throws NoSuchElementException {
-        //Todo
+    public void unblockBuddy(Long userBlockerId, Long userBlockedId) throws NoSuchElementException {
+        // Add blocker and blocked user pair to BLOCKED_BUDDIES database table
+        blockedBuddiesRepository.removeBlockedBuddy(userBlockerId, userBlockedId);
     }
 }

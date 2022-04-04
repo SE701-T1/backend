@@ -26,4 +26,17 @@ public interface BlockedBuddiesRepository extends JpaRepository<BlockedBuddies, 
     @Query(value = "INSERT INTO Blocked_Buddies (user_blocker_id, user_blocked_id) VALUES (:userBlockerId, :userBlockedId)",
             nativeQuery=true)
     void addBlockedBuddy(@Param("userBlockerId") Long userBlockerId, @Param("userBlockedId") Long userBlockedId);
+
+    /**
+     * Remove the blocking user and blocked user pair from the BLOCKED_BUDDIES database table so that the blocked user
+     * is unblocked
+     * The order of users entered into the table is: (USER_BLOCKER_ID, USER_BLOCKED_ID)
+     * @param userBlockerId the user ID of the user blocking the buddy user
+     * @param userBlockedId the user ID of the buddy user being blocked
+     */
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM Blocked_Buddies b WHERE b.user_blocker_id=:userBlockerId AND b.user_blocked_id=:userBlockedId)",
+            nativeQuery=true)
+    void removeBlockedBuddy(@Param("userBlockerId") Long userBlockerId, @Param("userBlockedId") Long userBlockedId);
 }
