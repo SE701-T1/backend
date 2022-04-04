@@ -98,6 +98,7 @@ public class CommunicationController {
                                                    @PathVariable("id") Long buddyId) {
         try {
             // Check if the targeted user is valid
+            userService.retrieveById(userId);
             userService.retrieveById(buddyId);
             
             communicationService.deleteMessagesBetweenUsers(userId, buddyId);
