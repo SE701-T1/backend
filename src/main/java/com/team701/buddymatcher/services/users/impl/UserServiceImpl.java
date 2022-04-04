@@ -1,6 +1,7 @@
 package com.team701.buddymatcher.services.users.impl;
 
 import com.team701.buddymatcher.domain.users.User;
+import com.team701.buddymatcher.repositories.users.ReportedBuddiesRepository;
 import com.team701.buddymatcher.repositories.users.BlockedBuddiesRepository;
 import com.team701.buddymatcher.repositories.users.BuddiesRepository;
 import com.team701.buddymatcher.repositories.users.UserRepository;
@@ -17,15 +18,18 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final BuddiesRepository buddiesRepository;
+    private final ReportedBuddiesRepository reportedBuddiesRepository;
     private final BlockedBuddiesRepository blockedBuddiesRepository;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
                            BuddiesRepository buddiesRepository,
-                           BlockedBuddiesRepository blockedBuddiesRepository) {
+                           BlockedBuddiesRepository blockedBuddiesRepository,
+                           ReportedBuddiesRepository reportedBuddiesRepository) {
         this.userRepository = userRepository;
         this.buddiesRepository = buddiesRepository;
         this.blockedBuddiesRepository = blockedBuddiesRepository;
+        this.reportedBuddiesRepository = reportedBuddiesRepository;
     }
 
     @Override
@@ -112,6 +116,20 @@ public class UserServiceImpl implements UserService {
         }
         // Add blocker and blocked user pair to BLOCKED_BUDDIES database table
         blockedBuddiesRepository.addBlockedBuddy(userBlockerId, userBlockedId);
+    }
+
+    /**
+     * Report a user. Add the reporting user and reported user paired to REPORTED_BUDDIES tables with report information
+     * @param userReportingId the user ID of the user reporting the buddy user
+     * @param userReportedId the user ID of the buddy user being reported
+     * @param reportInfo the report information given by the reporting user
+     * @throws NoSuchElementException when there is no User or Buddy
+     */
+    @Override
+    public void reportBuddy(Long userReportingId, Long userReportedId, String reportInfo) throws NoSuchElementException {
+        this.retrieveById(userReportedId); // this checks if reported user ID exists in database
+        this.retrieveById(userReportingId); // this checks if reporting user ID exists in database
+        this.reportedBuddiesRepository.addReportedBuddy(userReportingId, userReportedId, reportInfo);
     }
 
     /**

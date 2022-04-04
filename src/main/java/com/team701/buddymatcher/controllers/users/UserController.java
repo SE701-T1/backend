@@ -132,12 +132,12 @@ public class UserController {
         // Use or store profile information
         // ...
         User user = userService.retrieveByEmail(email);
-        if (user == null){ // assuming if not found it'll return null
+        if (user == null) { // assuming if not found it'll return null
             // Persist new user to the database
             userService.addUser(name, email);
             user = userService.retrieveByEmail(email);
         }
-            // return custom JWT
+        // return custom JWT
         JwtTokenUtil util = new JwtTokenUtil();
         String token = util.generateToken(user);
         return new ResponseEntity<>(token, HttpStatus.OK);
@@ -266,10 +266,24 @@ public class UserController {
     @Operation(summary = "Post method for blocking a user")
     @PostMapping(path = "/block/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> blockBuddy(@Parameter(hidden = true)
-                                              @SessionAttribute("UserId") Long userBlockingId,
-                                              @PathVariable("id") Long userBlockedId) {
+                                           @SessionAttribute("UserId") Long userBlockingId,
+                                           @PathVariable("id") Long userBlockedId) {
         try {
             userService.blockBuddy(userBlockingId, userBlockedId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
+
+    @Operation(summary = "Post method for reporting a user")
+    @PostMapping(path = "/report/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> reportBuddy(@Parameter(hidden = true)
+                                            @SessionAttribute("UserId") Long userReportingId,
+                                            @PathVariable("id") Long userReportedId,
+                                            @RequestParam("reportInfo") String reportInfo) {
+        try {
+            userService.reportBuddy(userReportingId, userReportedId, reportInfo);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");

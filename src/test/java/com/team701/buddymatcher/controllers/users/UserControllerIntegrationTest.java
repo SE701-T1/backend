@@ -143,6 +143,51 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
+    void reportUser() throws Exception {
+        // Test that a POST request for user 2 to report user 1 is OK
+        mvc.perform(post("/api/users/report/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2))
+                        .queryParam("reportInfo", "This is a test."))
+                .andExpect(status().isOk());
+
+        // Test that a POST request for user 2 to report user 1 again is OK
+        mvc.perform(post("/api/users/report/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2))
+                        .queryParam("reportInfo", "This is another test."))
+                .andExpect(status().isOk());
+
+        // Test that a POST request for user 1 to report user 2 as well is OK
+        mvc.perform(post("/api/users/report/{id}", 2)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1))
+                        .queryParam("reportInfo", "This is still a test."))
+                .andExpect(status().isOk());
+
+        // Test that a POST request for user 1 to report user 2 as well again is OK
+        mvc.perform(post("/api/users/report/{id}", 2)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1))
+                        .queryParam("reportInfo", "This is still another test."))
+                .andExpect(status().isOk());
+
+        // Test that a POST request for user 999 to report user 2 returns 404 Not Found
+        mvc.perform(post("/api/users/report/{id}", 2)
+                        .sessionAttrs(Collections.singletonMap("UserId", 999))
+                        .queryParam("reportInfo", "This is still another test."))
+                .andExpect(status().isNotFound());
+
+        // Test that a POST request for user 1 to report user 999 returns 404 Not Found
+        mvc.perform(post("/api/users/report/{id}", 999)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1))
+                        .queryParam("reportInfo", "This is still another test."))
+                .andExpect(status().isNotFound());
+
+        // Test that a POST request for user "null" to report user 2 returns 400 Bad Request
+        mvc.perform(post("/api/users/report/{id}", 2)
+                        .sessionAttrs(Collections.singletonMap("UserId", "null"))
+                        .queryParam("reportInfo", "This is still another test."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void blockUser() throws Exception {
         // First test that the first buddy returned from a GET request for user 2 is user 1
         mvc.perform(get("/api/users/buddy")

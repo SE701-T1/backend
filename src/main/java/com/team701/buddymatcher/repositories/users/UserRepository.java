@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
