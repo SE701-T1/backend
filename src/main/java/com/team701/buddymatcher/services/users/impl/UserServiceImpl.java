@@ -79,7 +79,6 @@ public class UserServiceImpl implements UserService {
     /**
      * OrderBuddyId in terms of userId_i < userId_j based on database structure.
      * This is to ensure we only have one relation per buddy pair.
-     *
      * @param user0Id ...
      * @param user1Id ...
      * @return Long[ user0Id, user1Id ] in order
@@ -97,7 +96,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Block a user. Remove existing match, and add the blocking user and blocked user paired to BLOCKED_BUDDIES tables.
-     *
      * @param userBlockerId the user ID of the user blocking the buddy user
      * @param userBlockedId the user ID of the buddy user being blocked
      * @throws NoSuchElementException when there is no User or Buddy
@@ -118,7 +116,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Get a list of users blocked by the user with ID userBlockingId
-     *
      * @param userBlockingId the ID for the blocking user
      * @return list of User being blocked by the user with ID userBlockingId
      * @throws NoSuchElementException when there is no User with ID matching userBlockingId
@@ -130,7 +127,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Unblock a user. Remove existing match, and remove the blocking user and blocked user paired to BLOCKED_BUDDIES tables.
-     *
      * @param userBlockerId the user ID of the user blocking the buddy user
      * @param userBlockedId the user ID of the buddy user being blocked
      * @throws NoSuchElementException when there is no User or Buddy
