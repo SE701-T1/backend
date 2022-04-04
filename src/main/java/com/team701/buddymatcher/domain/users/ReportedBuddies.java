@@ -18,6 +18,7 @@ import javax.persistence.Column;
 @Entity
 @Table(name = "REPORTED_BUDDIES")
 public class ReportedBuddies {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

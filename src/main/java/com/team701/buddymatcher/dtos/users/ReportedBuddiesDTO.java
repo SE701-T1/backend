@@ -67,7 +67,14 @@ public class ReportedBuddiesDTO implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userReporter, userReported, reportInformation, isReportRead, isReportResolved);
+        return Objects.hash(
+                this.id,
+                this.userReporter,
+                this.userReported,
+                this.reportInformation,
+                this.isReportRead,
+                this.isReportResolved
+        );
     }
 
     @Override

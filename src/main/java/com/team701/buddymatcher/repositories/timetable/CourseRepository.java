@@ -11,6 +11,7 @@ import java.util.List;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
+
     Course findByName(String name);
 
     @Query("SELECT c FROM Course c JOIN c.users u WHERE u.id=:userId")

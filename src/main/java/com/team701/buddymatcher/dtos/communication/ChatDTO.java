@@ -7,6 +7,7 @@ import java.sql.Timestamp;
  * Used for displaying a list of the user's buddies and their most recent message
  */
 public class ChatDTO {
+
     // ID of the user
     private Long id;
     // Name of the buddy in the chatroom
@@ -15,7 +16,7 @@ public class ChatDTO {
     private Timestamp timestamp;
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public ChatDTO setId(Long id) {
@@ -24,7 +25,7 @@ public class ChatDTO {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public ChatDTO setName(String name) {
@@ -33,7 +34,7 @@ public class ChatDTO {
     }
 
     public String getLastMessage() {
-        return lastMessage;
+        return this.lastMessage;
     }
 
     public ChatDTO setLastMessage(String lastMessage) {
@@ -42,7 +43,7 @@ public class ChatDTO {
     }
 
     public Timestamp getTimestamp() {
-        return timestamp;
+        return this.timestamp;
     }
 
     public ChatDTO setTimestamp(Timestamp timestamp) {

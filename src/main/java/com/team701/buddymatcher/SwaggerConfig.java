@@ -10,7 +10,6 @@ import io.swagger.v3.oas.models.info.License;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-
 @Configuration
 @SecurityScheme(
         name = "JWT",
@@ -28,11 +27,15 @@ public class SwaggerConfig {
                         .description("APIs for Class Buddy Matcher.")
                         .version("1.0")
                         .termsOfService("Terms of service")
-                        .contact(new Contact().name("Class Buddy Matcher").url("https://github.com/SE701-T1").email("shreym.tailor@gmail.com"))
-                        .license(new License().name("License of API").url("API license URL")))
+                        .contact(new Contact()
+                                .name("Class Buddy Matcher")
+                                .url("https://github.com/SE701-T1")
+                                .email("shreym.tailor@gmail.com"))
+                        .license(new License()
+                                .name("License of API")
+                                .url("API license URL")))
                 .externalDocs(new ExternalDocumentation()
                         .description("My API Wiki Documentation")
                         .url("https://github.com/SE701-T1/backend/wiki"));
-
     }
 }

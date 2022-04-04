@@ -1,12 +1,13 @@
 package com.team701.buddymatcher.socket;
 
 public class MessageObject {
+
     private Long senderId;
     private Long receiverId;
     private String message;
 
     public Long getSenderId() {
-        return senderId;
+        return this.senderId;
     }
 
     public MessageObject setSenderId(Long senderId) {
@@ -15,7 +16,7 @@ public class MessageObject {
     }
 
     public Long getReceiverId() {
-        return receiverId;
+        return this.receiverId;
     }
 
     public MessageObject setReceiverId(Long receiverId) {
@@ -24,7 +25,7 @@ public class MessageObject {
     }
 
     public String getMessage() {
-        return message;
+        return this.message;
     }
 
     public MessageObject setMessage(String message) {
