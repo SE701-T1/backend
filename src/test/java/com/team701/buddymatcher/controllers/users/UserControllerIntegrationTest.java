@@ -180,7 +180,7 @@ public class UserControllerIntegrationTest {
                         .queryParam("reportInfo", "This is still another test."))
                 .andExpect(status().isNotFound());
 
-        // Test that a POST request for user 999 to report user 2 returns 404 Not Found
+        // Test that a POST request for user "null" to report user 2 returns 400 Bad Request
         mvc.perform(post("/api/users/report/{id}", 2)
                         .sessionAttrs(Collections.singletonMap("UserId", "null"))
                         .queryParam("reportInfo", "This is still another test."))

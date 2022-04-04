@@ -266,7 +266,7 @@ public class UserController {
     @Operation(summary = "Post method for blocking a user")
     @PostMapping(path = "/block/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> blockBuddy(@Parameter(hidden = true)
-                                               @SessionAttribute("UserId") Long userBlockingId,
+                                           @SessionAttribute("UserId") Long userBlockingId,
                                            @PathVariable("id") Long userBlockedId) {
         try {
             userService.blockBuddy(userBlockingId, userBlockedId);
