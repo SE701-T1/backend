@@ -12,7 +12,7 @@ public class CourseDTO {
     private Timestamp updatedTime;
 
     public Long getCourseId() {
-        return courseId;
+        return this.courseId;
     }
 
     public void setCourseId(Long courseId) {
@@ -20,7 +20,7 @@ public class CourseDTO {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {
@@ -28,7 +28,7 @@ public class CourseDTO {
     }
 
     public String getSemester() {
-        return semester;
+        return this.semester;
     }
 
     public void setSemester(String semester) {
@@ -36,7 +36,7 @@ public class CourseDTO {
     }
 
     public Integer getStudentCount() {
-        return studentCount;
+        return this.studentCount;
     }
 
     public void setStudentCount(Integer studentCount) {
@@ -44,7 +44,7 @@ public class CourseDTO {
     }
 
     public Integer getBuddyCount() {
-        return buddyCount;
+        return this.buddyCount;
     }
 
     public void setBuddyCount(Integer buddyCount) {
@@ -52,7 +52,7 @@ public class CourseDTO {
     }
 
     public Timestamp getUpdatedTime() {
-        return updatedTime;
+        return this.updatedTime;
     }
 
     public void setUpdatedTime(Timestamp updatedTime) {

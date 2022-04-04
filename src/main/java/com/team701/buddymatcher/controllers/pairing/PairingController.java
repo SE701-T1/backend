@@ -1,5 +1,6 @@
 package com.team701.buddymatcher.controllers.pairing;
 
+import com.team701.buddymatcher.controllers.users.UserController;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.dtos.pairing.MatchBuddyDTO;
 import com.team701.buddymatcher.dtos.users.UserDTO;
@@ -14,7 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -31,44 +37,53 @@ public class PairingController {
     private final PairingService pairingService;
     private final UserService userService;
     private final ModelMapper modelMapper;
+    private final UserController userController;
 
     @Autowired
-    public PairingController(PairingService pairingService, UserService userService, ModelMapper modelMapper) {
+    public PairingController(PairingService pairingService,
+                             UserService userService,
+                             ModelMapper modelMapper,
+                             UserController userController) {
         this.pairingService = pairingService;
         this.userService = userService;
         this.modelMapper = modelMapper;
+        this.userController = userController;
     }
 
     @Operation(summary = "Post method for finding possible matches for a user given a list of courses to match through")
     @PostMapping(path = "/matchBuddy",
                 consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserDTO>> matchBuddy(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @RequestBody MatchBuddyDTO buddyMatchRequest) {
+    public ResponseEntity<List<UserDTO>> matchBuddy(@Parameter(hidden = true)
+                                                    @SessionAttribute("UserId") Long userId,
+                                                    @RequestBody MatchBuddyDTO buddyMatchRequest) {
         try {
-            List<User> results = pairingService.matchBuddy(userId,
+            this.userController.isUserValid(userId);
+            List<User> results = this.pairingService.matchBuddy(userId,
                     buddyMatchRequest.getCourseIds());
-            List<Long> currentBuddies = pairingService.getBuddyIds(userId);
+            List<Long> currentBuddies = this.pairingService.getBuddyIds(userId);
 
-            /**Filter the list of possible buddies,
+            /*
+             * Filter the list of possible buddies,
              * 1. If the user is open to pairing,
              * 2. If they are the current user,
              * 3. If they are already a buddy of the user,
-             * Finally map it to a UserDto*/
-
+             * Finally map it to a UserDto
+             */
             List<UserDTO> matches = results.stream()
                     .filter(User::getPairingEnabled)
                     .filter(user -> !user.getId().equals(userId))
                     .filter(user -> !currentBuddies.contains(user.getId()))
                     .map(user -> {
                         //Map the user object to a DTO and then set the buddy count
-                        UserDTO dto = modelMapper.map(user, UserDTO.class);
-                        dto.setBuddyCount(userService.countBuddies(user));
+                        UserDTO dto = this.modelMapper.map(user, UserDTO.class);
+                        dto.setBuddyCount(this.userService.countBuddies(user));
                         return dto;
                     })
                     .collect(Collectors.toList());
             if (matches.size() == 0) {
-                return new ResponseEntity(HttpStatus.NO_CONTENT);
+                throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No content");
             }
-            return new ResponseEntity(matches, HttpStatus.OK);
+            return new ResponseEntity<>(matches, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }

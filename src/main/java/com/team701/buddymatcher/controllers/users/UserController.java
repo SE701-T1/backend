@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +53,6 @@ public class UserController {
 
     private final UserService userService;
     private final TimetableService timetableService;
-
     private final ModelMapper modelMapper;
 
     @Autowired
@@ -64,7 +64,8 @@ public class UserController {
 
     @Operation(summary = "Get method to retrieve self")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserDTO> retrieveSelf(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId) {
+    public ResponseEntity<UserDTO> retrieveSelf(@Parameter(hidden = true)
+                                                @SessionAttribute("UserId") Long userId) {
         return getUserById(userId);
     }
 
@@ -74,14 +75,19 @@ public class UserController {
         return getUserById(id);
     }
 
+    /**
+     * Returns a User if user ID is in the database, otherwise throws NoSuchElementException
+     */
+    public User isUserValid(Long userId) throws NoSuchElementException {
+        return userService.retrieveById(userId);
+    }
+
     private ResponseEntity<UserDTO> getUserById(Long userId) {
         try {
-            User user = userService.retrieveById(userId);
-            UserDTO userDTO = modelMapper.map(user, UserDTO.class);
-
-            Long buddyCount = userService.countBuddies(user);
+            User user = this.isUserValid(userId);
+            UserDTO userDTO = this.modelMapper.map(user, UserDTO.class);
+            Long buddyCount = this.userService.countBuddies(user);
             userDTO.setBuddyCount(buddyCount);
-
             return new ResponseEntity<>(userDTO, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
@@ -90,11 +96,12 @@ public class UserController {
 
     @Operation(summary = "Put method to update a own pairingEnabled field")
     @PutMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserDTO> updatePairingEnabled(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @RequestParam Boolean pairingEnabled) {
+    public ResponseEntity<UserDTO> updatePairingEnabled(@Parameter(hidden = true)
+                                                        @SessionAttribute("UserId") Long userId,
+                                                        @RequestParam Boolean pairingEnabled) {
         try {
-            User user = userService.updatePairingEnabled(userId, pairingEnabled);
-            UserDTO userDTO = modelMapper.map(user, UserDTO.class);
-
+            User user = this.userService.updatePairingEnabled(userId, pairingEnabled);
+            UserDTO userDTO = this.modelMapper.map(user, UserDTO.class);
             return new ResponseEntity<>(userDTO, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
@@ -103,61 +110,66 @@ public class UserController {
 
     @Operation(summary = "Get method for a user logging in using Google")
     @GetMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> loginWithGoogle(HttpServletRequest request) throws GeneralSecurityException, IOException {
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier
-                .Builder(new NetHttpTransport(), new GsonFactory())
-                // Specify the CLIENT_ID of the app that accesses the backend:
-                .setAudience(Collections.singletonList(CLIENT_ID))
-                .build();
-        String idTokenString = request.getHeader("id_token");
-        if (idTokenString == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+    public ResponseEntity<String> loginWithGoogle(HttpServletRequest request) {
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier
+                    .Builder(new NetHttpTransport(), new GsonFactory())
+                    // Specify the CLIENT_ID of the app that accesses the backend:
+                    .setAudience(Collections.singletonList(CLIENT_ID))
+                    .build();
+            String idTokenString = request.getHeader("id_token");
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            Payload payload = idToken.getPayload();
+
+            // Get profile information from payload
+            String email = payload.getEmail();
+            String name = (String) payload.get("name");
+            User user;
+            try {
+                // Use or store profile information
+                user = this.userService.retrieveByEmail(email);
+            } catch (NoSuchElementException e) {
+                // Persist new user to the database
+                this.userService.addUser(name, email);
+                user = this.userService.retrieveByEmail(email);
+            }
+
+            // Return custom JWT
+            JwtTokenUtil util = new JwtTokenUtil();
+            String token = util.generateToken(user);
+            return new ResponseEntity<>(token, HttpStatus.OK);
+        } catch (GeneralSecurityException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized");
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");
+        } catch (IOException | IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user");
         }
+    }
 
-        GoogleIdToken idToken = verifier.verify(idTokenString);
-        if (idToken == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
-        }
-
-        Payload payload = idToken.getPayload();
-
-        // Print user identifier
-        String userId = payload.getSubject();
-
-        // Get profile information from payload
-        String email = payload.getEmail();
-        boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
-        String name = (String) payload.get("name");
-
-        // Use or store profile information
-        // ...
-        User user = userService.retrieveByEmail(email);
-        if (user == null) { // assuming if not found it'll return null
-            // Persist new user to the database
-            userService.addUser(name, email);
-            user = userService.retrieveByEmail(email);
-        }
-        // return custom JWT
-        JwtTokenUtil util = new JwtTokenUtil();
-        String token = util.generateToken(user);
-        return new ResponseEntity<>(token, HttpStatus.OK);
+    /**
+     * Converts a list of Users to a list of UserDTOs and sets the buddy count
+     * @param users list of Users
+     * @return list of UserDTOs
+     */
+    private List<UserDTO> getUserDTOs(List<User> users) {
+        return users.stream()
+                .map(user -> {
+                    // setting buddy count for each of the buddy dto
+                    UserDTO dto = this.modelMapper.map(user, UserDTO.class);
+                    dto.setBuddyCount(this.userService.countBuddies(user));
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Operation(summary = "Get method to retrieve a list of buddy from a user")
     @GetMapping(path = "/buddy", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserDTO>> getUserBuddy(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId) {
+    public ResponseEntity<List<UserDTO>> getUserBuddy(@Parameter(hidden = true)
+                                                      @SessionAttribute("UserId") Long userId) {
         try {
-            List<User> users = userService.retrieveBuddiesByUserId(userId);
-            List<UserDTO> userDTOs = users.stream()
-                    .map(user -> {
-                        // setting buddy count for each of the buddy dto
-                        UserDTO dto = modelMapper.map(user, UserDTO.class);
-                        dto.setBuddyCount(userService.countBuddies(user));
-                        return dto;
-                    })
-                    .collect(Collectors.toList());
-
-            return new ResponseEntity<>(userDTOs, HttpStatus.OK);
+            this.isUserValid(userId);
+            return new ResponseEntity<>(getUserDTOs(this.userService.retrieveBuddiesByUserId(userId)), HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
@@ -165,51 +177,45 @@ public class UserController {
 
     @Operation(summary = "Get method to retrieve a list of buddies of a user from a course by courseID")
     @GetMapping(path = "/buddy/course/{course_id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserDTO>> getUserBuddiesInCourse(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @PathVariable("course_id") Long courseId) {
-        // Get list of all users in the course
+    public ResponseEntity<List<UserDTO>> getUserBuddiesInCourse(@Parameter(hidden = true)
+                                                                @SessionAttribute("UserId") Long userId,
+                                                                @PathVariable("course_id") Long courseId) {
         List<User> usersInCourse;
         try {
             List<Long> courseList = new ArrayList<>();
             courseList.add(courseId);
-            usersInCourse = timetableService.getUsersFromCourseIds(courseList);
+            usersInCourse = this.timetableService.getUsersFromCourseIds(courseList);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");
         }
 
         // Filter list of users to only those in the course given by courseID
         try {
-            List<User> usersBuddiesAll = userService.retrieveBuddiesByUserId(userId);
+            this.isUserValid(userId);
+            List<User> usersBuddiesAll = this.userService.retrieveBuddiesByUserId(userId);
             List<User> usersBuddiesCourse = new ArrayList<>();
-            for (int i = 0; i < usersBuddiesAll.size(); i++) {
-                for (int j = 0; j < usersInCourse.size(); j++) {
-                    if (usersBuddiesAll.get(i).getId().equals(usersInCourse.get(j).getId())) {
-                        User buddy = usersBuddiesAll.get(i);
-                        usersBuddiesCourse.add(buddy);
-                        continue;
+            for (User user : usersBuddiesAll) {
+                for (User value : usersInCourse) {
+                    if (user.getId().equals(value.getId())) {
+                        usersBuddiesCourse.add(user);
                     }
                 }
             }
-
-            List<UserDTO> userDTOs = usersBuddiesCourse.stream()
-                    .map(user -> {
-                        // setting buddy count for each of the buddy dto
-                        UserDTO dto = modelMapper.map(user, UserDTO.class);
-                        dto.setBuddyCount(userService.countBuddies(user));
-                        return dto;
-                    })
-                    .collect(Collectors.toList());
-
-            return new ResponseEntity<>(userDTOs, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(getUserDTOs(usersBuddiesCourse), HttpStatus.OK);
+        }  catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
     }
 
     @Operation(summary = "Post method insert a user as a buddy")
     @PostMapping(path = "/buddy/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> postUserBuddy(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @PathVariable("id") Long buddyId) {
+    public ResponseEntity<Void> postUserBuddy(@Parameter(hidden = true)
+                                              @SessionAttribute("UserId") Long userId,
+                                              @PathVariable("id") Long buddyId) {
         try {
-            userService.addBuddy(userId, buddyId);
+            this.isUserValid(userId);
+            this.isUserValid(buddyId);
+            this.userService.addBuddy(userId, buddyId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
@@ -218,9 +224,13 @@ public class UserController {
 
     @Operation(summary = "Delete method to delete a user's buddy")
     @DeleteMapping(path = "/buddy/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> deleteUserBuddy(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @PathVariable("id") Long buddyId) {
+    public ResponseEntity<Void> deleteUserBuddy(@Parameter(hidden = true)
+                                                @SessionAttribute("UserId") Long userId,
+                                                @PathVariable("id") Long buddyId) {
         try {
-            userService.deleteBuddy(userId, buddyId);
+            this.isUserValid(userId);
+            this.isUserValid(buddyId);
+            this.userService.deleteBuddy(userId, buddyId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
@@ -234,11 +244,11 @@ public class UserController {
     @GetMapping(path = "/fake/login/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getFakeLogin(@PathVariable("id") Long userId) {
         try {
-            User user = userService.retrieveById(userId);
+            User user = this.isUserValid(userId);
             JwtTokenUtil util = new JwtTokenUtil();
             String token = util.generateToken(user);
             return new ResponseEntity<>(token, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException | IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
         }
     }
@@ -248,18 +258,19 @@ public class UserController {
      */
     @Operation(summary = "Get method for a fake Register for testing")
     @GetMapping(path = "/fake/register", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserDTO> getFakeRegister(@RequestParam("name") String name, @RequestParam("email") String email) {
+    public ResponseEntity<UserDTO> getFakeRegister(@RequestParam("name") String name,
+                                                   @RequestParam("email") String email) {
         try {
-            userService.addUser(name, email);
-            User user = userService.retrieveByEmail(email);
+            this.userService.addUser(name, email);
+            User user = this.userService.retrieveByEmail(email);
             UserDTO userDTO = new UserDTO()
                     .setId(user.getId())
                     .setEmail(user.getEmail())
                     .setName(user.getName())
                     .setPairingEnabled(user.getPairingEnabled());
             return new ResponseEntity<>(userDTO, HttpStatus.OK);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");
         }
     }
 
@@ -269,7 +280,9 @@ public class UserController {
                                            @SessionAttribute("UserId") Long userBlockingId,
                                            @PathVariable("id") Long userBlockedId) {
         try {
-            userService.blockBuddy(userBlockingId, userBlockedId);
+            this.isUserValid(userBlockingId);
+            this.isUserValid(userBlockedId);
+            this.userService.blockBuddy(userBlockingId, userBlockedId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
@@ -283,7 +296,9 @@ public class UserController {
                                             @PathVariable("id") Long userReportedId,
                                             @RequestParam("reportInfo") String reportInfo) {
         try {
-            userService.reportBuddy(userReportingId, userReportedId, reportInfo);
+            this.isUserValid(userReportingId);
+            this.isUserValid(userReportedId);
+            this.userService.reportBuddy(userReportingId, userReportedId, reportInfo);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
@@ -294,14 +309,11 @@ public class UserController {
     @GetMapping(path = "/block", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDTO>> getBlockedBuddies(@Parameter(hidden = true)
                                                            @SessionAttribute("UserId") Long userBlockingId) {
-        try {
-            List<User> blockedUsers = userService.getBlockedBuddies(userBlockingId);
+            this.isUserValid(userBlockingId);
+            List<User> blockedUsers = this.userService.getBlockedBuddies(userBlockingId);
             List<UserDTO> userDTOs = blockedUsers.stream()
-                    .map(user -> modelMapper.map(user, UserDTO.class))
+                    .map(user -> this.modelMapper.map(user, UserDTO.class))
                     .collect(Collectors.toList());
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        }
     }
 }

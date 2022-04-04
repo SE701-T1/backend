@@ -1,7 +1,7 @@
 package com.team701.buddymatcher.services.timetable;
 
 import com.team701.buddymatcher.domain.timetable.Course;
-import com.team701.buddymatcher.domain.users.Buddies;
+import com.team701.buddymatcher.domain.timetable.Timetable;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.repositories.timetable.CourseRepository;
 import com.team701.buddymatcher.services.timetable.impl.TimetableServiceImpl;
@@ -15,10 +15,17 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.File;
+import java.io.InputStream;
+import java.io.FileInputStream;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Arrays;
 
 import static org.mockito.Mockito.times;
 
@@ -38,16 +45,12 @@ public class TimetableServiceImplUnitTests {
     void correctlyGenerateCoursesInDatabase() {
         Long userId = new Random().nextLong();
         User user = createExpectedUser(userId);
-
         List<String> courseNames = Arrays.asList("se701", "se750", "enggen303");
-
         Mockito.when(userService.retrieveById(userId)).thenReturn(user);
         for (String courseName : courseNames) {
             Mockito.when(courseRepository.findByName(courseName)).thenReturn(null);
         }
-
         timetableService.populateCourses(userId, courseNames);
-
         Mockito.verify(courseRepository, times(3)).save(Mockito.any(Course.class));
     }
 
@@ -55,19 +58,14 @@ public class TimetableServiceImplUnitTests {
     void correctlyGenerateCoursesAndAddToExistingCourse() {
         Long userId = new Random().nextLong();
         User user = createExpectedUser(userId);
-
         Long courseId = new Random().nextLong();
         Course course = createExpectedCourse(courseId);
-
         List<String> courseNames = Arrays.asList("se750", "se701", "enggen303");
         Mockito.when(courseRepository.findByName("se750")).thenReturn(null);
         Mockito.when(courseRepository.findByName("se701")).thenReturn(course);
         Mockito.when(courseRepository.findByName("enggen303")).thenReturn(null);
-
         Mockito.when(userService.retrieveById(userId)).thenReturn(user);
-
         timetableService.populateCourses(userId, courseNames);
-
         Assertions.assertEquals(course.getStudentCount(), 1);
         Mockito.verify(courseRepository, times(3)).save(Mockito.any(Course.class));
     }
@@ -76,21 +74,21 @@ public class TimetableServiceImplUnitTests {
     void correctlyAddToExistingCourseWithOtherStudents() {
         Long userId = new Random().nextLong();
         User user = createExpectedUser(userId);
-
         Long courseId = new Random().nextLong();
         Course course = createExpectedCourse(courseId);
-
         course.addNewUser(new User().setId(new Random().nextLong()).setName("Matt Moran"));
-
-        List<String> courseNames = Arrays.asList("se701");
+        List<String> courseNames = List.of("se701");
         Mockito.when(courseRepository.findByName("se701")).thenReturn(course);
-
         Mockito.when(userService.retrieveById(userId)).thenReturn(user);
-
         timetableService.populateCourses(userId, courseNames);
-
         Assertions.assertEquals(course.getStudentCount(), 2);
         Mockito.verify(courseRepository, times(1)).save(Mockito.any(Course.class));
+    }
+
+    @Test
+    void testTimeTableRetrieve() {
+        Timetable t = timetableService.retrieve(String.valueOf(1));
+        Assertions.assertEquals(t.getClassNames(), Arrays.asList("SE701", "SE754", "SE751"));
     }
 
     @Test
@@ -105,9 +103,7 @@ public class TimetableServiceImplUnitTests {
             }
         };
         Mockito.when(courseRepository.findByUserId(id)).thenReturn(expected);
-
         List<Course> course = timetableService.getCourses(id);
-
         Assertions.assertNotNull(course);
         Assertions.assertEquals(course, expected);
     }
@@ -117,9 +113,7 @@ public class TimetableServiceImplUnitTests {
         Long id = new Random().nextLong();
         Course expected = createExpectedCourse(id);
         Mockito.when(courseRepository.findById(id)).thenReturn(Optional.of(expected));
-
         Course course = timetableService.getCourse(id);
-
         Assertions.assertNotNull(course);
         Assertions.assertEquals(course, expected);
     }

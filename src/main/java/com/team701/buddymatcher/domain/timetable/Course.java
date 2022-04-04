@@ -46,7 +46,7 @@ public class Course {
     private Set<User> users = new HashSet<>();
 
     public Set<User> getUsers() {
-        return users;
+        return this.users;
     }
 
     public Course setUsers(Set<User> users) {
@@ -55,7 +55,7 @@ public class Course {
     }
 
     public long getCourseId() {
-        return courseId;
+        return this.courseId;
     }
 
     public Course setCourseId(long id) {
@@ -64,7 +64,7 @@ public class Course {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public Course setName(String name) {
@@ -73,7 +73,7 @@ public class Course {
     }
 
     public String getSemester() {
-        return semester;
+        return this.semester;
     }
 
     public Course setSemester(String semester) {
@@ -82,7 +82,7 @@ public class Course {
     }
 
     public Integer getStudentCount() {
-        return studentCount;
+        return this.studentCount;
     }
 
     public Course setStudentCount(Integer studentCount) {
@@ -91,7 +91,7 @@ public class Course {
     }
 
     public Timestamp getUpdatedTime() {
-        return updatedTime;
+        return this.updatedTime;
     }
 
     public Course setUpdatedTime(Timestamp updatedTime) {
@@ -100,10 +100,10 @@ public class Course {
     }
 
     public Course addNewUser(User user){
-        if (!users.contains(user)){
-            users.add(user);
+        if (!this.users.contains(user)){
+            this.users.add(user);
             user.getCourses().add(this);
-            studentCount++;
+            this.studentCount++;
         }
         return this;
     }
@@ -115,9 +115,9 @@ public class Course {
      */
     public Course removeUser(User user) {
         if (this.users.contains(user)) {
-            users.remove(user);
+            this.users.remove(user);
             user.getCourses().remove(this);
-            studentCount--;
+            this.studentCount--;
         }
         return this;
     }

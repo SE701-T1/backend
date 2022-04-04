@@ -3,11 +3,13 @@ package com.team701.buddymatcher.services.communication;
 import com.team701.buddymatcher.domain.communication.Message;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Handles the incoming requests related to the communication endpoint
  */
 public interface CommunicationService {
+
     List<Message> getMessages(Long userId, Long buddyId);
 
     void readMessages(Long userId, Long buddyId);

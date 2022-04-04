@@ -1,5 +1,6 @@
 package com.team701.buddymatcher.controllers.timetable;
 
+import com.team701.buddymatcher.controllers.users.UserController;
 import com.team701.buddymatcher.domain.timetable.Course;
 import com.team701.buddymatcher.dtos.timetable.CourseDTO;
 import com.team701.buddymatcher.services.timetable.TimetableService;
@@ -45,57 +46,71 @@ import java.util.stream.Collectors;
 @SessionAttributes("UserId")
 @SecurityRequirement(name = "JWT")
 public class TimetableController {
-    private final TimetableService timetableService;
 
+    private final TimetableService timetableService;
     private final ModelMapper modelMapper;
+    private final UserController userController;
 
     @Autowired
-    public TimetableController(TimetableService timetableService, ModelMapper modelMapper) {
+    public TimetableController(TimetableService timetableService,
+                               ModelMapper modelMapper,
+                               UserController userController) {
         this.timetableService = timetableService;
         this.modelMapper = modelMapper;
+        this.userController = userController;
+    }
+
+    /**
+     * Returns a Course if course ID is in the database, otherwise throws NoSuchElementException
+     */
+    private Course isCourseValid(Long courseId) throws NoSuchElementException {
+        return timetableService.getCourse(courseId);
     }
 
     @Operation(summary ="Get method to get current user courses")
     @GetMapping(path = "/users/courses", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CourseDTO>> getSelfCourses (@Parameter(hidden = true)
-                                                               @SessionAttribute("UserId") Long userId) {
-        return getCourseListById(userId);
+                                                           @SessionAttribute("UserId") Long userId) {
+        try {
+            this.userController.isUserValid(userId);
+            return getCourseListById(userId);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
     }
 
     @Operation(summary ="Get method to get userId user courses")
     @GetMapping(path = "/users/courses/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CourseDTO>> getCourses (@PathVariable("id") Long userId) {
-        return getCourseListById(userId);
+        try {
+            this.userController.isUserValid(userId);
+            return getCourseListById(userId);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
     }
 
     private ResponseEntity<List<CourseDTO>> getCourseListById(Long userId) {
-        try {
-            List<Course> courses = timetableService.getCourses(userId);
-            List<CourseDTO> courseDTOs = courses.stream()
-                    .map(course -> {
-                        // Map the course object to a DTO and then set the buddy count
-                        CourseDTO dto = modelMapper.map(course, CourseDTO.class);
-                        dto.setBuddyCount(Math.toIntExact(
-                                timetableService.getBuddyCountFromCourse(userId,
-                                        course.getCourseId())));
-                        return dto;
-                    })
-                    .collect(Collectors.toList());
-
-            return new ResponseEntity<>(courseDTOs, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        }
+        List<Course> courses = this.timetableService.getCourses(userId);
+        List<CourseDTO> courseDTOs = courses.stream()
+                .map(course -> {
+                    // Map the course object to a DTO and then set the buddy count
+                    CourseDTO dto = this.modelMapper.map(course, CourseDTO.class);
+                    dto.setBuddyCount(Math.toIntExact(
+                            this.timetableService.getBuddyCountFromCourse(userId,
+                                    course.getCourseId())));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(courseDTOs, HttpStatus.OK);
     }
 
     @Operation(summary ="Get method to get a course using courseId")
     @GetMapping(path = "/course/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CourseDTO> getCourse (@PathVariable("id") Long courseId) {
         try {
-            Course course = timetableService.getCourse(courseId);
-            CourseDTO courseDTO = modelMapper.map(course, CourseDTO.class);
-
+            Course course = this.isCourseValid(courseId);
+            CourseDTO courseDTO = this.modelMapper.map(course, CourseDTO.class);
             return new ResponseEntity<>(courseDTO, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");
@@ -104,56 +119,64 @@ public class TimetableController {
   
     @Operation(summary = "Post method to upload a course url for current user")
     @PostMapping(path="users/upload")
-    public ResponseEntity<Void> uploadTimetable(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId,
-                                                @RequestBody String timetableUrl) throws IOException,
-                                                InterruptedException {
-        timetableUrl = URLDecoder.decode(timetableUrl,StandardCharsets.UTF_8.toString()).replace("=", "");
-        HttpRequest timetableRequest = HttpRequest.newBuilder()
-                .uri(URI.create(timetableUrl))
-                .GET()
-                .build();
-        HttpResponse<String> timetableResponse = HttpClient.newBuilder()
-                .build()
-                .send(timetableRequest, HttpResponse.BodyHandlers.ofString());
-        InputStream timetableStream = new ByteArrayInputStream(timetableResponse.body().getBytes(StandardCharsets.UTF_8));
-        List<String> result;
+    public ResponseEntity<Void> uploadTimetable(@Parameter(hidden = true)
+                                                @SessionAttribute("UserId") Long userId,
+                                                @RequestBody String timetableUrl) {
         try {
-            result = timetableService.getCalInfoFromIcs(timetableStream);
-            timetableService.populateCourses(userId, result);
+            timetableUrl = URLDecoder.decode(timetableUrl,
+                                             StandardCharsets.UTF_8.toString()).replace("=", "");
+            HttpRequest timetableRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(timetableUrl))
+                    .GET()
+                    .build();
+            HttpResponse<String> timetableResponse = HttpClient.newBuilder()
+                    .build()
+                    .send(timetableRequest, HttpResponse.BodyHandlers.ofString());
+            InputStream timetableStream = new ByteArrayInputStream(timetableResponse.body()
+                                                                                    .getBytes(StandardCharsets.UTF_8));
+            List<String> result;
+            result = this.timetableService.getCalInfoFromIcs(timetableStream);
+            this.timetableService.populateCourses(userId, result);
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (ParserException e) {
+        } catch (ParserException | IOException | InterruptedException | IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Timetable URL is invalid");
-        }catch(NoSuchElementException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user");
+        } catch (NoSuchElementException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
     }
 
     @Operation(summary = "Delete method to withdraw course courseId from user userId")
     @DeleteMapping(path = "/course/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CourseDTO> deleteCourse (@SessionAttribute("UserId") Long userId,
-                                                   @PathVariable("id") Long courseId) {
+    public ResponseEntity<Void> deleteCourse(@SessionAttribute("UserId") Long userId,
+                                             @PathVariable("id") Long courseId) {
         try {
-            if (timetableService.deleteCourse(userId, courseId))
-                return new ResponseEntity<>(HttpStatus.OK);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");
+            this.isCourseValid(courseId);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");
+        }
+
+        try{
+            this.timetableService.deleteCourse(userId, courseId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
     }
 
     @Operation(summary = "Post method to upload a course .isc file for the current user")
     @PostMapping(path="users/upload/file")
-    public ResponseEntity<Void> uploadTimetableFile(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId,
-                                                    @RequestParam("file") MultipartFile file) throws IOException {
-        InputStream timetableStream = new ByteArrayInputStream(file.getBytes());
+    public ResponseEntity<Void> uploadTimetableFile(@Parameter(hidden = true)
+                                                    @SessionAttribute("UserId") Long userId,
+                                                    @RequestParam("file") MultipartFile file) {
         try {
-            List<String> result = timetableService.getCalInfoFromIcs(timetableStream);
-            timetableService.populateCourses(userId, result);
+            InputStream timetableStream = new ByteArrayInputStream(file.getBytes());
+            List<String> result = this.timetableService.getCalInfoFromIcs(timetableStream);
+            this.timetableService.populateCourses(userId, result);
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (ParserException e) {
+        } catch (ParserException | IOException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Timetable file is invalid");
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user");
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
     }
 }

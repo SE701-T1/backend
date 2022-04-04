@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
 public class BuddyMatcherApplication {
 
-
     @Value( "${socketio.host}" )
     private String socketIOHost;
 
@@ -35,6 +34,4 @@ public class BuddyMatcherApplication {
     public static void main(String[] args) {
         SpringApplication.run(BuddyMatcherApplication.class, args);
     }
-
 }
-
