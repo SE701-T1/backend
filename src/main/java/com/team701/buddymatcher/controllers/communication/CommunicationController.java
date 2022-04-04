@@ -1,7 +1,6 @@
 package com.team701.buddymatcher.controllers.communication;
 
 import com.team701.buddymatcher.domain.communication.Message;
-import com.team701.buddymatcher.domain.users.Buddies;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.dtos.communication.ChatDTO;
 import com.team701.buddymatcher.dtos.communication.MessageDTO;
