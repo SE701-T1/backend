@@ -112,5 +112,10 @@ public class CommunicationControllerIntegrationTest {
                         .sessionAttrs(Collections.singletonMap("UserId", 1)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
+
+        // Test when the input user is not found
+        mvc.perform(delete("/api/communication/messages/{id}",4)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1)))
+                .andExpect(status().isNotFound());
     }
 }
