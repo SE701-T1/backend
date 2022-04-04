@@ -97,21 +97,11 @@ public class CommunicationController {
                                                    @SessionAttribute("UserId") Long userId, 
                                                    @PathVariable("id") Long buddyId) {
         try {
-            // Check if the targeted user is valid/a buddy
-            List<User> buddies = userService.retrieveBuddiesByUserId(userId);
-            boolean isValid = false;
-            for (int i = 0; i < buddies.size(); i++) {
-                if (buddies.get(i).getId() == buddyId) {
-                    isValid = true;
-                    break;
-                }
-            }
-            if (isValid) {
-                communicationService.deleteMessagesBetweenUsers(userId, buddyId);
-                return new ResponseEntity<>(HttpStatus.OK);
-            } else {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Buddy not found");
-            }
+            // Check if the targeted user is valid
+            userService.retrieveById(buddyId);
+            
+            communicationService.deleteMessagesBetweenUsers(userId, buddyId);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (NoSuchElementException e) {
           throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
