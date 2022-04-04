@@ -167,6 +167,24 @@ public class UserControllerIntegrationTest {
                         .sessionAttrs(Collections.singletonMap("UserId", 1))
                         .queryParam("reportInfo", "This is still another test."))
                 .andExpect(status().isOk());
+
+        // Test that a POST request for user 999 to report user 2 returns 404 Not Found
+        mvc.perform(post("/api/users/report/{id}", 2)
+                        .sessionAttrs(Collections.singletonMap("UserId", 999))
+                        .queryParam("reportInfo", "This is still another test."))
+                .andExpect(status().isNotFound());
+
+        // Test that a POST request for user 1 to report user 999 returns 404 Not Found
+        mvc.perform(post("/api/users/report/{id}", 999)
+                        .sessionAttrs(Collections.singletonMap("UserId", 1))
+                        .queryParam("reportInfo", "This is still another test."))
+                .andExpect(status().isNotFound());
+
+        // Test that a POST request for user 999 to report user 2 returns 404 Not Found
+        mvc.perform(post("/api/users/report/{id}", 2)
+                        .sessionAttrs(Collections.singletonMap("UserId", "null"))
+                        .queryParam("reportInfo", "This is still another test."))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

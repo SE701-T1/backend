@@ -127,7 +127,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void reportBuddy(Long userReportingId, Long userReportedId, String reportInfo) throws NoSuchElementException {
-        reportedBuddiesRepository.addReportedBuddy(userReportingId, userReportedId, reportInfo);
+        this.retrieveById(userReportedId); // this checks if reported user ID exists in database
+        this.retrieveById(userReportingId); // this checks if reporting user ID exists in database
+        this.reportedBuddiesRepository.addReportedBuddy(userReportingId, userReportedId, reportInfo);
     }
 
     /**
