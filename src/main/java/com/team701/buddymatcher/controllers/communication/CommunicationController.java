@@ -92,7 +92,9 @@ public class CommunicationController {
 
     @Operation(summary = "Delete method to delete a user's conversation")
     @DeleteMapping(path = "/messages/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> deleteUserMessages(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @PathVariable("id") Long buddyId) {
+    public ResponseEntity<Void> deleteUserMessages(@Parameter(hidden = true) 
+                                                   @SessionAttribute("UserId") Long userId, 
+                                                   @PathVariable("id") Long buddyId) {
         try {
             communicationService.deleteMessagesBetweenUsers(userId, buddyId);
             return new ResponseEntity<>(HttpStatus.OK);
