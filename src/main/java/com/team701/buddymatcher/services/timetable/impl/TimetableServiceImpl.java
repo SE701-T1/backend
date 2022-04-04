@@ -10,7 +10,6 @@ import com.team701.buddymatcher.services.users.UserService;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.Property;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
@@ -36,7 +34,8 @@ public class TimetableServiceImpl implements TimetableService {
     private final UserService userService;
 
     @Autowired
-    public TimetableServiceImpl(CourseRepository courseRepository, BuddiesRepository buddiesRepository,
+    public TimetableServiceImpl(CourseRepository courseRepository,
+                                BuddiesRepository buddiesRepository,
                                 UserService userService) {
         this.buddiesRepository = buddiesRepository;
         this.courseRepository = courseRepository;
@@ -52,7 +51,6 @@ public class TimetableServiceImpl implements TimetableService {
 
     /**
      * This method parses the input .ics stream and retrieves the course names from the file.
-     *
      * @param input An input stream containing ics data
      * @return A list of string that contains the courses from the ics file.
      */
@@ -63,42 +61,32 @@ public class TimetableServiceImpl implements TimetableService {
         calendar = builder.build(input);
 
         Set<String> result = new HashSet<>();
-
-        for (Iterator i = calendar.getComponents().iterator(); i.hasNext(); ) {
-            Component component = (Component) i.next();
-
-            for (Iterator j = component.getProperties().iterator(); j.hasNext(); ) {
-                try {
-                    String event;
-                    Property property = (Property) j.next();
-                    if ("SUMMARY".equals(property.getName())) {
-                        event = property.getValue();
-                        result.add(event);
-                    }
-
-                } catch (Exception e) {
-
+        for (net.fortuna.ical4j.model.component.CalendarComponent calendarComponent : calendar.getComponents()) {
+            for (Property value : calendarComponent.getProperties()) {
+                String event;
+                if ("SUMMARY".equals(value.getName())) {
+                    event = value.getValue();
+                    result.add(event);
                 }
             }
         }
-
         return new ArrayList<>(result);
     }
 
     @Transactional
     public void populateCourses(Long studentId, List<String> courseNames) {
-        User user = userService.retrieveById(studentId);
+        User user = this.userService.retrieveById(studentId);
         for (String courseName : courseNames) {
-            Course course = courseRepository.findByName(courseName);
+            Course course = this.courseRepository.findByName(courseName);
 
-            //if the course does not exist in the database, create a new record
+            // if the course does not exist in the database, create a new record
             if (course == null) {
                 Course newCourse = createNewCourse(courseName);
                 newCourse.addNewUser(user);
-                courseRepository.save(newCourse);
+                this.courseRepository.save(newCourse);
             } else {
                 course.addNewUser(user);
-                courseRepository.save(course);
+                this.courseRepository.save(course);
             }
         }
     }
@@ -108,30 +96,31 @@ public class TimetableServiceImpl implements TimetableService {
         newCourse.setName(courseName);
         newCourse.setUpdatedTime(Timestamp.from(Instant.now()));
         //TODO: setup a method of determining semester time, for now its hardcoded
-        newCourse.setSemester("2022 Semester 1");
+        newCourse.setSemester("Semester 1 2022");
         return newCourse;
     }
 
     @Override
     public List<Course> getCourses(Long userId) {
-        return courseRepository.findByUserId(userId);
+        return this.courseRepository.findByUserId(userId);
     }
 
     @Override
-    public Course getCourse(Long courseId) {
-        return courseRepository.findById(courseId).orElseThrow();
+    public Course getCourse(Long courseId) throws NoSuchElementException {
+        return this.courseRepository.findById(courseId).orElseThrow();
     }
 
     @Override
     public Long getBuddyCountFromCourse(Long userId, Long courseId) {
-        Long countUser0 = buddiesRepository.countUser0(userId, courseId);
-        Long countUser1 = buddiesRepository.countUser1(userId, courseId);
-
+        Long countUser0 = this.buddiesRepository.countUser0(userId, courseId);
+        Long countUser1 = this.buddiesRepository.countUser1(userId, courseId);
         return countUser0 + countUser1;
     }
 
-    public List<User> getUsersFromCourseIds(List<Long> courseIds) {
-        return courseRepository.findAllUsersByCourseIds(courseIds);
+    public List<User> getUsersFromCourseIds(List<Long> courseIds) throws NoSuchElementException {
+        for (Long id : courseIds)
+            this.getCourse(id); // check if course ID exists in database
+        return this.courseRepository.findAllUsersByCourseIds(courseIds);
     }
 
     /**
@@ -141,16 +130,15 @@ public class TimetableServiceImpl implements TimetableService {
      */
     @Override
     @Transactional
-    public boolean deleteCourse(Long userId, Long courseId) throws NoSuchElementException {
-        User user = userService.retrieveById(userId);
-        List<Course> courses = getCourses(userId);
+    public void deleteCourse(Long userId, Long courseId) {
+        User user = this.userService.retrieveById(userId);
+        List<Course> courses = this.getCourses(userId);
         for (Course course : courses) {
             if (course.getCourseId() == courseId) {
                 course.removeUser(user);
-                courseRepository.save(course);
-                return true;
+                this.courseRepository.save(course);
+                break;
             }
         }
-        return false;
     }
 }

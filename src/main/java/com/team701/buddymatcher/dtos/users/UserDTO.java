@@ -5,11 +5,11 @@ public class UserDTO {
     private Long id;
     private String name;
     private String email;
-    private Boolean pairingEnabled;
+    private Boolean pairingEnabled = false;
     private Long buddyCount;
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public UserDTO setId(Long id) {
@@ -18,7 +18,7 @@ public class UserDTO {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public UserDTO setName(String name) {
@@ -27,7 +27,7 @@ public class UserDTO {
     }
 
     public String getEmail() {
-        return email;
+        return this.email;
     }
 
     public UserDTO setEmail(String email) {
@@ -36,7 +36,7 @@ public class UserDTO {
     }
 
     public Boolean getPairingEnabled() {
-        return pairingEnabled;
+        return this.pairingEnabled;
     }
 
     public UserDTO setPairingEnabled(Boolean pairingEnabled) {
@@ -45,7 +45,7 @@ public class UserDTO {
     }
 
     public Long getBuddyCount() {
-        return buddyCount;
+        return this.buddyCount;
     }
 
     public UserDTO setBuddyCount(Long buddyCount) {

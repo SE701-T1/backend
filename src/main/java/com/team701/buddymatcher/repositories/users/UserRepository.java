@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -25,7 +24,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "insert into User (user_name, user_email) VALUES (:name, :email)", nativeQuery=true)
     void createUser(@Param("name") String name, @Param("email") String email);
 
-    @Query(value = "SELECT * FROM User u JOIN Buddies b ON b.user_0_id=u.id WHERE b.user_1_id=:userId UNION SELECT * FROM User u JOIN Buddies b ON b.user_1_id=u.id WHERE b.user_0_id=:userId", nativeQuery=true)
+    @Query(value = "SELECT * FROM User u JOIN Buddies b ON b.user_0_id=u.id WHERE b.user_1_id=:userId " +
+            "UNION SELECT * FROM User u JOIN Buddies b ON b.user_1_id=u.id WHERE b.user_0_id=:userId",
+            nativeQuery=true)
     List<User> findBuddies(@Param("userId") Long userId);
 
     /**
@@ -55,7 +56,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @param userBlockerId the ID for the blocking user
      * @return list of User being blocked by the user with ID userBlockerId
      */
-    @Query(value = "SELECT * FROM User u JOIN Blocked_Buddies b ON b.user_blocked_id=u.id WHERE b.user_blocker_id=:userBlockerId",
-            nativeQuery=true)
+    @Query(value = "SELECT * FROM User u JOIN Blocked_Buddies b ON b.user_blocked_id=u.id " +
+            "WHERE b.user_blocker_id=:userBlockerId", nativeQuery=true)
     List<User> getBlockedBuddies(@Param("userBlockerId") Long userBlockerId);
 }

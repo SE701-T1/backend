@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 public class PairingServiceImpl implements PairingService {
 
     private final TimetableService timetableService;
-
     private final UserService userService;
 
     @Autowired
@@ -27,26 +26,26 @@ public class PairingServiceImpl implements PairingService {
         this.timetableService = timetableService;
         this.userService = userService;
     }
+
     @Override
     @Transactional
     public void addBuddy(Long userId, Long buddyId) {
-        userService.addBuddy(userId, buddyId);
+        this.userService.addBuddy(userId, buddyId);
     }
     
     @Override
     public void removeBuddy(Long userId, Long buddyId) {
-        userService.deleteBuddy(userId, buddyId);
+        this.userService.deleteBuddy(userId, buddyId);
     }
 
     @Override
     public List<User> matchBuddy(Long userId, List<Long> courseIds) {
-        List<User> possibleBuddies = timetableService.getUsersFromCourseIds(courseIds);
-        return possibleBuddies;
+        return this.timetableService.getUsersFromCourseIds(courseIds);
     }
 
     @Override
     public List<Long> getBuddyIds(Long userId) {
-        List<User> currentBuddies = userService.retrieveBuddiesByUserId(userId);
-        return currentBuddies.stream().map(user -> user.getId()).collect(Collectors.toList());
+        List<User> currentBuddies = this.userService.retrieveBuddiesByUserId(userId);
+        return currentBuddies.stream().map(User::getId).collect(Collectors.toList());
     }
 }

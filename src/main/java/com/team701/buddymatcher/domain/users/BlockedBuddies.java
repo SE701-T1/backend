@@ -20,6 +20,7 @@ import javax.persistence.JoinColumn;
         @UniqueConstraint(columnNames = {"USER_BLOCKER_ID", "USER_BLOCKED_ID"})
 })
 public class BlockedBuddies {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -7,6 +7,7 @@ import java.util.Objects;
  * Data transfer object for the BlockedBuddies entity
  */
 public class BlockedBuddiesDTO implements Serializable {
+
     private final Long id;
     private final UserDTO userBlocker;
     private final UserDTO userBlocked;
@@ -18,15 +19,15 @@ public class BlockedBuddiesDTO implements Serializable {
     }
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public UserDTO getUserBlocker() {
-        return userBlocker;
+        return this.userBlocker;
     }
 
     public UserDTO getUserBlocked() {
-        return userBlocked;
+        return this.userBlocked;
     }
 
     @Override
@@ -41,7 +42,7 @@ public class BlockedBuddiesDTO implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userBlocker, userBlocked);
+        return Objects.hash(this.id, this.userBlocker, this.userBlocked);
     }
 
     @Override

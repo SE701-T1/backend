@@ -12,5 +12,4 @@ class BuddyMatcherApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }
