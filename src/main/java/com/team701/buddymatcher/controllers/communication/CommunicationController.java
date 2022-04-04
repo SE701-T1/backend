@@ -88,4 +88,20 @@ public class CommunicationController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
     }
+
+    @Operation(summary = "Get method to search all messages sent to a given user by keywords or phrases")
+    @GetMapping(path = "/messages/search/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<MessageDTO>> getMessagesByWords(@Parameter(hidden = true) @SessionAttribute("UserId") Long userId, @PathVariable("id") Long buddyId, @RequestParam("keywords") String keywords) {
+        try {
+            List<Message> messages = communicationService.getMessages(userId, buddyId);
+            List<MessageDTO> messageDTOs = messages.stream()
+                    .filter(message -> message.getContent().toUpperCase().contains(keywords.toUpperCase()))
+                    .map(message -> modelMapper.map(message, MessageDTO.class))
+                    .collect(Collectors.toList());
+
+            return new ResponseEntity<>(messageDTOs, HttpStatus.OK);
+        } catch(NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
 }
