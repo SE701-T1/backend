@@ -136,6 +136,10 @@ public class PairingControllerIntegrationTest {
                 .andExpect(jsonPath("$[2].pairingEnabled").value(true));
     }
 
+    /**
+     * Will also check that buddies are correctly prioritised, with more shared courses appearing first
+     * @throws Exception
+     */
     @Test
     void requestBuddyMatchFromCoursesWithSameStudentInBothCourses() throws Exception {
         mvc.perform(post("/api/pairing/matchBuddy")
@@ -143,13 +147,13 @@ public class PairingControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .sessionAttrs(Collections.singletonMap("UserId", 4)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(2))
-                .andExpect(jsonPath("$[0].name").value("Green Dinosaur"))
-                .andExpect(jsonPath("$[0].email").value("green.dinosaur@gmail.com"))
+                .andExpect(jsonPath("$[0].id").value(3))
+                .andExpect(jsonPath("$[0].name").value("Hiruna Smith"))
+                .andExpect(jsonPath("$[0].email").value("hiruna.smith@gmail.com"))
                 .andExpect(jsonPath("$[0].pairingEnabled").value(true))
-                .andExpect(jsonPath("$[1].id").value(3))
-                .andExpect(jsonPath("$[1].name").value("Hiruna Smith"))
-                .andExpect(jsonPath("$[1].email").value("hiruna.smith@gmail.com"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].name").value("Green Dinosaur"))
+                .andExpect(jsonPath("$[1].email").value("green.dinosaur@gmail.com"))
                 .andExpect(jsonPath("$[1].pairingEnabled").value(true));
     }
 }

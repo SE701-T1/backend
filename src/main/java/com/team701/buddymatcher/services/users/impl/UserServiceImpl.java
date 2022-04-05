@@ -33,6 +33,8 @@ public class UserServiceImpl implements UserService {
         this.reportedBuddiesRepository = reportedBuddiesRepository;
     }
 
+
+
     @Override
     public User retrieveById(Long id) throws NoSuchElementException {
         return this.userRepository.findById(id).orElseThrow();
@@ -54,6 +56,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addUser(String name, String email) throws DataIntegrityViolationException {
         this.userRepository.createUser(name, email);
+    }
+
+    /**
+     * Find all potential buddies for a specific user based on their courses.
+     * Sort by how many common courses users have.
+     * @param userId the user ID of the user looking for potential buddies
+     * @param courseIds the course IDs of the courses the current user is taking
+     * @return a sorted list of buddies who share courses
+     */
+    @Override
+    public List<User> getSortedPotentialBuddies(Long userId, List<Long> courseIds){
+        return this.userRepository.getSortedPotentialBuddies(userId, courseIds);
     }
 
     @Override

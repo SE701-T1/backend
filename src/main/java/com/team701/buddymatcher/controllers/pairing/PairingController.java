@@ -71,7 +71,6 @@ public class PairingController {
              */
             List<UserDTO> matches = results.stream()
                     .filter(User::getPairingEnabled)
-                    .filter(user -> !user.getId().equals(userId))
                     .filter(user -> !currentBuddies.contains(user.getId()))
                     .map(user -> {
                         //Map the user object to a DTO and then set the buddy count
