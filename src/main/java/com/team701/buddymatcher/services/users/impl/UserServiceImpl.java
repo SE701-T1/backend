@@ -143,7 +143,6 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void unblockBuddy(Long userBlockerId, Long userBlockedId) {
-        // Add blocker and blocked user pair to BLOCKED_BUDDIES database table
         blockedBuddiesRepository.removeBlockedBuddy(userBlockerId, userBlockedId);
     }
 }
