@@ -394,7 +394,7 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].pairingEnabled").value(false));
 
         // Then test that a DELETE request for user 2 to unblock user 1 is OK
-        mvc.perform(delete("/api/users/unblock/{id}", 1)
+        mvc.perform(delete("/api/users/block/{id}", 1)
                         .sessionAttrs(Collections.singletonMap("UserId", 2)))
                 .andExpect(status().isOk());
 
@@ -407,19 +407,19 @@ public class UserControllerIntegrationTest {
   
     @Test
     void invalidUnblockUser() throws Exception {
-        mvc.perform(delete("/api/users/unblock/{id}", 9999)
+        mvc.perform(delete("/api/users/block/{id}", 9999)
                         .sessionAttrs(Collections.singletonMap("UserId", 2)))
                 .andExpect(status().isNotFound());
         
-        mvc.perform(delete("/api/users/unblock/{id}", 1)
+        mvc.perform(delete("/api/users/block/{id}", 1)
                         .sessionAttrs(Collections.singletonMap("UserId", 9999)))
                 .andExpect(status().isNotFound());
         
-        mvc.perform(delete("/api/users/unblock/{id}", "null")
+        mvc.perform(delete("/api/users/block/{id}", "null")
                         .sessionAttrs(Collections.singletonMap("UserId", 2)))
                 .andExpect(status().isBadRequest());
         
-        mvc.perform(delete("/api/users/unblock/{id}", 1)
+        mvc.perform(delete("/api/users/block/{id}", 1)
                         .sessionAttrs(Collections.singletonMap("UserId", "null")))
                 .andExpect(status().isBadRequest());
     }
