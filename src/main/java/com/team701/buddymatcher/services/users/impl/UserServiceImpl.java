@@ -142,7 +142,7 @@ public class UserServiceImpl implements UserService {
      * @throws NoSuchElementException when there is no User or Buddy
      */
     @Override
-    public void unblockBuddy(Long userBlockerId, Long userBlockedId) throws NoSuchElementException {
+    public void unblockBuddy(Long userBlockerId, Long userBlockedId) {
         // Add blocker and blocked user pair to BLOCKED_BUDDIES database table
         blockedBuddiesRepository.removeBlockedBuddy(userBlockerId, userBlockedId);
     }

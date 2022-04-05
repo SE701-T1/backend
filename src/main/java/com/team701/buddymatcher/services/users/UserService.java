@@ -36,9 +36,8 @@ public interface UserService {
      * @param userReportingId the user ID of the user reporting the buddy user
      * @param userReportedId  the user ID of the buddy user being reported
      * @param reportInfo      the report information given by the reporting user
-     * @throws NoSuchElementException when there is no User or Buddy
      */
-    void reportBuddy(Long userReportingId, Long userReportedId, String reportInfo) throws NoSuchElementException;
+    void reportBuddy(Long userReportingId, Long userReportedId, String reportInfo);
 
     /**
      * Get a list of users blocked by the user with ID userBlockingId

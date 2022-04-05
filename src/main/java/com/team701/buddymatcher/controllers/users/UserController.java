@@ -323,6 +323,8 @@ public class UserController {
                                              @SessionAttribute("UserId") Long userBlockerId,
                                              @PathVariable("id") Long userBlockedId) {
         try {
+            this.isUserValid(userBlockerId);
+            this.isUserValid(userBlockedId);
             userService.unblockBuddy(userBlockerId, userBlockedId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (NoSuchElementException e) {
