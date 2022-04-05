@@ -118,17 +118,18 @@ public class UserController {
                     .setAudience(Collections.singletonList(CLIENT_ID))
                     .build();
             String idTokenString = request.getHeader("id_token");
+            if (idTokenString == null)
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
             GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken == null)
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
             Payload payload = idToken.getPayload();
 
             // Get profile information from payload
             String email = payload.getEmail();
             String name = (String) payload.get("name");
-            User user;
-            try {
-                // Use or store profile information
-                user = this.userService.retrieveByEmail(email);
-            } catch (NoSuchElementException e) {
+            User user = this.userService.retrieveByEmail(email);
+            if (user == null) {
                 // Persist new user to the database
                 this.userService.addUser(name, email);
                 user = this.userService.retrieveByEmail(email);
@@ -318,7 +319,7 @@ public class UserController {
     }
 
     @Operation(summary = "Delete method for unblocking a user")
-    @DeleteMapping(path = "/unblock/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = "/block/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> unblockBuddy(@Parameter(hidden = true)
                                              @SessionAttribute("UserId") Long userBlockerId,
                                              @PathVariable("id") Long userBlockedId) {
