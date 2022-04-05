@@ -1,6 +1,5 @@
 package com.team701.buddymatcher.services.users;
 
-import com.team701.buddymatcher.domain.users.Buddies;
 import com.team701.buddymatcher.domain.users.User;
 import com.team701.buddymatcher.repositories.users.UserRepository;
 import com.team701.buddymatcher.services.users.impl.UserServiceImpl;
@@ -32,7 +31,6 @@ public class UserServiceImplUnitTest {
         Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(expected));
 
         User user = userService.retrieveById(id);
-
         Assertions.assertNotNull(user);
         Assertions.assertEquals(user, expected);
     }
@@ -41,7 +39,6 @@ public class UserServiceImplUnitTest {
     void retrievingNonExistentUserThrowsException() {
         Long id = new Random().nextLong();
         Mockito.when(userRepository.findById(id)).thenReturn(Optional.empty());
-
         Assertions.assertThrows(NoSuchElementException.class, () -> userService.retrieveById(id));
     }
 
@@ -53,7 +50,6 @@ public class UserServiceImplUnitTest {
         Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(expected));
 
         User user = userService.updatePairingEnabled(id, true);
-
         Assertions.assertNotNull(user);
         Assertions.assertEquals(user.getPairingEnabled(), expected.getPairingEnabled());
     }
@@ -62,8 +58,8 @@ public class UserServiceImplUnitTest {
     void updatingNonExistentUsersPairingEnabled() {
         Long id = new Random().nextLong();
         Mockito.when(userRepository.updatePairingEnabled(id, true)).thenReturn(0);
-
-        Assertions.assertThrows(NoSuchElementException.class, () -> userService.updatePairingEnabled(id, true));
+        Assertions.assertThrows(NoSuchElementException.class,
+                () -> userService.updatePairingEnabled(id, true));
     }
 
     User createExpectedUser(Long id) {

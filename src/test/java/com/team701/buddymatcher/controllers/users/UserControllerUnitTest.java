@@ -27,8 +27,6 @@ public class UserControllerUnitTest {
     @Mock
     private UserService userService;
 
-
-
     @Mock
     private ModelMapper modelMapper;
 
@@ -41,7 +39,6 @@ public class UserControllerUnitTest {
     @Test
     void retrievingExistingUserReturnsCorrectResponseEntity() {
         Long id = new Random().nextLong();
-
         User mockedUser = createMockUser(id);
         when(userService.retrieveById(id)).thenReturn(mockedUser);
 
@@ -49,7 +46,6 @@ public class UserControllerUnitTest {
         when(modelMapper.map(mockedUser, UserDTO.class)).thenReturn(mockedUserDTO);
 
         ResponseEntity<UserDTO> response = userController.retrieveUserById(id);
-
         Assertions.assertNotNull(response);
         Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
         Assertions.assertEquals(response.getBody(), mockedUserDTO);
@@ -58,11 +54,8 @@ public class UserControllerUnitTest {
     @Test
     void retrievingNonExistentUserThrowsException() {
         Long id = new Random().nextLong();
-
         when(userService.retrieveById(id)).thenThrow(new NoSuchElementException());
-
         Assertions.assertThrows(ResponseStatusException.class, () -> userController.retrieveUserById(id));
-
     }
 
     User createMockUser(Long id) {

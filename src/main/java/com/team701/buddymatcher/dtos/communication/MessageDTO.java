@@ -6,6 +6,7 @@ import java.sql.Timestamp;
  * A DTO with info about a message sent between users
  */
 public class MessageDTO {
+
     private Long id;
     private Long senderId;
     private Long receiverId;
@@ -14,7 +15,7 @@ public class MessageDTO {
     private Boolean isRead;
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public MessageDTO setId(Long id) {
@@ -23,7 +24,7 @@ public class MessageDTO {
     }
 
     public Long getSenderId() {
-        return senderId;
+        return this.senderId;
     }
 
     public MessageDTO setSenderId(Long senderId) {
@@ -32,7 +33,7 @@ public class MessageDTO {
     }
 
     public Long getReceiverId() {
-        return receiverId;
+        return this.receiverId;
     }
 
     public MessageDTO setReceiverId(Long receiverId) {
@@ -41,7 +42,7 @@ public class MessageDTO {
     }
 
     public Timestamp getTimestamp() {
-        return timestamp;
+        return this.timestamp;
     }
 
     public MessageDTO setTimestamp(Timestamp timestamp) {
@@ -50,7 +51,7 @@ public class MessageDTO {
     }
 
     public String getContent() {
-        return content;
+        return this.content;
     }
 
     public MessageDTO setContent(String content) {
@@ -59,11 +60,11 @@ public class MessageDTO {
     }
 
     public Boolean getRead() {
-        return isRead;
+        return this.isRead;
     }
 
     public MessageDTO setRead(Boolean read) {
-        isRead = read;
+        this.isRead = read;
         return this;
     }
 }

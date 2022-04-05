@@ -23,7 +23,8 @@ public interface BlockedBuddiesRepository extends JpaRepository<BlockedBuddies, 
      */
     @Transactional
     @Modifying
-    @Query(value = "INSERT INTO Blocked_Buddies (user_blocker_id, user_blocked_id) VALUES (:userBlockerId, :userBlockedId)",
+    @Query(value = "INSERT INTO Blocked_Buddies (user_blocker_id, user_blocked_id) " +
+            "VALUES (:userBlockerId, :userBlockedId)",
             nativeQuery=true)
     void addBlockedBuddy(@Param("userBlockerId") Long userBlockerId, @Param("userBlockedId") Long userBlockedId);
 

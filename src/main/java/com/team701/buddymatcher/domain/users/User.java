@@ -2,7 +2,13 @@ package com.team701.buddymatcher.domain.users;
 
 import com.team701.buddymatcher.domain.timetable.Course;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+import javax.persistence.ManyToMany;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,7 +33,7 @@ public class User {
     private Set<Course> courses = new HashSet<>();
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public User setId(Long id) {
@@ -36,7 +42,7 @@ public class User {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public User setName(String name) {
@@ -45,7 +51,7 @@ public class User {
     }
 
     public String getEmail() {
-        return email;
+        return this.email;
     }
 
     public User setEmail(String email) {
@@ -53,9 +59,8 @@ public class User {
         return this;
     }
 
-
     public Boolean getPairingEnabled() {
-        return pairingEnabled;
+        return this.pairingEnabled;
     }
 
     public User setPairingEnabled(Boolean pairingEnabled) {
@@ -64,7 +69,7 @@ public class User {
     }
 
     public Set<Course> getCourses() {
-        return courses;
+        return this.courses;
     }
 
     public User setCourses(Set<Course> courses) {

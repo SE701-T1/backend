@@ -8,16 +8,21 @@ import net.fortuna.ical4j.data.ParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public interface TimetableService {
+
     Timetable retrieve(String userId);
+
     List<String> getCalInfoFromIcs(InputStream input) throws ParserException, IOException;
+
     void populateCourses(Long studentId, List<String> courseNames);
 
     List<Course> getCourses(Long userId);
-    Course getCourse(Long courseId);
 
-    List<User> getUsersFromCourseIds(List<Long> courseIds);
+    Course getCourse(Long courseId) throws NoSuchElementException;
+
+    List<User> getUsersFromCourseIds(List<Long> courseIds) throws NoSuchElementException;
 
     Long getBuddyCountFromCourse(Long userId, Long courseId);
 
@@ -26,5 +31,5 @@ public interface TimetableService {
      * @param userId the ID of the user the course is removed from
      * @param courseId the ID of the course being removed from the user
      */
-    boolean deleteCourse(Long userId, Long courseId);
+    void deleteCourse(Long userId, Long courseId);
 }

@@ -26,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class ValidateControllerIntegrationTest {
 
-
     @MockBean
     UserInterceptor interceptor;
 
@@ -38,32 +37,40 @@ public class ValidateControllerIntegrationTest {
 
     private static final JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
 
-
-
     @BeforeEach
-    void initTest() throws Exception {
+    void initTest() {
         mvc = MockMvcBuilders
                 .standaloneSetup(validateController)
                 .addInterceptors(interceptor).build();
         when(interceptor.preHandle(any(), any(), any())).thenReturn(true);
-
     }
+
     @Test
     void validateValidToken() throws Exception {
         String token = createValidToken();
-
         mvc.perform(get("/api/validate")
-                        .header("Authorization", "Bearer " +token))
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void validateInvalidToken() throws Exception {
-        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
+                "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4g" +
+                "RG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKK" +
+                "F2QT4fwpMeJf36POk6yJV_adQssw5c";
 
         mvc.perform(get("/api/validate")
-                        .header("Authorization", "Bearer " +token))
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isUnauthorized());
+
+        mvc.perform(get("/api/validate")
+                        .header("Authorization", "Bearer " + null))
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(get("/api/validate")
+                        .header("Authorization", ""))
+                .andExpect(status().isBadRequest());
     }
 
     private String createValidToken() {
@@ -71,7 +78,6 @@ public class ValidateControllerIntegrationTest {
                 .setId(new Random().nextLong())
                 .setName("Pink Elephant")
                 .setEmail("pink.elephant@gmail.com");
-
         return jwtTokenUtil.generateToken(user);
     }
 }
