@@ -38,9 +38,8 @@ public class PairingServiceImpl implements PairingService {
         this.userService.deleteBuddy(userId, buddyId);
     }
 
-    @Override
     public List<User> matchBuddy(Long userId, List<Long> courseIds) {
-        return this.timetableService.getUsersFromCourseIds(courseIds);
+        return this.userService.getSortedPotentialBuddies(userId, courseIds);
     }
 
     @Override

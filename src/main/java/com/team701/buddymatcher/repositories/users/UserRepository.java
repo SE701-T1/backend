@@ -59,4 +59,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT * FROM User u JOIN Blocked_Buddies b ON b.user_blocked_id=u.id " +
             "WHERE b.user_blocker_id=:userBlockerId", nativeQuery=true)
     List<User> getBlockedBuddies(@Param("userBlockerId") Long userBlockerId);
+
+    /**
+     * Find all potential buddies for a specific user based on their courses. Sort by how many common courses users
+     * have in descending order.
+     * @param userId the user ID of the user looking for potential buddies
+     * @param courseIds the course IDs of the courses the current user is taking
+     * @return a sorted list of buddies who share courses
+     */
+    @Query(value = "SELECT u, COUNT(u) as matches from User u JOIN u.courses c WHERE c.courseId IN ?2 " +
+            "AND u.id <> ?1 GROUP BY u.id ORDER BY matches DESC")
+    List<User> getSortedPotentialBuddies(@Param("userId") Long userId, @Param("courseIds")List<Long> courseIds);
 }
