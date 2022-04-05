@@ -372,6 +372,59 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
+    void unblockUser() throws Exception {
+        // First test that the first buddy returned from a GET request for user 2 is user 1
+        mvc.perform(get("/api/users/buddy")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1));
+
+        // Then test that a POST request for user 2 to block user 1 is OK
+        mvc.perform(post("/api/users/block/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk());
+
+        // Then test that a GET request for user 2 returns user 1
+        mvc.perform(get("/api/users/block")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Pink Elephant"))
+                .andExpect(jsonPath("$[0].email").value("pink.elephant@gmail.com"))
+                .andExpect(jsonPath("$[0].pairingEnabled").value(false));
+
+        // Then test that a DELETE request for user 2 to unblock user 1 is OK
+        mvc.perform(delete("/api/users/unblock/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk());
+
+        // Then test that a GET request for user 2 returns none
+        mvc.perform(get("/api/users/block")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fieldThatShouldNotExist").doesNotExist());
+    }
+  
+    @Test
+    void invalidUnblockUser() throws Exception {
+        mvc.perform(delete("/api/users/unblock/{id}", 9999)
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isNotFound());
+        
+        mvc.perform(delete("/api/users/unblock/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", 9999)))
+                .andExpect(status().isNotFound());
+        
+        mvc.perform(delete("/api/users/unblock/{id}", "null")
+                        .sessionAttrs(Collections.singletonMap("UserId", 2)))
+                .andExpect(status().isBadRequest());
+        
+        mvc.perform(delete("/api/users/unblock/{id}", 1)
+                        .sessionAttrs(Collections.singletonMap("UserId", "null")))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void getInvalidBlockedUsers() throws Exception {
         mvc.perform(get("/api/users/buddy")
                         .sessionAttrs(Collections.singletonMap("UserId", 9999)))

@@ -316,4 +316,19 @@ public class UserController {
                     .collect(Collectors.toList());
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
     }
+
+    @Operation(summary = "Delete method for unblocking a user")
+    @DeleteMapping(path = "/unblock/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> unblockBuddy(@Parameter(hidden = true)
+                                             @SessionAttribute("UserId") Long userBlockerId,
+                                             @PathVariable("id") Long userBlockedId) {
+        try {
+            this.isUserValid(userBlockerId);
+            this.isUserValid(userBlockedId);
+            userService.unblockBuddy(userBlockerId, userBlockedId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
 }

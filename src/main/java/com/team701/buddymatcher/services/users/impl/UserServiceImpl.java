@@ -91,9 +91,9 @@ public class UserServiceImpl implements UserService {
             throw new NoSuchElementException("Cannot be a buddy of yourself");
         }
         if (user0Id > user1Id) {
-            return new Long[] {user1Id, user0Id};
+            return new Long[]{user1Id, user0Id};
         }
-        return new Long[] {user0Id, user1Id};
+        return new Long[]{user0Id, user1Id};
     }
 
     /**
@@ -133,5 +133,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getBlockedBuddies(Long userBlockingId) {
         return this.userRepository.getBlockedBuddies(userBlockingId);
+    }
+
+    /**
+     * Unblock a user. Remove existing match, and remove the blocking user and blocked user paired to BLOCKED_BUDDIES tables.
+     * @param userBlockerId the user ID of the user blocking the buddy user
+     * @param userBlockedId the user ID of the buddy user being blocked
+     * @throws NoSuchElementException when there is no User or Buddy
+     */
+    @Override
+    public void unblockBuddy(Long userBlockerId, Long userBlockedId) {
+        blockedBuddiesRepository.removeBlockedBuddy(userBlockerId, userBlockedId);
     }
 }

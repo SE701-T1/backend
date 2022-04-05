@@ -36,9 +36,8 @@ public interface UserService {
      * @param userReportingId the user ID of the user reporting the buddy user
      * @param userReportedId  the user ID of the buddy user being reported
      * @param reportInfo      the report information given by the reporting user
-     * @throws NoSuchElementException when there is no User or Buddy
      */
-    void reportBuddy(Long userReportingId, Long userReportedId, String reportInfo) throws NoSuchElementException;
+    void reportBuddy(Long userReportingId, Long userReportedId, String reportInfo);
 
     /**
      * Get a list of users blocked by the user with ID userBlockingId
@@ -46,4 +45,11 @@ public interface UserService {
      * @return list of User being blocked by the user with ID userBlockingId
      */
     List<User> getBlockedBuddies(Long userBlockingId);
+
+    /**
+     * Unblock a user. Remove the blocking user and blocked user paired in BLOCKED_BUDDIES tables.
+     * @param userBlockerId the user ID of the user blocking the buddy user
+     * @param userBlockedId the user ID of the buddy user being blocked
+     */
+    void unblockBuddy(Long userBlockerId, Long userBlockedId);
 }
